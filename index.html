@@ -91,6 +91,24 @@ body:has(#todayView.active) nav button{color:#6d6963!important;-webkit-text-fill
 #todayView #timeline .chip{background:#ffffff70;color:#4c514b}
 #todayView #timeline .tiny{background:#ffffff62;color:#514e49!important;-webkit-text-fill-color:#514e49!important}
 .pullrefresh{background:#d8cbbb;color:#4d4b45;box-shadow:0 6px 24px #55402f35}
+
+/* legible sync + subtle autumn leaves + playful block-drop entrance */
+#authGate{background:#e3d1bcf2!important;border:1px solid #fff9!important;color:#343a35!important;box-shadow:0 16px 38px #60482e25!important}
+#authGate h2,#authGate .note,#authGate .why,#authGate label,#authStatus{color:#4f514b!important;-webkit-text-fill-color:#4f514b!important}
+#authGate .why,#authStatus{opacity:.88}
+#authGate input{background:#f2e9dd!important;color:#303832!important;-webkit-text-fill-color:#303832!important;border:1px solid #bda991!important}
+#authGate input::placeholder{color:#80776d!important;-webkit-text-fill-color:#80776d!important}
+#authGate .confirm{background:#b9653e!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+#dismissSync{color:#615b53!important;-webkit-text-fill-color:#615b53!important}
+body:before,body:after{position:fixed;z-index:-1;pointer-events:none;opacity:.13;filter:blur(.15px);font-size:27px;line-height:2.8;letter-spacing:34px;transform:rotate(-13deg)}
+body:before{content:"🍂  🍁   🍃";left:-8px;top:17%;width:170px}
+body:after{content:"🍁   🍂  🍃";right:-22px;top:55%;width:165px;transform:rotate(16deg)}
+@keyframes blockDrop{0%{opacity:0;transform:translateY(-65px) rotate(var(--drop-r)) scale(.97)}62%{opacity:1;transform:translateY(7px) rotate(calc(var(--drop-r) * 1.3)) scale(1.01)}82%{transform:translateY(-3px) rotate(calc(var(--drop-r) * .75))}100%{opacity:1;transform:translateY(0) rotate(var(--rest-r))}}
+#todayView.active .top{--drop-r:-3deg;--rest-r:-.35deg;animation:blockDrop .58s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active>.card{--drop-r:3deg;--rest-r:.28deg;animation:blockDrop .64s .07s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active .quickhome{--drop-r:-2.5deg;--rest-r:-.22deg;animation:blockDrop .7s .14s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active .heroBtns .heroBtn:nth-child(1){transform:rotate(-.7deg)}#todayView.active .heroBtns .heroBtn:nth-child(2){transform:rotate(.8deg)}#todayView.active .heroBtns .heroBtn:nth-child(3){transform:rotate(-.45deg)}#todayView.active .heroBtns .heroBtn:nth-child(4){transform:rotate(.55deg)}#todayView.active .heroBtns .heroBtn:nth-child(5){transform:rotate(-.6deg)}#todayView.active .heroBtns .heroBtn:nth-child(6){transform:rotate(.4deg)}
+@media (prefers-reduced-motion:reduce){#todayView.active .top,#todayView.active>.card,#todayView.active .quickhome{animation:none}}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><main class="app">
 <section id="authGate" class="card" style="margin-top:10px;position:relative"><button id="dismissSync" class="syncClose" aria-label="Close">×</button><h2>Family sync</h2><div id="authStatus" class="note">Checking sign-in…</div><div id="authForm" style="display:none"><div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div><button id="emailLogin" class="confirm">Email me a sign-in link</button><div class="why" style="margin-top:8px">No password to remember. Open the email on this iPhone and tap the link.</div></div><div id="joinForm" style="display:none"><div class="field"><label>Family code</label><input id="joinCode" autocapitalize="characters" placeholder="Enter family code"></div><button id="joinFamily" class="confirm">Join Luca's family</button></div><div id="syncReady" style="display:none"><div class="chips"><span class="chip">☁️ Shared family timeline</span></div><button id="signOut" class="tiny" style="margin-top:9px">Sign out</button></div></section><section id="todayView" class="view active"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Today</h1></div><div class="icon">🍼</div></header>
 <section class="card"><div class="muted">Estimated next feed</div><div class="next" id="next">—</div><div class="why" id="why">Log feeds and Luca's personal rhythm will appear here.</div><div class="stats"><div class="stat"><b id="oz">0</b><small>oz today</small></div><div class="stat"><b id="feeds">0</b><small>feeds</small></div><div class="stat"><b id="poops">0</b><small>poops</small></div></div></section>
