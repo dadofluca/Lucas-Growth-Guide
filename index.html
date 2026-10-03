@@ -369,7 +369,7 @@ $("#dismissSync").onclick=()=>{sessionStorage.setItem("hideSync","1");$("#authGa
 #introToy{display:none!important}
 #cinematicIntro{position:fixed;inset:0;z-index:9999;background:#1b1712;overflow:hidden;display:grid;place-items:center;opacity:1;transition:opacity .8s cubic-bezier(.4,0,.2,1);pointer-events:auto}
 #cinematicIntro.done{opacity:0;pointer-events:none}
-#cinematicIntro video{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+#cinematicIntro video{width:100%;height:auto;max-height:100%;object-fit:contain;object-position:center center;display:block;background:#1b1712}
 #cinematicIntro .cinematicBrand{position:absolute;left:0;right:0;bottom:calc(8% + env(safe-area-inset-bottom));text-align:center;color:#fff8ee;text-shadow:0 2px 18px #2b180dcc;opacity:0;transform:translateY(8px);transition:opacity .65s ease,transform .65s ease;pointer-events:none}
 #cinematicIntro.brand .cinematicBrand{opacity:1;transform:none}
 #cinematicIntro .cinematicBrand b{display:block;font-size:24px;letter-spacing:-.02em}
@@ -380,14 +380,14 @@ $("#dismissSync").onclick=()=>{sessionStorage.setItem("hideSync","1");$("#authGa
 <script>
 (function(){
  const old=document.getElementById("introToy");if(old)old.style.display="none";
- const wrap=document.createElement("div");wrap.id="cinematicIntro";wrap.innerHTML='<video id="lucaIntroVideo" autoplay muted playsinline preload="auto"><source src="./_users_803fdf06-6ee2-4297-99b9-aa64773c46d3_generated_b2f0190c-3804-4341-a88f-70372bc9cfdf_generated_video.mp4" type="video/mp4"></video><div class="cinematicBrand"><b>Luca\'s Growth Guide</b><span>Our little world</span></div><button id="cinematicSkip" type="button" aria-label="Skip intro">Skip</button>';
+ const wrap=document.createElement("div");wrap.id="cinematicIntro";wrap.innerHTML='<video id="lucaIntroVideo" autoplay muted playsinline webkit-playsinline preload="auto" src="./_users_803fdf06-6ee2-4297-99b9-aa64773c46d3_generated_b2f0190c-3804-4341-a88f-70372bc9cfdf_generated_video.mp4?v=2"></video><div class="cinematicBrand"><b>Luca\'s Growth Guide</b><span>Our little world</span></div><button id="cinematicSkip" type="button" aria-label="Skip intro">Skip</button>';
  document.body.appendChild(wrap);
  const v=document.getElementById("lucaIntroVideo"),skip=document.getElementById("cinematicSkip");let finished=false;
  function finish(){if(finished)return;finished=true;wrap.classList.add("brand");setTimeout(()=>{wrap.classList.add("done");setTimeout(()=>wrap.remove(),850)},650)}
  skip.addEventListener("click",finish);
  v.addEventListener("timeupdate",()=>{if(v.duration&&v.currentTime>Math.max(0,v.duration-1.45))wrap.classList.add("brand")});
  v.addEventListener("ended",finish);v.addEventListener("error",finish);
- v.muted=true;v.defaultMuted=true;v.setAttribute("muted","");
+ v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("muted","");v.setAttribute("playsinline","");v.load();
  function startVideo(){const p=v.play();if(p&&p.catch)p.catch(()=>{})}
  if(v.readyState>=2)startVideo();else v.addEventListener("canplay",startVideo,{once:true});
  setTimeout(startVideo,500);
