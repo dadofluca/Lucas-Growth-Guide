@@ -1,4 +1,4 @@
-const CACHE="luca-v11-cinematic-polish";
+const CACHE="luca-v12-local-supplies";
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
