@@ -53,6 +53,44 @@ body{background:
 body:has(#todayView.active) nav{left:50%;bottom:calc(8px + env(safe-area-inset-bottom));width:min(490px,calc(100% - 24px));border:1px solid #ffffff18;border-radius:26px;padding:6px 8px;background:#252a28cc;box-shadow:0 12px 38px #0006,inset 0 1px #ffffff18;backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)}
 body:has(#todayView.active) nav button{color:#aaa49d!important;-webkit-text-fill-color:#aaa49d!important;border-radius:18px}
 body:has(#todayView.active) nav .active{color:#ffd4b6!important;-webkit-text-fill-color:#ffd4b6!important;background:#ffffff0d}
+
+/* Warm mid-tone theme: softer than cream, brighter than dusk */
+html{background:#d9cbbb}
+body{background:
+ radial-gradient(circle at 12% 0%,#e7c9ad88,transparent 34%),
+ radial-gradient(circle at 92% 20%,#c8d4c188,transparent 31%),
+ linear-gradient(180deg,#d8cabb 0%,#d2c7b8 48%,#c9bbaa 100%);color:#3d423e}
+.app{background:transparent}
+#todayView .top .kicker{color:#80654f}#todayView .top h1{color:#343b36}
+#todayView .icon{background:linear-gradient(145deg,#d99060,#d6aa75);box-shadow:inset 0 1px #ffffff70,0 8px 22px #76533325}
+#todayView>.card{background:#eee5d9b8;border:1px solid #ffffff72;box-shadow:0 14px 35px #604a3420,inset 0 1px #fff8}
+#todayView>.card .muted,#todayView>.card .why{color:#766e66}
+#todayView>.card .next{color:#39483e}
+#todayView>.card .stat{background:#d8ccbd99}.stat small{color:#786f67}
+#todayView .quickhome{background:linear-gradient(145deg,#e9dfd1d9,#ddd7cbd9);border:1px solid #ffffff80;box-shadow:0 18px 45px #5d493226,inset 0 1px #ffffffa0}
+#todayView .quickhome:before{background:#c98250;opacity:.14}
+#todayView .heroNext .muted{color:#7f674f}#todayView .heroNext .next{color:#38493d;text-shadow:none}#todayView .heroNext .why{color:#746d65}
+#todayView .heroInput>h2{color:#394039}
+#todayView .heroInput .microw{background:#f1e9deb8;border:1px solid #ffffff9c;box-shadow:inset 0 1px #fff9,0 8px 22px #66503a18}
+#todayView .heroInput .microw textarea{background:transparent!important;color:#343b36!important;-webkit-text-fill-color:#343b36!important}
+#todayView .heroInput .microw textarea::placeholder{color:#8b8177;-webkit-text-fill-color:#8b8177}
+#todayView .mic{background:#d6d1c8aa;color:#4d5d52!important;-webkit-text-fill-color:#4d5d52!important;border:1px solid #ffffff7a}
+#todayView #quickUnderstand{background:linear-gradient(180deg,#cf7e4e,#bc663b)}
+#todayView .heroBtn{color:#464842!important;-webkit-text-fill-color:#464842!important;border:1px solid #ffffff70;box-shadow:inset 0 1px #ffffff70}
+#todayView .heroBtn:nth-child(1){background:#ddc8adcc!important}#todayView .heroBtn:nth-child(2){background:#dfb9a7cc!important}#todayView .heroBtn:nth-child(3){background:#bdcbb6cc!important}#todayView .heroBtn:nth-child(4){background:#dfcf9fcc!important}#todayView .heroBtn:nth-child(5){background:#c9bfd1cc!important}#todayView .heroBtn:nth-child(6){background:#d1c8bdcc!important}
+body:has(#todayView.active) nav{background:#d9d1c5e8;border:1px solid #ffffff80;box-shadow:0 12px 34px #54433230,inset 0 1px #ffffffa0}
+body:has(#todayView.active) nav button{color:#6d6963!important;-webkit-text-fill-color:#6d6963!important}body:has(#todayView.active) nav .active{color:#9d5737!important;-webkit-text-fill-color:#9d5737!important;background:#eee3d6aa}
+/* Timeline gets visual rhythm instead of one continuous dark list */
+#todayView>section.card:last-child{background:transparent;border:0;box-shadow:none;padding:4px;margin-top:18px}
+#todayView #timeline .entry{margin:9px 0;padding:14px;border:1px solid #ffffff72;border-radius:20px;background:#e5dacdbd;box-shadow:0 7px 18px #5f49331a}
+#todayView #timeline .entry:nth-child(4n+1){background:#e1d0b9c9}
+#todayView #timeline .entry:nth-child(4n+2){background:#cbd7c5c9}
+#todayView #timeline .entry:nth-child(4n+3){background:#dfc3b5c9}
+#todayView #timeline .entry:nth-child(4n){background:#d6cdddcc}
+#todayView #timeline .entrytop,#todayView #timeline .note{color:#424741}
+#todayView #timeline .chip{background:#ffffff70;color:#4c514b}
+#todayView #timeline .tiny{background:#ffffff62;color:#514e49!important;-webkit-text-fill-color:#514e49!important}
+.pullrefresh{background:#d8cbbb;color:#4d4b45;box-shadow:0 6px 24px #55402f35}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><main class="app">
 <section id="authGate" class="card" style="margin-top:10px;position:relative"><button id="dismissSync" class="syncClose" aria-label="Close">×</button><h2>Family sync</h2><div id="authStatus" class="note">Checking sign-in…</div><div id="authForm" style="display:none"><div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div><button id="emailLogin" class="confirm">Email me a sign-in link</button><div class="why" style="margin-top:8px">No password to remember. Open the email on this iPhone and tap the link.</div></div><div id="joinForm" style="display:none"><div class="field"><label>Family code</label><input id="joinCode" autocapitalize="characters" placeholder="Enter family code"></div><button id="joinFamily" class="confirm">Join Luca's family</button></div><div id="syncReady" style="display:none"><div class="chips"><span class="chip">☁️ Shared family timeline</span></div><button id="signOut" class="tiny" style="margin-top:9px">Sign out</button></div></section><section id="todayView" class="view active"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Today</h1></div><div class="icon">🍼</div></header>
 <section class="card"><div class="muted">Estimated next feed</div><div class="next" id="next">—</div><div class="why" id="why">Log feeds and Luca's personal rhythm will appear here.</div><div class="stats"><div class="stat"><b id="oz">0</b><small>oz today</small></div><div class="stat"><b id="feeds">0</b><small>feeds</small></div><div class="stat"><b id="poops">0</b><small>poops</small></div></div></section>
