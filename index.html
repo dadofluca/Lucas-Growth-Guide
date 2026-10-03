@@ -375,7 +375,7 @@ $("#dismissSync").onclick=()=>{sessionStorage.setItem("hideSync","1");$("#authGa
 #cinematicIntro .cinematicBrand b{display:block;font-size:24px;letter-spacing:-.02em}
 #cinematicIntro .cinematicBrand span{display:block;margin-top:5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.78}
 #cinematicSkip{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));border:1px solid #ffffff38;background:#2b2118a6;color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-@media(prefers-reduced-motion:reduce){#cinematicIntro{display:none!important}}
+@media(prefers-reduced-motion:reduce){#cinematicIntro{transition:none}}
 </style>
 <script>
 (function(){
@@ -387,7 +387,10 @@ $("#dismissSync").onclick=()=>{sessionStorage.setItem("hideSync","1");$("#authGa
  skip.addEventListener("click",finish);
  v.addEventListener("timeupdate",()=>{if(v.duration&&v.currentTime>Math.max(0,v.duration-1.45))wrap.classList.add("brand")});
  v.addEventListener("ended",finish);v.addEventListener("error",finish);
- const p=v.play();if(p&&p.catch)p.catch(()=>{wrap.addEventListener("pointerdown",()=>v.play().catch(finish),{once:true});});
- setTimeout(()=>{if(!finished&&(!v.duration||v.paused))finish()},3500);
+ v.muted=true;v.defaultMuted=true;v.setAttribute("muted","");
+ function startVideo(){const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+ if(v.readyState>=2)startVideo();else v.addEventListener("canplay",startVideo,{once:true});
+ setTimeout(startVideo,500);
+ setTimeout(()=>{if(!finished&&v.currentTime<0.15){wrap.classList.add("brand");}},4500);
 })();
 </script></body></html>
