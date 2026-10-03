@@ -364,4 +364,30 @@ $("#dismissSync").onclick=()=>{sessionStorage.setItem("hideSync","1");$("#authGa
 .introToy.introSettle .b1,.introToy.introSettle .a1,.introToy.introSettle .b2,.introToy.introSettle .y1{opacity:1!important;filter:none!important}
 .introToy.introFadeBaby .b1,.introToy.introFadeBaby .a1,.introToy.introFadeBaby .b2,.introToy.introFadeBaby .y1{opacity:0!important;filter:blur(2px)!important;transform:translateY(-5px) scale(.985)!important;transition:opacity .72s ease,filter .72s ease,transform .72s ease!important}
 .introName{top:66%!important;animation:brandReveal .68s 3.82s cubic-bezier(.2,.75,.25,1) forwards!important}
-</style></body></html>
+</style><style>
+/* Rendered cinematic intro replaces the legacy CSS toy-block sequence */
+#introToy{display:none!important}
+#cinematicIntro{position:fixed;inset:0;z-index:9999;background:#1b1712;overflow:hidden;display:grid;place-items:center;opacity:1;transition:opacity .8s cubic-bezier(.4,0,.2,1);pointer-events:auto}
+#cinematicIntro.done{opacity:0;pointer-events:none}
+#cinematicIntro video{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+#cinematicIntro .cinematicBrand{position:absolute;left:0;right:0;bottom:calc(8% + env(safe-area-inset-bottom));text-align:center;color:#fff8ee;text-shadow:0 2px 18px #2b180dcc;opacity:0;transform:translateY(8px);transition:opacity .65s ease,transform .65s ease;pointer-events:none}
+#cinematicIntro.brand .cinematicBrand{opacity:1;transform:none}
+#cinematicIntro .cinematicBrand b{display:block;font-size:24px;letter-spacing:-.02em}
+#cinematicIntro .cinematicBrand span{display:block;margin-top:5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.78}
+#cinematicSkip{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));border:1px solid #ffffff38;background:#2b2118a6;color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+@media(prefers-reduced-motion:reduce){#cinematicIntro{display:none!important}}
+</style>
+<script>
+(function(){
+ const old=document.getElementById("introToy");if(old)old.style.display="none";
+ const wrap=document.createElement("div");wrap.id="cinematicIntro";wrap.innerHTML='<video id="lucaIntroVideo" autoplay muted playsinline preload="auto"><source src="./_users_803fdf06-6ee2-4297-99b9-aa64773c46d3_generated_b2f0190c-3804-4341-a88f-70372bc9cfdf_generated_video.mp4" type="video/mp4"></video><div class="cinematicBrand"><b>Luca\'s Growth Guide</b><span>Our little world</span></div><button id="cinematicSkip" type="button" aria-label="Skip intro">Skip</button>';
+ document.body.appendChild(wrap);
+ const v=document.getElementById("lucaIntroVideo"),skip=document.getElementById("cinematicSkip");let finished=false;
+ function finish(){if(finished)return;finished=true;wrap.classList.add("brand");setTimeout(()=>{wrap.classList.add("done");setTimeout(()=>wrap.remove(),850)},650)}
+ skip.addEventListener("click",finish);
+ v.addEventListener("timeupdate",()=>{if(v.duration&&v.currentTime>Math.max(0,v.duration-1.45))wrap.classList.add("brand")});
+ v.addEventListener("ended",finish);v.addEventListener("error",finish);
+ const p=v.play();if(p&&p.catch)p.catch(()=>{wrap.addEventListener("pointerdown",()=>v.play().catch(finish),{once:true});});
+ setTimeout(()=>{if(!finished&&(!v.duration||v.paused))finish()},3500);
+})();
+</script></body></html>
