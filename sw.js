@@ -1,4 +1,4 @@
-const CACHE="luca-v15-readability-dock";
+const CACHE="luca-v16-entry-hotfix";
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
