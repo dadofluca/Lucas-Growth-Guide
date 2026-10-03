@@ -28,6 +28,31 @@ body{background:linear-gradient(180deg,#f6efe5 0%,#fbf8f2 42%,#f2e7da 100%);colo
 body:has(#todayView.active) nav{background:#fffaf4ee;border-top:1px solid #e6d7c7}
 body:has(#todayView.active) nav button{color:#84776a!important;-webkit-text-fill-color:#84776a!important}
 body:has(#todayView.active) nav .active{color:#b86138!important;-webkit-text-fill-color:#b86138!important}
+
+/* Autumn dusk + iOS-inspired floating glass */
+body{background:
+ radial-gradient(circle at 18% -5%,#76523e55,transparent 34%),
+ radial-gradient(circle at 90% 20%,#50634d44,transparent 30%),
+ linear-gradient(180deg,#252a29 0%,#1c2220 52%,#171b1a 100%);color:#f5f1ea}
+#todayView .quickhome{background:linear-gradient(145deg,#ffffff10,#ffffff07);border:1px solid #ffffff18;box-shadow:0 18px 55px #0005,inset 0 1px #ffffff18;backdrop-filter:blur(24px) saturate(125%);-webkit-backdrop-filter:blur(24px) saturate(125%)}
+#todayView .quickhome:before{background:#bd7b4c;opacity:.12;filter:blur(6px)}
+#todayView .heroNext .muted{color:#c9b9aa}
+#todayView .heroNext .next{color:#fff7ed;text-shadow:0 2px 18px #0005}
+#todayView .heroNext .why{color:#bfb7ae}
+#todayView .heroInput>h2{color:#f8f2e9}
+#todayView .heroInput .microw{background:#101615a8;border:1px solid #ffffff1f;box-shadow:inset 0 1px #ffffff10,0 10px 28px #0003;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#todayView .heroInput .microw textarea{background:transparent!important;color:#f8f4ee!important;-webkit-text-fill-color:#f8f4ee!important}
+#todayView .heroInput .microw textarea::placeholder{color:#918c84;-webkit-text-fill-color:#918c84}
+#todayView .mic{background:#ffffff12;color:#f3e9dd!important;-webkit-text-fill-color:#f3e9dd!important;border:1px solid #ffffff12}
+#todayView #quickUnderstand{background:linear-gradient(180deg,#d98a57,#c96f3f);color:#fff!important;-webkit-text-fill-color:#fff!important;box-shadow:inset 0 1px #ffffff45,0 8px 22px #0003}
+#todayView .heroBtn{background:#ffffff0d!important;color:#f5eee6!important;-webkit-text-fill-color:#f5eee6!important;border:1px solid #ffffff14;box-shadow:inset 0 1px #ffffff0d;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+#todayView .heroBtn:nth-child(2){background:#8c554122!important}
+#todayView .heroBtn:nth-child(3){background:#71816c20!important}
+#todayView .heroBtn:nth-child(4){background:#a87d4920!important}
+#todayView .heroBtn:nth-child(5){background:#796f8622!important}
+body:has(#todayView.active) nav{left:50%;bottom:calc(8px + env(safe-area-inset-bottom));width:min(490px,calc(100% - 24px));border:1px solid #ffffff18;border-radius:26px;padding:6px 8px;background:#252a28cc;box-shadow:0 12px 38px #0006,inset 0 1px #ffffff18;backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)}
+body:has(#todayView.active) nav button{color:#aaa49d!important;-webkit-text-fill-color:#aaa49d!important;border-radius:18px}
+body:has(#todayView.active) nav .active{color:#ffd4b6!important;-webkit-text-fill-color:#ffd4b6!important;background:#ffffff0d}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><main class="app">
 <section id="authGate" class="card" style="margin-top:10px;position:relative"><button id="dismissSync" class="syncClose" aria-label="Close">×</button><h2>Family sync</h2><div id="authStatus" class="note">Checking sign-in…</div><div id="authForm" style="display:none"><div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div><button id="emailLogin" class="confirm">Email me a sign-in link</button><div class="why" style="margin-top:8px">No password to remember. Open the email on this iPhone and tap the link.</div></div><div id="joinForm" style="display:none"><div class="field"><label>Family code</label><input id="joinCode" autocapitalize="characters" placeholder="Enter family code"></div><button id="joinFamily" class="confirm">Join Luca's family</button></div><div id="syncReady" style="display:none"><div class="chips"><span class="chip">☁️ Shared family timeline</span></div><button id="signOut" class="tiny" style="margin-top:9px">Sign out</button></div></section><section id="todayView" class="view active"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Today</h1></div><div class="icon">🍼</div></header>
 <section class="card"><div class="muted">Estimated next feed</div><div class="next" id="next">—</div><div class="why" id="why">Log feeds and Luca's personal rhythm will appear here.</div><div class="stats"><div class="stat"><b id="oz">0</b><small>oz today</small></div><div class="stat"><b id="feeds">0</b><small>feeds</small></div><div class="stat"><b id="poops">0</b><small>poops</small></div></div></section>
