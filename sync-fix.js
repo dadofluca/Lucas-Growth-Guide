@@ -417,47 +417,6 @@
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P48";
 
- const st=document.createElement("style");
- st.textContent=\`
- /* History */
- #historyView .card{padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}
- .historyDay48{background:rgba(255,250,242,.34);border:1px solid rgba(255,255,255,.72);border-radius:24px;margin:0 0 12px;overflow:hidden;box-shadow:0 8px 24px rgba(60,48,36,.07)}
- .historyHead48{width:100%;border:0;background:transparent!important;color:#31453b!important;-webkit-text-fill-color:#31453b!important;padding:20px 18px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
- .historyHead48 .summary48{font-size:15px;color:#607067!important;-webkit-text-fill-color:#607067!important;font-weight:500;margin-top:4px}
- .historyChevron48{font-size:22px;transition:transform .2s ease}
- .historyDay48.open .historyChevron48{transform:rotate(180deg)}
- .historyBody48{display:none;padding:0 14px 16px}
- .historyDay48.open .historyBody48{display:block}
- .historyEvent48{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:13px;margin:8px 0}
- .historyEvent48 .eventLine48{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
- .historyDeleteDay48{width:100%;margin-top:12px;border:1px solid #b46b5a!important;background:rgba(180,107,90,.08)!important;color:#8b4335!important;-webkit-text-fill-color:#8b4335!important;border-radius:14px;padding:11px;font-weight:750}
- .historyEvent48 button{color:#f8f3e9!important;-webkit-text-fill-color:#f8f3e9!important;background:#294b61!important}
- .historyEvent48 button.del{background:#8d4e43!important}
-
- /* Schedule */
- #scheduleView .card{padding:12px!important}
- #scheduleView .scheduleNav{align-items:center}
- #scheduleView .scheduleMonth{font-size:18px;font-weight:800;color:#31453b!important;-webkit-text-fill-color:#31453b!important;text-align:center}
- #scheduleView .scheduleToday{margin:8px auto 12px;display:block;background:#314b59!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
- .weekLegend48{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 14px;font-size:11px;font-weight:750;color:#405149}
- .weekLegend48 span{display:flex;align-items:center;gap:5px}.weekLegend48 i{width:10px;height:10px;border-radius:3px;display:inline-block}
- .weekStrip48{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:4px 0 14px}
- .weekMini48{padding:8px 2px;border-radius:13px;text-align:center;background:rgba(255,255,255,.36);border:1px solid rgba(255,255,255,.7);font-size:10px;color:#47594f}
- .weekMini48 b{display:block;font-size:14px;color:#30473b}.weekMini48.gap{background:#ffd7cf;border-color:#ed9a88}.weekMini48.covered{background:#d4f0df;border-color:#8cc9a5}
- .scheduleDay48{background:rgba(255,250,242,.35);border:1px solid rgba(255,255,255,.76);border-radius:22px;padding:14px;margin:10px 0;color:#31453b!important;-webkit-text-fill-color:#31453b!important}
- .scheduleDayTop48{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
- .scheduleStatus48{font-size:11px;font-weight:850;padding:6px 9px;border-radius:999px;white-space:nowrap}
- .scheduleStatus48.home{background:#e4ece6;color:#496156!important;-webkit-text-fill-color:#496156!important}
- .scheduleStatus48.covered{background:#c9efd8;color:#17633b!important;-webkit-text-fill-color:#17633b!important}
- .scheduleStatus48.gap{background:#ffd1c7;color:#8d3325!important;-webkit-text-fill-color:#8d3325!important}
- .work48,.cover48,.gap48,.home48{border-radius:13px;padding:9px 10px;margin:6px 0;font-size:13px;line-height:1.25}
- .work48{background:#d9d9d6;color:#4f5350!important;-webkit-text-fill-color:#4f5350!important}
- .cover48{background:#bfeacf;color:#175d39!important;-webkit-text-fill-color:#175d39!important;font-weight:750}
- .gap48{background:#ffc7bc;color:#842e21!important;-webkit-text-fill-color:#842e21!important;font-weight:850;border:1px solid #e78875}
- .home48{background:rgba(255,255,255,.45);color:#5b6a62!important;-webkit-text-fill-color:#5b6a62!important}
- .assign48{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
- .assign48 button{padding:7px 9px;border-radius:11px;border:0;background:#294b61!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:750}
- \`;document.head.appendChild(st);
 
  function niceDay(d){return d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})}
  function historyEventMarkup(e){
@@ -538,7 +497,8 @@
      return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
    el.innerHTML='<div class="weekLegend48"><span><i style="background:#d9d9d6"></i>Working</span><span><i style="background:#bfeacf"></i>Covered</span><span><i style="background:#ffc7bc"></i>Missing coverage</span></div><div class="weekStrip48">'+mini+'</div>'+cards;
-   el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=()=>{if(!syncFamily||!syncUser)return toast("Connect Family Sync first");window.LucaSchedule?.openCoverage(b.dataset.gapday,b.dataset.gapperson)});\n   window.LucaSchedule?.decorate?.();
+   el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=()=>{if(!syncFamily||!syncUser)return toast("Connect Family Sync first");window.LucaSchedule?.openCoverage(b.dataset.gapday,b.dataset.gapperson)});
+   window.LucaSchedule?.decorate?.();
  };
  $("#schedulePrev").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()-7);pullSchedule()};
  $("#scheduleNext").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()+7);pullSchedule()};
