@@ -1,7 +1,7 @@
-/* Luca Family Sync P32 — device join, no email/browser handoff */
+/* Luca Family Sync — device join, no email/browser handoff */
 (function(){
   const badge=document.getElementById("patchBadge");
-  if(badge) badge.textContent="P32";
+  if(badge && !/^P(?:4[8-9]|[5-9]\d|\d{3,})$/.test(badge.textContent||"")) badge.textContent="P49";
 
   const form=document.getElementById("authForm");
   if(!form) return;
