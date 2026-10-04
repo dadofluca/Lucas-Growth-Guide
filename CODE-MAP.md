@@ -8,7 +8,7 @@ This branch keeps the current product behavior while reducing patch-on-patch own
 - `legacy-ui.css` — older style layers extracted from index without changing their order. Migrate from here gradually; do not add new rules here.
 - `schedule-controller.js` — coverage create/edit/remove/revert behavior.
 - `sync-fix.js` — family sync plus the current weekly schedule/history enhancements.
-- `index.html` — app markup and core baby-log behavior. The obsolete monthly schedule implementation has been removed.
+- `index.html` — app markup and remaining legacy visual CSS. The obsolete monthly schedule implementation has been removed.\n- `app-core.js` — core baby-log/parser/render runtime extracted intact from the page.\n- `intro.js` — cinematic intro playback/skip runtime.
 - `family-pin.js` — family-device authentication.
 - `sw.js` — offline/cache manifest.
 
