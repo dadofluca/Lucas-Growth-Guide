@@ -645,12 +645,7 @@
      return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
    el.innerHTML='<div class="weekLegend48"><span><i style="background:#d9d9d6"></i>Working</span><span><i style="background:#bfeacf"></i>Covered</span><span><i style="background:#ffc7bc"></i>Missing coverage</span></div><div class="weekStrip48">'+mini+'</div>'+cards;
-   el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=async()=>{if(window.lucaCoverageEditor){window.lucaCoverageEditor({person:b.dataset.gapperson,day:b.dataset.gapday,start:new Date(b.dataset.gapstart).getHours()*60+new Date(b.dataset.gapstart).getMinutes(),end:new Date(b.dataset.gapend).getHours()*60+new Date(b.dataset.gapend).getMinutes()});return;}
-     if(!syncFamily||!syncUser)return toast("Connect Family Sync first");
-     const {error}=await sb.from("luca_schedule").insert({family_id:syncFamily,person:b.dataset.gapperson,kind:"coverage",start_at:b.dataset.gapstart,end_at:b.dataset.gapend,source:"family assignment",created_by:syncUser.id});
-     if(error)return toast("Couldn't save coverage");
-     toast(b.dataset.gapperson+" covers that gap ✓");await pullSchedule();
-   });
+   el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=()=>{if(!syncFamily||!syncUser)return toast("Connect Family Sync first");window.LucaSchedule?.openCoverage(b.dataset.gapday,b.dataset.gapperson)});\n   window.LucaSchedule?.decorate?.();
  };
  $("#schedulePrev").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()-7);pullSchedule()};
  $("#scheduleNext").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()+7);pullSchedule()};
