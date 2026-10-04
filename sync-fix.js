@@ -513,7 +513,7 @@ const LUCA_RUNTIME={version:'P60',schedule:{coveragePeople:['Nona','Boppa','Jay'
 (function(){
 
  const st=document.createElement("style");
- st.textContent=\`
+ st.textContent=`
  /* History */
  #historyView .card{padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}
  .historyDay48{background:rgba(255,250,242,.34);border:1px solid rgba(255,255,255,.72);border-radius:24px;margin:0 0 12px;overflow:hidden;box-shadow:0 8px 24px rgba(60,48,36,.07)}
@@ -552,7 +552,7 @@ const LUCA_RUNTIME={version:'P60',schedule:{coveragePeople:['Nona','Boppa','Jay'
  .home48{background:rgba(255,255,255,.45);color:#5b6a62!important;-webkit-text-fill-color:#5b6a62!important}
  .assign48{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
  .assign48 button{padding:7px 9px;border-radius:11px;border:0;background:#294b61!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:750}
- \`;document.head.appendChild(st);
+ `;document.head.appendChild(st);
 
  function niceDay(d){return d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})}
  function historyEventMarkup(e){
