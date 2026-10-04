@@ -356,13 +356,7 @@
  const card=document.createElement("section");card.className="card";card.id="teddyCard";
  card.innerHTML='<div class="teddyHead"><div class="teddyFace">🧸</div><div><h2>Teddy</h2><div class="why">Your private Luca assistant · shared Luca facts, private conversation</div></div></div><div id="teddyChat" class="teddyChat"><div class="teddyBubble ai">Hi — I’m Teddy. Ask me about Luca’s recent bottles, patterns, handoffs, sleep, diapers or anything in his shared log.</div></div><div class="teddyAsk"><textarea id="teddyText" placeholder="Ask Teddy about Luca…"></textarea><button id="teddySend" class="confirm">Ask Teddy</button></div>';
  insights.insertBefore(card,insights.children[1]||null);
- const st=document.createElement("style");st.textContent=`
- .teddyHead{display:flex;gap:11px;align-items:center}.teddyFace{font-size:34px}.teddyHead h2{margin:0}
- .teddyChat{max-height:330px;overflow:auto;display:grid;gap:8px;margin:14px 0;padding:3px}
- .teddyBubble{max-width:88%;padding:10px 12px;border-radius:16px;white-space:pre-wrap;line-height:1.38;font-size:14px}
- .teddyBubble.ai{justify-self:start;background:#f1e4d3;color:#304038}.teddyBubble.me{justify-self:end;background:#173c58;color:#fffaf2}
- .teddyAsk textarea{min-height:72px;background:#fffaf2!important;color:#304038!important}.teddyAsk button{width:100%;margin-top:8px}
- `;document.head.appendChild(st);
+ 
  async function load(){
   if(!syncUser||!syncFamily)return;
   const {data}=await sb.from("teddy_messages").select("role,content").eq("user_id",syncUser.id).eq("family_id",syncFamily).order("created_at").limit(40);
@@ -383,13 +377,7 @@
 /* P43 — one-tap Quick Bottle from persistent bottle dock */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P43";
- const st=document.createElement("style");st.textContent=`
- .quickBottlePop{position:fixed;right:74px;top:43%;z-index:10030;display:none;gap:6px;padding:8px;border-radius:18px;background:#f7eee7f2;border:1px solid #fff;box-shadow:0 10px 28px #38291e35;backdrop-filter:blur(12px)}
- .quickBottlePop.on{display:flex}
- .quickBottlePop button{width:47px;height:47px;border-radius:50%;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;font-size:15px;padding:0}
- .quickBottlePop button:active{transform:scale(.93);background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
- .bottlePlus{position:absolute;width:21px;height:21px;border-radius:50%;background:#173c58;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;line-height:1;right:-2px;top:-2px;border:2px solid #f7eee7;pointer-events:none}
- `;document.head.appendChild(st);
+ 
  const bottle=[...document.querySelectorAll(".careDock button")].find(b=>/🍼/.test(b.textContent));if(!bottle)return;
  bottle.style.position="relative";if(!bottle.querySelector(".bottlePlus"))bottle.insertAdjacentHTML("beforeend",'<span class="bottlePlus">+</span>');
  const pop=document.createElement("div");pop.className="quickBottlePop";pop.id="quickBottlePop";pop.innerHTML=(window.LucaConfig?.bottles||[4,5,6,7,8]).map(n=>'<button type="button" data-qoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
@@ -409,12 +397,7 @@
 /* P44 — Quick Bottle uses the large top-right bottle button */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P44";
- const st=document.createElement("style");st.textContent=`
- .topQuickBottle{position:fixed;z-index:10040;display:none;grid-template-columns:repeat(5,48px);gap:6px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
- .topQuickBottle.on{display:grid}
- .topQuickBottle button{width:48px;height:48px;border-radius:14px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;padding:0}
- .topQuickBottle button:active{background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important;transform:scale(.94)}
- `;document.head.appendChild(st);
+ 
  const topBottle=document.querySelector("#todayView .icon");if(!topBottle)return;
  topBottle.style.cursor="pointer";topBottle.setAttribute("role","button");topBottle.setAttribute("aria-label","Quick bottle");
  const pop=document.createElement("div");pop.className="topQuickBottle";pop.innerHTML=(window.LucaConfig?.bottles||[4,5,6,7,8]).map(n=>'<button type="button" data-topoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
@@ -434,10 +417,7 @@
 /* P45 — quick poop caregiver picker + iOS intro recovery */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P45";
- const st=document.createElement("style");st.textContent=`
- .quickPoopPop{position:fixed;z-index:10045;display:none;grid-template-columns:repeat(3,minmax(68px,1fr));gap:6px;width:236px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
- .quickPoopPop.on{display:grid}.quickPoopPop button{min-height:45px;border-radius:13px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:850;padding:7px}
- `;document.head.appendChild(st);
+ 
 
  // Quick poop: tap dock poop, then choose who changed it. Save immediately.
  const poop=document.getElementById("carePoop"),pop=document.createElement("div");pop.className="quickPoopPop";
