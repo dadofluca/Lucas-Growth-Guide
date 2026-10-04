@@ -14,9 +14,7 @@ struct LucaEventPayload: Codable {
 
 enum LucaNativeLogger {
     static func log(kind: LucaEventKind, ounces: Double? = nil) async throws {
-        guard let session = try LucaSessionStore.load() else { throw NativeLoggerError.sessionNotConfigured }
-        guard session.expiresAt > Date().addingTimeInterval(30) else { throw NativeLoggerError.sessionExpired }
-
+        let session = try await LucaSessionRefresh.validSession()
         let payload = LucaEventPayload(
             baby_id: session.babyID,
             event_type: kind.rawValue,
@@ -26,26 +24,25 @@ enum LucaNativeLogger {
             caregivers: [session.caregiver],
             details: ["source": "ios-widget"]
         )
-
-        var req = URLRequest(url: LucaShared.supabaseURL.appending(path: "rest/v1/baby_events"))
-        req.httpMethod = "POST"
-        req.setValue(LucaShared.publishableKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
-        req.httpBody = try JSONEncoder().encode(payload)
-        let (_, response) = try await URLSession.shared.data(for: req)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw NativeLoggerError.writeFailed }
+        var req=URLRequest(url:LucaShared.supabaseURL.appending(path:"rest/v1/baby_events"))
+        req.httpMethod="POST"
+        req.setValue(LucaShared.publishableKey,forHTTPHeaderField:"apikey")
+        req.setValue("Bearer \(session.accessToken)",forHTTPHeaderField:"Authorization")
+        req.setValue("application/json",forHTTPHeaderField:"Content-Type")
+        req.setValue("return=minimal",forHTTPHeaderField:"Prefer")
+        req.httpBody=try JSONEncoder().encode(payload)
+        let (_,response)=try await URLSession.shared.data(for:req)
+        guard let http=response as? HTTPURLResponse,(200..<300).contains(http.statusCode) else { throw NativeLoggerError.writeFailed }
     }
 }
 
 enum NativeLoggerError: LocalizedError {
-    case sessionNotConfigured, sessionExpired, writeFailed
-    var errorDescription: String? {
+    case sessionNotConfigured,sessionExpired,writeFailed
+    var errorDescription:String? {
         switch self {
-        case .sessionNotConfigured: return "Open Luca's Growth Guide once to finish widget setup."
-        case .sessionExpired: return "Open Luca's Growth Guide to refresh your family session."
-        case .writeFailed: return "Luca couldn't save that entry."
+        case .sessionNotConfigured:return "Open Luca's Growth Guide once to finish widget setup."
+        case .sessionExpired:return "Open Luca's Growth Guide to reconnect this phone."
+        case .writeFailed:return "Luca couldn't save that entry."
         }
     }
 }
