@@ -348,3 +348,34 @@
  const base=window.render;window.render=function(){base();paint()};paint();
  setInterval(paint,60000);
 })();
+
+/* P42 — Teddy private caregiver chat */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P42";
+ const insights=document.getElementById("insightsView");if(!insights)return;
+ const card=document.createElement("section");card.className="card";card.id="teddyCard";
+ card.innerHTML='<div class="teddyHead"><div class="teddyFace">🧸</div><div><h2>Teddy</h2><div class="why">Your private Luca assistant · shared Luca facts, private conversation</div></div></div><div id="teddyChat" class="teddyChat"><div class="teddyBubble ai">Hi — I’m Teddy. Ask me about Luca’s recent bottles, patterns, handoffs, sleep, diapers or anything in his shared log.</div></div><div class="teddyAsk"><textarea id="teddyText" placeholder="Ask Teddy about Luca…"></textarea><button id="teddySend" class="confirm">Ask Teddy</button></div>';
+ insights.insertBefore(card,insights.children[1]||null);
+ const st=document.createElement("style");st.textContent=`
+ .teddyHead{display:flex;gap:11px;align-items:center}.teddyFace{font-size:34px}.teddyHead h2{margin:0}
+ .teddyChat{max-height:330px;overflow:auto;display:grid;gap:8px;margin:14px 0;padding:3px}
+ .teddyBubble{max-width:88%;padding:10px 12px;border-radius:16px;white-space:pre-wrap;line-height:1.38;font-size:14px}
+ .teddyBubble.ai{justify-self:start;background:#f1e4d3;color:#304038}.teddyBubble.me{justify-self:end;background:#173c58;color:#fffaf2}
+ .teddyAsk textarea{min-height:72px;background:#fffaf2!important;color:#304038!important}.teddyAsk button{width:100%;margin-top:8px}
+ `;document.head.appendChild(st);
+ async function load(){
+  if(!syncUser||!syncFamily)return;
+  const {data}=await sb.from("teddy_messages").select("role,content").eq("user_id",syncUser.id).eq("family_id",syncFamily).order("created_at").limit(40);
+  if(data?.length)document.getElementById("teddyChat").innerHTML=data.map(x=>'<div class="teddyBubble '+(x.role==="user"?"me":"ai")+'">'+esc(x.content)+'</div>').join("");
+ }
+ document.getElementById("teddySend").onclick=async()=>{
+  const input=document.getElementById("teddyText"),q=input.value.trim();if(!q)return;
+  if(!syncUser)return toast("Connect Family Sync first");
+  const chat=document.getElementById("teddyChat");chat.insertAdjacentHTML("beforeend",'<div class="teddyBubble me">'+esc(q)+'</div>');input.value="";chat.scrollTop=chat.scrollHeight;
+  const wait=document.createElement("div");wait.className="teddyBubble ai";wait.textContent="Teddy is thinking…";chat.appendChild(wait);
+  const {data,error}=await sb.functions.invoke("teddy-chat",{body:{message:q}});
+  wait.textContent=error?"Teddy couldn't answer just now.":(data?.answer||data?.error||"Teddy couldn't answer just now.");chat.scrollTop=chat.scrollHeight;
+ };
+ document.querySelector('nav button[data-tab="insights"]')?.addEventListener("click",()=>setTimeout(load,150));
+ setTimeout(load,1200);
+})();
