@@ -497,3 +497,25 @@
    }
  }
 })();
+
+/* P47 — Home Screen shortcut deep links */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P47";
+ function openBottle(){
+   const b=document.querySelector("#todayView .icon");if(!b)return;
+   setTimeout(()=>b.click(),250);
+ }
+ function openPoop(){
+   const p=document.getElementById("topPoop");if(!p)return;
+   setTimeout(()=>p.click(),250);
+ }
+ function shortcutRoute(){
+   const q=new URLSearchParams(location.search),act=(q.get("quick")||"").toLowerCase();
+   if(!act)return;
+   const go=()=>{if(act==="bottle")openBottle();if(act==="poop")openPoop();};
+   setTimeout(go,900);
+   // Clean the URL after routing so normal future launches stay normal.
+   setTimeout(()=>{try{history.replaceState({},document.title,location.pathname)}catch(e){}},1800);
+ }
+ shortcutRoute();
+})();
