@@ -430,3 +430,38 @@
    else toast(oz+" oz bottle saved on this phone");b.disabled=false;
  });
 })();
+
+/* P45 — quick poop caregiver picker + iOS intro recovery */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P45";
+ const st=document.createElement("style");st.textContent=`
+ .quickPoopPop{position:fixed;z-index:10045;display:none;grid-template-columns:repeat(3,minmax(68px,1fr));gap:6px;width:236px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
+ .quickPoopPop.on{display:grid}.quickPoopPop button{min-height:45px;border-radius:13px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:850;padding:7px}
+ `;document.head.appendChild(st);
+
+ // Quick poop: tap dock poop, then choose who changed it. Save immediately.
+ const poop=document.getElementById("carePoop"),pop=document.createElement("div");pop.className="quickPoopPop";
+ pop.innerHTML=["Sam","Maddie","Nona","Boppa","Jay","Other"].map(n=>'<button type="button" data-pooper="'+n+'">'+n+'</button>').join("");document.body.appendChild(pop);
+ function pos(){const r=poop.getBoundingClientRect();pop.style.top=Math.min(innerHeight-180,Math.max(90,r.top-40))+"px";pop.style.right=Math.max(72,innerWidth-r.left+6)+"px"}
+ poop?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();pos();pop.classList.toggle("on")},true);
+ document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!poop?.contains(e.target))pop.classList.remove("on")});
+ pop.addEventListener("click",async e=>{
+   const b=e.target.closest("[data-pooper]");if(!b)return;let who=b.dataset.pooper;
+   if(who==="Other"){who=prompt("Who changed Luca?")?.trim();if(!who)return}
+   const entry={id:Date.now()+"-"+Math.random(),at:new Date().toISOString(),oz:null,tags:["poop"],people:[who],notes:"",source:"quick-poop",sourceText:"Poop diaper changed by "+who};
+   a.push(entry);persist();render();pop.classList.remove("on");
+   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:null,tags:remote.tags||["poop"],people:remote.caregivers||[who],notes:remote.note||"",event_type:remote.event_type||"poop",source:remote.details?.source||"quick-poop",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast("Poop logged for "+who+" ✓")}}
+   else toast("Poop saved for "+who);
+ });
+
+ // iOS PWA: explicitly load/play both intro videos; never leave a permanent black overlay.
+ const intro=document.getElementById("bootCinematic");
+ if(intro){
+   const vids=[...intro.querySelectorAll("video")],finish=()=>{intro.classList.add("done");setTimeout(()=>intro.style.display="none",600)};
+   let played=false;
+   vids.forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");try{v.load();const p=v.play();if(p&&p.then)p.then(()=>played=true).catch(()=>{})}catch(e){}});
+   intro.querySelector(".introSkip")?.addEventListener("click",finish,{once:true});
+   setTimeout(()=>{if(!played&&vids.every(v=>v.readyState<2))finish()},1800);
+   setTimeout(finish,9000);
+ }
+})();
