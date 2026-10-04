@@ -1,6 +1,8 @@
-/* Luca P34 — direct inline Save -> Supabase */
+/* Luca runtime patches — compatibility layer. */
+const LUCA_RUNTIME={version:'P55',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+
+/* P34 — direct inline Save -> Supabase */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P34";
  const btn=document.getElementById("inlineSave");if(!btn)return;
  btn.onclick=async function(){
   if(smartSaving)return;
@@ -37,7 +39,6 @@
 
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P35";
  const st=document.createElement("style");
  st.textContent=`
  #suppliesView{padding-right:104px!important}
@@ -62,7 +63,6 @@
 
 /* P36 — edit mode is single-choice, truthful, and visually obvious */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P36";
  const st=document.createElement("style");
  st.textContent=`
  #manualComposer .choice.on{background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;border-color:#173c58!important;box-shadow:0 0 0 3px #173c5830!important;transform:translateY(-1px)}
@@ -108,7 +108,6 @@
 
 /* P37 — event time is when it happened; edits preserve provenance + undo */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P37";
  const st=document.createElement("style");
  st.textContent=`
  .editMeta{font-size:12px;color:#66716b!important;-webkit-text-fill-color:#66716b!important;margin-top:8px}
@@ -171,7 +170,6 @@
 
 /* P38 — edits change current event time + current display text, originals remain in details */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P38";
 
  function extractTime(text,base){
    text=(text||"").trim();
@@ -229,7 +227,6 @@
 
 /* P39 — edit form contrast/readability */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P39";
  const st=document.createElement("style");
  st.textContent=`
  #manualComposer{color:#304038!important}
@@ -254,7 +251,6 @@
 
 /* P40 — full-app cosmetic audit / unified warm accessible theme */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P40";
  const st=document.createElement("style");
  st.textContent=`
  :root{--ink:#304038;--muted:#5f6b64;--paper:#f8f0e4;--paper2:#efe2d1;--navy:#173c58;--line:#c5b49d;--accent:#a95e3d}
@@ -302,7 +298,6 @@
 
 /* P41 — Luca Now: live, data-driven care snapshot */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P41";
  const st=document.createElement("style");
  st.textContent=`
  .lucaNow{margin:10px 0 14px;padding:14px;border-radius:20px;background:#f7eee2cc;border:1px solid #fff9;box-shadow:inset 0 1px #fff}
@@ -351,7 +346,6 @@
 
 /* P42 — Teddy private caregiver chat */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P42";
  const insights=document.getElementById("insightsView");if(!insights)return;
  const card=document.createElement("section");card.className="card";card.id="teddyCard";
  card.innerHTML='<div class="teddyHead"><div class="teddyFace">🧸</div><div><h2>Teddy</h2><div class="why">Your private Luca assistant · shared Luca facts, private conversation</div></div></div><div id="teddyChat" class="teddyChat"><div class="teddyBubble ai">Hi — I’m Teddy. Ask me about Luca’s recent bottles, patterns, handoffs, sleep, diapers or anything in his shared log.</div></div><div class="teddyAsk"><textarea id="teddyText" placeholder="Ask Teddy about Luca…"></textarea><button id="teddySend" class="confirm">Ask Teddy</button></div>';
@@ -382,7 +376,6 @@
 
 /* P43 — one-tap Quick Bottle from persistent bottle dock */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P43";
  const st=document.createElement("style");st.textContent=`
  .quickBottlePop{position:fixed;right:74px;top:43%;z-index:10030;display:none;gap:6px;padding:8px;border-radius:18px;background:#f7eee7f2;border:1px solid #fff;box-shadow:0 10px 28px #38291e35;backdrop-filter:blur(12px)}
  .quickBottlePop.on{display:flex}
@@ -408,7 +401,6 @@
 
 /* P44 — Quick Bottle uses the large top-right bottle button */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P44";
  const st=document.createElement("style");st.textContent=`
  .topQuickBottle{position:fixed;z-index:10040;display:none;grid-template-columns:repeat(5,48px);gap:6px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
  .topQuickBottle.on{display:grid}
@@ -433,7 +425,6 @@
 
 /* P45 — quick poop caregiver picker + iOS intro recovery */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P45";
  const st=document.createElement("style");st.textContent=`
  .quickPoopPop{position:fixed;z-index:10045;display:none;grid-template-columns:repeat(3,minmax(68px,1fr));gap:6px;width:236px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
  .quickPoopPop.on{display:grid}.quickPoopPop button{min-height:45px;border-radius:13px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:850;padding:7px}
@@ -468,7 +459,6 @@
 
 /* P46 — top Quick Poop + reliable single-layer intro */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P46";
  // Put poop beside the top bottle, not in the side dock.
  const head=document.querySelector("#todayView header.top"),bottle=head?.querySelector(".icon");
  if(head&&bottle){
@@ -500,7 +490,6 @@
 
 /* P47 — Home Screen shortcut deep links */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P47";
  function openBottle(){
    const b=document.querySelector("#todayView .icon");if(!b)return;
    setTimeout(()=>b.click(),250);
@@ -522,7 +511,6 @@
 
 /* P48 — expandable history days + weekly childcare coverage board */
 (function(){
- const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P48";
 
  const st=document.createElement("style");
  st.textContent=\`
@@ -640,7 +628,7 @@
      let care="";
      if(s.needs.length){
        care+=s.covers.map(c=>'<div class="cover48">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+'</div>').join("");
-       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+["Nona","Boppa","Jay","Yolanda","Lindsay"].map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
+       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
      }else care='<div class="home48">✓ No outside childcare coverage needed.</div>';
      return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
@@ -667,10 +655,10 @@
 (function(){
  const s=document.createElement('style');s.textContent='.cov53{position:fixed;inset:0;z-index:2147483640;background:#10171499;display:grid;align-items:end;padding:14px}.cov53>div{background:#f8efe2;border-radius:28px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));color:#304038}.cov53 h2{color:#304038!important;margin:0 0 5px}.cov53 p{color:#66736c!important}.ct53{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ct53 input{width:100%;box-sizing:border-box;padding:12px;border-radius:13px;border:1px solid #cdbda9;background:#fffaf2;color:#263d33!important;font-size:17px}.cr53{height:62px;position:relative;margin:12px 0}.cr53 input{position:absolute;width:100%;height:58px;background:transparent;pointer-events:none;-webkit-appearance:none}.cr53 input::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#173c58;border:4px solid white;pointer-events:auto}.cb53{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}.cb53 button{padding:14px;border:0;border-radius:14px;font-weight:800}.save53{background:#173c58!important;color:#fff!important}.revert53{margin-top:8px!important;background:#fff2ed!important;color:#9b3d2e!important;border:1px solid #e6b7aa!important}.coverRow53{cursor:pointer}.dayRevert53{margin-top:8px;padding:8px 10px;border-radius:12px;border:1px solid #d5c5b2;background:#fff8ef;color:#7b5144;font-weight:750}';document.head.appendChild(s);
  function key53(x){return new Date(x).toLocaleDateString('en-CA')}function m53(x){let d=new Date(x);return d.getHours()*60+d.getMinutes()}function h53(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}function iso53(k,m){let p=k.split('-').map(Number);return new Date(p[0],p[1]-1,p[2],Math.floor(m/60),m%60).toISOString()}
- function range53(day){let w=(scheduleRows||[]).filter(x=>x.kind==='work'&&key53(x.start_at)===day),sam=w.filter(x=>/^sam(uel)?\\b/i.test(x.person)),mad=w.filter(x=>/^maddie\\b|^magdal/i.test(x.person));if(sam.length&&mad.length){let a=Math.max(...sam.map(x=>+new Date(x.start_at)),...mad.map(x=>+new Date(x.start_at))),b=Math.min(...sam.map(x=>+new Date(x.end_at)),...mad.map(x=>+new Date(x.end_at)));if(b>a)return[m53(a),m53(b)]}if(w.length)return[Math.min(...w.map(x=>m53(x.start_at))),Math.max(...w.map(x=>m53(x.end_at)))];return[420,900]}
- function open(day,person,id,start,end){let r=start==null?range53(day):[start,end];document.querySelector('.cov53')?.remove();let w=document.createElement('div');w.className='cov53';w.innerHTML='<div><h2>'+esc(person)+' has Luca</h2><p>Set the actual coverage window.</p><div class="ct53"><label>Start<input class="s53" type="time" step="900" value="'+h53(r[0])+'"></label><label>End<input class="e53" type="time" step="900" value="'+h53(r[1])+'"></label></div><div class="cr53"><input class="rs53" type="range" min="0" max="1439" step="15" value="'+r[0]+'"><input class="re53" type="range" min="0" max="1439" step="15" value="'+r[1]+'"></div><div class="cb53"><button class="cancel53">Cancel</button><button class="save53">OK · Save</button></div>'+(id?'<button class="revert53">Remove this coverage</button>':'')+'</div>';document.body.appendChild(w);let si=w.querySelector('.s53'),ei=w.querySelector('.e53'),sr=w.querySelector('.rs53'),er=w.querySelector('.re53');function sync(){if(+sr.value>=+er.value)sr.value=Math.max(0,+er.value-15);si.value=h53(+sr.value);ei.value=h53(+er.value)}sr.oninput=sync;er.oninput=sync;si.onchange=()=>{let p=si.value.split(':');sr.value=+p[0]*60 + +p[1];sync()};ei.onchange=()=>{let p=ei.value.split(':');er.value=+p[0]*60 + +p[1];sync()};w.querySelector('.cancel53').onclick=()=>w.remove();w.querySelector('.save53').onclick=async()=>{let vals={start_at:iso53(day,+sr.value),end_at:iso53(day,+er.value),source:'coverage editor'};let q=id?sb.from('luca_schedule').update(vals).eq('id',id):sb.from('luca_schedule').insert({family_id:syncFamily,person,kind:'coverage',...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Couldn't save coverage");w.remove();await pullSchedule()};if(id)w.querySelector('.revert53').onclick=async()=>{if(!confirm('Remove this coverage? Sam and Maddie work schedules stay unchanged.'))return;await sb.from('luca_schedule').delete().eq('id',id).eq('family_id',syncFamily);w.remove();await pullSchedule()}}
+ function range53(day){let w=(scheduleRows||[]).filter(x=>x.kind==='work'&&key53(x.start_at)===day),sam=w.filter(x=>/^sam(uel)?\\b/i.test(x.person)),mad=w.filter(x=>/^maddie\\b|^magdal/i.test(x.person));if(sam.length&&mad.length){let a=Math.max(...sam.map(x=>+new Date(x.start_at)),...mad.map(x=>+new Date(x.start_at))),b=Math.min(...sam.map(x=>+new Date(x.end_at)),...mad.map(x=>+new Date(x.end_at)));if(b>a)return[m53(a),m53(b)]}if(w.length)return[Math.min(...w.map(x=>m53(x.start_at))),Math.max(...w.map(x=>m53(x.end_at)))];return[LUCA_RUNTIME.schedule.fallbackStartMinutes,LUCA_RUNTIME.schedule.fallbackEndMinutes]}
+ function open(day,person,id,start,end){let r=start==null?range53(day):[start,end];document.querySelector('.cov53')?.remove();let w=document.createElement('div');w.className='cov53';w.innerHTML='<div><h2>'+esc(person)+' has Luca</h2><p>Set the actual coverage window.</p><div class="ct53"><label>Start<input class="s53" type="time" step="900" value="'+h53(r[0])+'"></label><label>End<input class="e53" type="time" step="900" value="'+h53(r[1])+'"></label></div><div class="cr53"><input class="rs53" type="range" min="0" max="1439" step="15" value="'+r[0]+'"><input class="re53" type="range" min="0" max="1439" step="15" value="'+r[1]+'"></div><div class="cb53"><button class="cancel53">Cancel</button><button class="save53">OK · Save</button></div>'+(id?'<button class="revert53">Remove this coverage</button>':'')+'</div>';document.body.appendChild(w);let si=w.querySelector('.s53'),ei=w.querySelector('.e53'),sr=w.querySelector('.rs53'),er=w.querySelector('.re53');function sync(){if(+sr.value>=+er.value)sr.value=Math.max(0,+er.value-LUCA_RUNTIME.schedule.stepMinutes);si.value=h53(+sr.value);ei.value=h53(+er.value)}sr.oninput=sync;er.oninput=sync;si.onchange=()=>{let p=si.value.split(':');sr.value=+p[0]*60 + +p[1];sync()};ei.onchange=()=>{let p=ei.value.split(':');er.value=+p[0]*60 + +p[1];sync()};w.querySelector('.cancel53').onclick=()=>w.remove();w.querySelector('.save53').onclick=async()=>{let vals={start_at:iso53(day,+sr.value),end_at:iso53(day,+er.value),source:'coverage editor'};let q=id?sb.from('luca_schedule').update(vals).eq('id',id):sb.from('luca_schedule').insert({family_id:syncFamily,person,kind:'coverage',...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Couldn't save coverage");w.remove();await pullSchedule()};if(id)w.querySelector('.revert53').onclick=async()=>{if(!confirm('Remove this coverage? Sam and Maddie work schedules stay unchanged.'))return;await sb.from('luca_schedule').delete().eq('id',id).eq('family_id',syncFamily);w.remove();await pullSchedule()}}
  window.openCoverage53=(day,person,id,start,end)=>open(day,person,id,start,end);window.lucaCoverageEditor=({person,day,start,end})=>open(day,person,null,start,end);
  window.decorateSchedule53=()=>{let el=document.getElementById('scheduleList');if(!el)return;let cards=[...el.querySelectorAll('.scheduleDay48')];if(!cards.length)return;let base=new Date(scheduleCursor||new Date());base.setHours(0,0,0,0);base.setDate(base.getDate()-base.getDay());cards.forEach((card,i)=>{let d=new Date(base);d.setDate(d.getDate()+i);let day=d.toLocaleDateString('en-CA'),covers=(scheduleRows||[]).filter(x=>x.kind==='coverage'&&key53(x.start_at)===day);card.querySelectorAll('.cover48').forEach(n=>{let row=covers.find(x=>n.textContent.includes(x.person));if(row){n.classList.add('coverRow53');n.onclick=()=>open(day,row.person,row.id,m53(row.start_at),m53(row.end_at))}});if(covers.length){let b=document.createElement('button');b.className='dayRevert53';b.textContent='↶ Revert day · remove coverage';b.onclick=async()=>{if(!confirm('Remove all coverage for this day? Sam and Maddie work schedules will stay exactly as they are.'))return;let ids=covers.map(x=>x.id).filter(Boolean);if(!ids.length)return toast('No saved coverage to remove');let {error}=await sb.from('luca_schedule').delete().in('id',ids).eq('family_id',syncFamily);if(error)return toast("Couldn't revert day");toast('Coverage removed ✓');await pullSchedule()};card.appendChild(b)}})};
  const render53=window.renderSchedule;if(typeof render53==='function')window.renderSchedule=function(){render53();window.decorateSchedule53()};
 })();
-/* P54 */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent='P54';window.LUCA_PATCH='P54'})();
+/* P55 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
