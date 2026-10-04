@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P59** (2026-10-04)
+**Current runtime at handoff:** **P60** (2026-10-04)
 
 ## Product intent
 
@@ -54,7 +54,7 @@ Important history:
 - **Root regression discovered at P59:** Quick Menu's Schedule handler in `index.html` called the old lexical `pullSchedule()`, bypassing `window.pullSchedule` from P48. This is why the app showed the old **October 2026 monthly screen** and none of the editor/Revert decorators appeared.
 - P59 changed the menu route to `(window.pullSchedule||pullSchedule)()`.
 
-**Current verification needed:** after P59 is live, confirm Quick Menu → Luca Schedule opens the weekly board; then confirm editor/sliders/Revert Day all work. Do not assume this is fixed until Sam tests it.
+**Verified on iPhone at P59:** Quick Menu → Luca Schedule now opens the intended weekly board.\n\n**Still failed at P59:** covered rows had no visible edit control/Revert Day; Quick Menu labels remained dark. P60 moves edit/Revert controls directly into the P48 weekly renderer instead of relying on a later decorator. P60 is implemented and awaiting iPhone verification.
 
 ## Event persistence / Supabase — HIGH PRIORITY
 
@@ -97,13 +97,13 @@ Multiple old CSS rules use `!important`; fixes were being overridden by later ru
 - P56: preserve unsynced events during refresh + menu contrast attempt.
 - P57: rebuilt weekly coverage editor/Revert.
 - P58: schedule refresh routed through active renderer.
-- **P59: fixed Quick Menu Schedule source route to call current global schedule implementation; final-runtime menu contrast.**
+- **P59: fixed Quick Menu Schedule source route to call current global schedule implementation. Verified: weekly board opens. Menu contrast still failed.**\n- **P60: renders Edit and Revert Day controls directly inside weekly schedule renderer instead of post-render decoration. Awaiting iPhone verification.**
 
 Use Git history for exact diffs instead of relying only on this summary.
 
 ## Immediate test checklist
 
-Before broad cleanup resumes, P59 must pass:
+Before broad cleanup resumes, P60 must pass:
 - Quick Menu labels readable/light.
 - Quick Menu → Luca Schedule opens **weekly** board, not old monthly October screen.
 - Assigning coverage opens editor.
