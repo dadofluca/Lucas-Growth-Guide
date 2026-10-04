@@ -226,3 +226,28 @@
  };
  render();
 })();
+
+/* P39 — edit form contrast/readability */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P39";
+ const st=document.createElement("style");
+ st.textContent=`
+ #manualComposer{color:#304038!important}
+ #manualComposer label{color:#405048!important;-webkit-text-fill-color:#405048!important;font-weight:800!important}
+ #manualComposer textarea,#manualComposer input[type="date"],#manualComposer input[type="time"],#manualComposer input[type="text"]{
+   background:#fffaf2!important;color:#263a33!important;-webkit-text-fill-color:#263a33!important;
+   border:1.5px solid #b6a58e!important;box-shadow:inset 0 1px 0 #fff,0 2px 8px #60452c12!important;
+   opacity:1!important
+ }
+ #manualComposer textarea::placeholder,#manualComposer input::placeholder{color:#77827c!important;-webkit-text-fill-color:#77827c!important;opacity:1!important}
+ #manualComposer input[type="date"],#manualComposer input[type="time"]{color-scheme:light!important}
+ #manualComposer #saveEntry{
+   background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;
+   opacity:1!important;border:1px solid #173c58!important;font-weight:900!important
+ }
+ #manualComposer #cancelEdit{
+   background:#f8f0e5!important;color:#34423b!important;-webkit-text-fill-color:#34423b!important;
+   border:1px solid #c7b69f!important;opacity:1!important
+ }
+ `;document.head.appendChild(st);
+})();
