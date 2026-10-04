@@ -168,3 +168,61 @@
    },80);
  },true);
 })();
+
+/* P38 — edits change current event time + current display text, originals remain in details */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P38";
+
+ function extractTime(text,base){
+   text=(text||"").trim();
+   let m=text.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i);
+   if(!m)return null;
+   let h=+m[1],min=+(m[2]||0),ap=m[3].toLowerCase();
+   if(h<1||h>12||min>59)return null;
+   if(h===12)h=0;if(ap==="pm")h+=12;
+   let d=new Date(base||Date.now());d.setHours(h,min,0,0);return d;
+ }
+ function currentSummary(e){
+   let bits=[];
+   if(e.oz)bits.push(e.oz+" oz bottle");
+   if((e.tags||[]).includes("poop"))bits.push("poop");
+   if((e.tags||[]).includes("solids"))bits.push(e.notes||"solids");
+   if((e.tags||[]).includes("medicine"))bits.push(e.notes||"medicine");
+   if((e.tags||[]).includes("activity"))bits.push(e.notes||"activity");
+   if(!bits.length&&e.notes)bits.push(e.notes);
+   if(e.people&&e.people.length)bits.push("by "+e.people.join(" & "));
+   return bits.join(" · ");
+ }
+
+ // If someone types a new explicit time while editing, make that the actual event_time.
+ document.getElementById("saveEntry")?.addEventListener("click",()=>{
+   if(!editId)return;
+   const id=editId;
+   const note=document.getElementById("notes")?.value||"";
+   const explicit=extractTime(note,a.find(x=>String(x.id)===String(id))?.at);
+   if(!explicit)return;
+   const row=a.find(x=>String(x.id)===String(id));
+   if(row){row.at=explicit.toISOString();persist();render();if(row.remote)updateRemote(row)}
+ },true);
+
+ // Make the visible card describe CURRENT structured truth after edits.
+ // Keep original typed sentence available only as provenance in the database.
+ const baseRender=window.render;
+ window.render=function(){
+   baseRender();
+   document.querySelectorAll("[data-edit]").forEach(btn=>{
+     const row=a.find(x=>String(x.id)===String(btn.dataset.edit));
+     if(!row)return;
+     const card=btn.closest(".entry");if(!card)return;
+     const labels=[...card.querySelectorAll("div")].filter(x=>x.textContent.trim()==="Original message");
+     for(const label of labels){
+       const next=label.nextElementSibling;
+       if(row.remote && row.sourceText){
+         label.textContent="Current details";
+         if(next)next.textContent=currentSummary(row);
+       }
+     }
+   });
+ };
+ render();
+})();
