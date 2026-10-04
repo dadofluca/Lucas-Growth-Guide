@@ -392,7 +392,7 @@
  `;document.head.appendChild(st);
  const bottle=[...document.querySelectorAll(".careDock button")].find(b=>/🍼/.test(b.textContent));if(!bottle)return;
  bottle.style.position="relative";if(!bottle.querySelector(".bottlePlus"))bottle.insertAdjacentHTML("beforeend",'<span class="bottlePlus">+</span>');
- const pop=document.createElement("div");pop.className="quickBottlePop";pop.id="quickBottlePop";pop.innerHTML=[4,5,6,7,8].map(n=>'<button type="button" data-qoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
+ const pop=document.createElement("div");pop.className="quickBottlePop";pop.id="quickBottlePop";pop.innerHTML=(window.LucaConfig?.bottles||[4,5,6,7,8]).map(n=>'<button type="button" data-qoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
  bottle.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();pop.classList.toggle("on")});
  document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!bottle.contains(e.target))pop.classList.remove("on")});
  pop.addEventListener("click",async e=>{
@@ -417,7 +417,7 @@
  `;document.head.appendChild(st);
  const topBottle=document.querySelector("#todayView .icon");if(!topBottle)return;
  topBottle.style.cursor="pointer";topBottle.setAttribute("role","button");topBottle.setAttribute("aria-label","Quick bottle");
- const pop=document.createElement("div");pop.className="topQuickBottle";pop.innerHTML=[4,5,6,7,8].map(n=>'<button type="button" data-topoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
+ const pop=document.createElement("div");pop.className="topQuickBottle";pop.innerHTML=(window.LucaConfig?.bottles||[4,5,6,7,8]).map(n=>'<button type="button" data-topoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
  function position(){const r=topBottle.getBoundingClientRect();pop.style.top=(r.bottom+8)+"px";pop.style.right=Math.max(8,innerWidth-r.right)+"px"}
  topBottle.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();position();pop.classList.toggle("on")});
  document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!topBottle.contains(e.target))pop.classList.remove("on")});
