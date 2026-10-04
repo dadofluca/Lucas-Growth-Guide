@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P57',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P58',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -615,7 +615,7 @@ const LUCA_RUNTIME={version:'P57',schedule:{coveragePeople:['Nona','Boppa','Jay'
    $("#scheduleMonth").textContent=label;$("#scheduleToday").style.visibility=same?"hidden":"visible";$("#scheduleToday").textContent="This week";
    if(!syncFamily){scheduleRows=[];$("#scheduleList").innerHTML='<div class="note">Connect Family Sync to load the shared schedule.</div>';return}
    const {data,error}=await sb.from("luca_schedule").select("*").eq("family_id",syncFamily).gte("start_at",start.toISOString()).lt("start_at",end.toISOString()).order("start_at");
-   if(!error){scheduleRows=data||[];renderSchedule()}
+   if(!error){scheduleRows=data||[];window.renderSchedule()}
  };
  window.renderSchedule=function(){
    const el=$("#scheduleList");if(!el)return;
@@ -662,4 +662,4 @@ const LUCA_RUNTIME={version:'P57',schedule:{coveragePeople:['Nona','Boppa','Jay'
  const baseRender=window.renderSchedule;window.renderSchedule=function(){baseRender();wire()};
  if(document.getElementById('scheduleView')?.classList.contains('active'))pullSchedule();
 })();
-/* P57 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P58 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
