@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P62** (2026-10-04)
+**Current runtime at handoff:** **P63** (2026-10-04)
 
 ## Product intent
 
@@ -143,3 +143,4 @@ At the end of every meaningful development session, update this README with:
 - any architectural discovery that would prevent another session from repeating work.
 
 **Never write “fixed” here until the behavior has been tested in the deployed iPhone app. Use “implemented / awaiting verification” instead.**
+\n\n## P63 unified schedule manager\n- Replaces the conceptual Manage-vs-Edit split with one Day Manager opened by tapping a day card.\n- Day Manager shows work rows, all recorded coverage, Add Coverage, Revert Day, and Done.\n- Existing coverage opens the same Coverage Editor used for adding.\n- Coverage Editor now includes caregiver selection plus the existing dual-handle time range and remove action.\n- Revert Day deletes coverage only; work rows are preserved.\n- P63 full sync-fix.js parse check passed before commit. Awaiting iPhone verification.\n
