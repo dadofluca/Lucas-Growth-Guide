@@ -34,3 +34,28 @@
   finally{smartSaving=false;btn.disabled=false}
  };
 })();
+
+/* P35 — supplies readability, unobstructed supply controls, sound feedback */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P35";
+ const st=document.createElement("style");
+ st.textContent=`
+ #suppliesView{padding-right:104px!important}
+ #suppliesView .card,#suppliesView .entry{overflow:visible!important}
+ #suppliesView,#suppliesView *{color:#34423b!important;-webkit-text-fill-color:#34423b!important}
+ #suppliesView .muted,#suppliesView .why{color:#56625c!important;-webkit-text-fill-color:#56625c!important}
+ #suppliesView .chip,#suppliesView button{color:#f8f2e9!important;-webkit-text-fill-color:#f8f2e9!important;background:#173c58!important}
+ @media(max-width:430px){#suppliesView{padding-right:92px!important}}
+ `;document.head.appendChild(st);
+
+ let ctx=null;
+ function audio(){ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();return ctx}
+ function ping(freq=660,d=.09,delay=0){try{let x=audio(),o=x.createOscillator(),g=x.createGain(),t=x.currentTime+delay;o.type="sine";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.028,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+d)}catch(e){}}
+ window.lucaSound={
+  saved(){ping(587,.08);ping(784,.12,.07)},
+  deleted(){ping(330,.08);ping(220,.12,.07)},
+  edited(){ping(523,.07);ping(659,.09,.06)}
+ };
+ const oldToast=window.toast;
+ if(typeof oldToast==="function")window.toast=function(s){oldToast(s);if(/saved|logged|added|synced|restocked|running low/i.test(s))window.lucaSound.saved();else if(/deleted|removed/i.test(s))window.lucaSound.deleted();else if(/updated|changes/i.test(s))window.lucaSound.edited()};
+})();
