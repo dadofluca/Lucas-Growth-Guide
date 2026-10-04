@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P65',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P66',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -807,6 +807,40 @@ const LUCA_RUNTIME={version:'P65',schedule:{coveragePeople:['Nona','Boppa','Jay'
    t.querySelector(".parse64").onclick=()=>{let items=parseScheduleText(t.querySelector("textarea").value,day),p=t.querySelector(".preview64");if(!items.length){p.innerHTML='<div class="proposal64">I couldn’t confidently find a person plus start/end time. Try “Nona 7am–3pm”.</div>';return}p.innerHTML='<b>Teddy understood:</b>'+items.map((x,i)=>'<div class="proposal64"><label><input type="checkbox" data-i64="'+i+'" checked> '+(x.kind==="work"?"💼":"👶")+' <b>'+esc(x.person)+'</b> · '+clock(x.start)+'–'+clock(x.end)+'</label></div>').join("")+'<button class="apply64">Approve & save selected</button>';p.querySelector(".apply64").onclick=async()=>{let chosen=[...p.querySelectorAll("[data-i64]:checked")].map(c=>items[+c.dataset.i64]);if(!chosen.length)return;for(let x of chosen){let existing=scheduleRows.find(r=>r.kind===x.kind&&String(r.person).toLowerCase()===x.person.toLowerCase()&&dk(r.start_at)===day),vals={person:x.person,kind:x.kind,start_at:iso(day,x.start),end_at:iso(day,x.end),source:"teddy text"};let q=existing?sb.from("luca_schedule").update(vals).eq("id",existing.id).eq("family_id",syncFamily):sb.from("luca_schedule").insert({family_id:syncFamily,...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Teddy couldn't save the schedule")}w.remove();toast("Teddy updated the schedule ✓");await window.pullSchedule()}};
  };
 })();
-/* P65 — final drawer contrast, after all legacy styles */
+/* P66 — complete work editing, visible Teddy entry, contrast */
+(function(){
+ const st=document.createElement("style");st.textContent=`
+ #scheduleView #scheduleList .assign48 button,#scheduleView #scheduleList .assign48 button *{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
+ #scheduleView .teddyLaunch66{width:100%;box-sizing:border-box;margin:8px 0 14px;padding:13px 15px;border:0;border-radius:16px;background:#5a4a3d!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-size:16px;font-weight:850;text-align:left}
+ #scheduleView .teddyLaunch66 span{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;float:right}
+ .cov57 .workRemove66{width:100%;margin-top:10px;padding:12px;border-radius:14px;border:1px solid #e3b3a7!important;background:#fff2ed!important;color:#913d30!important;-webkit-text-fill-color:#913d30!important;font-weight:850}
+ `;document.head.appendChild(st);
+ const dk=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const iso=(day,m)=>{let p=day.split("-").map(Number);return new Date(p[0],p[1]-1,p[2],Math.floor(m/60),m%60).toISOString()};
+ function openWork(row,day){
+   window.lucaCoverageEditor?.({day,person:row.person,id:row.id,start:(new Date(row.start_at).getHours()*60+new Date(row.start_at).getMinutes()),end:(new Date(row.end_at).getHours()*60+new Date(row.end_at).getMinutes())});
+   let w=document.querySelector(".cov57");if(!w)return;
+   let h=w.querySelector("h2");if(h)h.textContent="Edit work day";
+   let sel=w.querySelector(".personPick63");if(sel){sel.disabled=false;sel.innerHTML='<option value="Sam" '+(/^sam/i.test(row.person)?"selected":"")+'>Sam</option><option value="Maddie" '+(/^(maddie|magdal)/i.test(row.person)?"selected":"")+'>Maddie</option>'}
+   let oldRemove=w.querySelector(".remove57");if(oldRemove)oldRemove.style.display="none";
+   let save=w.querySelector(".save57");if(save){save.textContent="Save work day";save.onclick=async()=>{let ss=w.querySelector(".ss57"),es=w.querySelector(".es57"),vals={person:sel?.value||row.person,start_at:iso(day,+ss.value),end_at:iso(day,+es.value),source:"work editor"},{error}=await sb.from("luca_schedule").update(vals).eq("id",row.id).eq("family_id",syncFamily);if(error)return toast("Couldn't save work day");w.remove();toast("Work day saved ✓");await window.pullSchedule()}}
+   let rem=document.createElement("button");rem.className="workRemove66";rem.textContent="Remove this work day";w.firstElementChild.appendChild(rem);rem.onclick=async()=>{if(!confirm("Remove this work block?"))return;let {error}=await sb.from("luca_schedule").delete().eq("id",row.id).eq("family_id",syncFamily);if(error)return toast("Couldn't remove work day");w.remove();toast("Work day removed ✓");await window.pullSchedule()};
+ }
+ const priorOpen=window.lucaOpenDayManager;
+ window.lucaOpenDayManager=function(day){
+   priorOpen(day);let w=document.querySelector(".dayMgr63");if(!w)return;
+   let rows=scheduleRows.filter(r=>dk(r.start_at)===day),works=rows.filter(r=>r.kind==="work"),els=[...w.querySelectorAll(".workMgr63")];
+   els.forEach((el,i)=>{if(!works[i])return;el.onclick=()=>{w.remove();openWork(works[i],day)}});
+ };
+ const priorRender=window.renderSchedule;
+ window.renderSchedule=function(){
+   priorRender();let list=document.getElementById("scheduleList");if(!list)return;
+   let existing=document.getElementById("teddyLaunch66");if(existing)existing.remove();
+   let b=document.createElement("button");b.id="teddyLaunch66";b.className="teddyLaunch66";b.innerHTML="🧸 Tell Teddy your schedule <span>›</span>";list.before(b);
+   b.onclick=()=>{let base=(typeof scheduleCursor!=="undefined"?new Date(scheduleCursor):new Date()),day=dk(base);window.lucaOpenDayManager?.(day);setTimeout(()=>{let ta=document.querySelector(".teddySched64 textarea");if(ta){ta.scrollIntoView({behavior:"smooth",block:"center"});ta.focus()}},50)};
+ };
+ if(document.getElementById("scheduleView")?.classList.contains("active"))window.pullSchedule();
+})();
+/* P66 — final drawer contrast, after all legacy styles */
 (()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
-/* P65 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P66 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
