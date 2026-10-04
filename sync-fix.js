@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P61',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P62',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -623,13 +623,15 @@ const LUCA_RUNTIME={version:'P61',schedule:{coveragePeople:['Nona','Boppa','Jay'
    for(let i=0;i<7;i++){const d=new Date(start);d.setDate(d.getDate()+i);const k=dateKey48(d),rs=scheduleRows.filter(r=>dateKey48(new Date(r.start_at))===k);days.push({d,k,rs,state:dayState48(rs)})}
    const mini=days.map(x=>{const cls=x.state.gaps.length?"gap":(x.state.needs.length?"covered":"");return '<div class="weekMini48 '+cls+'"><span>'+x.d.toLocaleDateString([],{weekday:"narrow"})+'</span><b>'+x.d.getDate()+'</b></div>'}).join("");
    const cards=days.map(x=>{
-     const s=x.state,status=s.gaps.length?["gap","⚠ Coverage gap"]:s.needs.length?["covered","✓ Covered"]:["home","Parent available"];
+     const s=x.state,status=s.gaps.length?["gap","⚠ Coverage gap"]:s.needs.length?["covered","✓ Covered"]:s.covers.length?["covered","✓ Coverage noted"]:["home","Parent available"];
      const work=s.works.length?s.works.map(w=>'<div class="work48">💼 <b>'+esc(w.person)+'</b> · '+tm48(w.start_at)+'–'+tm48(w.end_at)+'</div>').join(""):'<div class="home48">No Sam/Maddie work block scheduled.</div>';
      let care="";
+     if(s.covers.length)care+=s.covers.map(c=>'<button class="cover48 editable60" data-coverid="'+esc(c.id||"")+'" data-coverday="'+x.k+'" data-coverperson="'+esc(c.person)+'" data-coverstart="'+(new Date(c.start_at).getHours()*60+new Date(c.start_at).getMinutes())+'" data-coverend="'+(new Date(c.end_at).getHours()*60+new Date(c.end_at).getMinutes())+'">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+' <span>✎ Edit</span></button>').join("");
      if(s.needs.length){
-       care+=s.covers.map(c=>'<button class="cover48 editable60" data-coverid="'+esc(c.id||"")+'" data-coverday="'+x.k+'" data-coverperson="'+esc(c.person)+'" data-coverstart="'+(new Date(c.start_at).getHours()*60+new Date(c.start_at).getMinutes())+'" data-coverend="'+(new Date(c.end_at).getHours()*60+new Date(c.end_at).getMinutes())+'">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+' <span>✎ Edit</span></button>').join("");
-       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");care+='<button class="dayRevert60" data-revertday="'+x.k+'">↶ Revert day · remove coverage</button>';
-     }else care='<div class="home48">✓ No outside childcare coverage needed.</div>';
+       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
+     }else if(!s.covers.length) care+='<div class="home48">✓ No outside childcare coverage needed.</div>';
+     if(s.covers.length)care+='<button class="dayRevert60" data-revertday="'+x.k+'">↶ Revert day · remove coverage</button>';
+     care+='<button class="manage62" data-manageday="'+x.k+'">＋ Manage day / add coverage</button>';
      return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
    el.innerHTML='<div class="weekLegend48"><span><i style="background:#d9d9d6"></i>Working</span><span><i style="background:#bfeacf"></i>Covered</span><span><i style="background:#ffc7bc"></i>Missing coverage</span></div><div class="weekStrip48">'+mini+'</div>'+cards;
@@ -641,6 +643,7 @@ const LUCA_RUNTIME={version:'P61',schedule:{coveragePeople:['Nona','Boppa','Jay'
    });
    el.querySelectorAll("[data-coverid]").forEach(b=>b.onclick=()=>window.lucaCoverageEditor?.({person:b.dataset.coverperson,day:b.dataset.coverday,id:b.dataset.coverid,start:+b.dataset.coverstart,end:+b.dataset.coverend}));
    el.querySelectorAll("[data-revertday]").forEach(b=>b.onclick=async()=>{let day=b.dataset.revertday,ids=scheduleRows.filter(r=>r.kind==="coverage"&&dateKey48(new Date(r.start_at))===day).map(r=>r.id).filter(Boolean);if(!ids.length)return toast("No coverage to remove");if(!confirm("Remove all coverage for this day? Sam and Maddie work schedules will stay exactly as they are."))return;let {error}=await sb.from("luca_schedule").delete().eq("family_id",syncFamily).in("id",ids);if(error)return toast("Couldn't revert day");toast("Day reverted ✓");await window.pullSchedule()});
+   el.querySelectorAll("[data-manageday]").forEach(b=>b.onclick=()=>window.lucaOpenDayManager?.(b.dataset.manageday));
  };
  $("#schedulePrev").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()-7);pullSchedule()};
  $("#scheduleNext").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()+7);pullSchedule()};
@@ -661,26 +664,58 @@ const LUCA_RUNTIME={version:'P61',schedule:{coveragePeople:['Nona','Boppa','Jay'
  function editor({day,person,id,start,end}){if(!syncFamily||!syncUser)return toast('Connect Family Sync first');let r=start==null?defaultRange(day):[start,end];document.querySelector('.cov57')?.remove();let w=document.createElement('div');w.className='cov57';w.innerHTML='<div><h2>'+esc(person)+' has Luca</h2><p>Adjust the start and end times.</p><div class="times57"><label>Start<input class="st57" type="time" step="900" value="'+clock(r[0])+'"></label><label>End<input class="en57" type="time" step="900" value="'+clock(r[1])+'"></label></div><div class="slider57"><label>Start time<input class="ss57" type="range" min="0" max="1425" step="15" value="'+r[0]+'"></label><label>End time<input class="es57" type="range" min="15" max="1439" step="15" value="'+r[1]+'"></label></div><div class="buttons57"><button class="cancel57">Cancel</button><button class="save57">Save coverage</button></div>'+(id?'<button class="remove57">Remove this coverage</button>':'')+'</div>';document.body.appendChild(w);let st=w.querySelector('.st57'),en=w.querySelector('.en57'),ss=w.querySelector('.ss57'),es=w.querySelector('.es57');function normalize(changed){let a=+ss.value,b=+es.value;if(a>=b){if(changed==='start')b=Math.min(1439,a+15);else a=Math.max(0,b-15);ss.value=a;es.value=b}st.value=clock(a);en.value=clock(b)}ss.oninput=()=>normalize('start');es.oninput=()=>normalize('end');st.onchange=()=>{let p=st.value.split(':');ss.value=+p[0]*60+ +p[1];normalize('start')};en.onchange=()=>{let p=en.value.split(':');es.value=+p[0]*60+ +p[1];normalize('end')};w.querySelector('.cancel57').onclick=()=>w.remove();w.querySelector('.save57').onclick=async()=>{let vals={start_at:iso(day,+ss.value),end_at:iso(day,+es.value),source:'coverage editor'};let q=id?sb.from('luca_schedule').update(vals).eq('id',id).eq('family_id',syncFamily):sb.from('luca_schedule').insert({family_id:syncFamily,person,kind:'coverage',...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Couldn't save coverage");w.remove();toast('Coverage saved ✓');await pullSchedule()};w.querySelector('.remove57')?.addEventListener('click',async()=>{if(!confirm('Remove this coverage? Sam and Maddie work schedules stay unchanged.'))return;let {error}=await sb.from('luca_schedule').delete().eq('id',id).eq('family_id',syncFamily);if(error)return toast("Couldn't remove coverage");w.remove();toast('Coverage removed ✓');await pullSchedule()})}
  window.lucaCoverageEditor=editor;
  function wire(){let el=$('#scheduleList');if(!el)return;let cards=[...el.querySelectorAll('.scheduleDay48')],base=sunStart(scheduleCursor);cards.forEach((card,i)=>{let d=new Date(base);d.setDate(d.getDate()+i);let day=dateKey48(d),covers=scheduleRows.filter(x=>x.kind==='coverage'&&key(x.start_at)===day);card.querySelectorAll('.cover48').forEach(row=>{let c=covers.find(x=>row.textContent.includes(x.person));if(c){row.classList.add('editable57');row.title='Tap to edit coverage';row.onclick=()=>editor({day,person:c.person,id:c.id,start:mins(c.start_at),end:mins(c.end_at)})}});if(covers.length){let b=document.createElement('button');b.className='dayRevert57';b.textContent='↶ Revert day · remove coverage';b.onclick=async()=>{if(!confirm('Remove all coverage for this day? Sam and Maddie work schedules will stay exactly as they are.'))return;let ids=covers.map(x=>x.id).filter(Boolean),{error}=await sb.from('luca_schedule').delete().eq('family_id',syncFamily).in('id',ids);if(error)return toast("Couldn't revert day");toast('Day reverted ✓');await pullSchedule()};card.appendChild(b)}})}
- const baseRender=window.renderSchedule;window.renderSchedule=function(){baseRender();wire()};
+ // P62: obsolete post-render wire() removed. Canonical weekly renderer now owns edit/revert/manage controls.
  if(document.getElementById('scheduleView')?.classList.contains('active'))pullSchedule();
 })();
 
-/* P61 — schedule management UX: all days editable + single dual-handle coverage range */
+/* P62 — canonical day manager + contrast */
 (function(){
  const css=document.createElement("style");css.textContent=`
- #scheduleView,#scheduleView *{color:#263d33;-webkit-text-fill-color:#263d33}
- #scheduleView .scheduleStatus48{font-weight:850!important}
- #scheduleView .assign48 button{color:#fff!important;-webkit-text-fill-color:#fff!important}
- .manage61{width:100%;margin-top:9px;padding:11px 13px;border-radius:14px!important;border:1px solid #cdbda9!important;background:#fffaf2!important;color:#29463a!important;-webkit-text-fill-color:#29463a!important;font-weight:800!important}
+ #scheduleView .assign48 button{background:#244f69!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850!important}
+ #scheduleView .cover48,#scheduleView .cover48 *{color:#164f34!important;-webkit-text-fill-color:#164f34!important}
+ #scheduleView .dayRevert60{background:#fff8ef!important;color:#70483c!important;-webkit-text-fill-color:#70483c!important;border:1px solid #cdbca8!important;font-weight:800!important}
+ #scheduleView .manage62{width:100%;margin-top:9px;padding:12px 13px;border-radius:14px!important;border:1px solid #a99a86!important;background:#294f66!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850!important}
+ .cov57 .cancel57{background:#e6e7e8!important;color:#294036!important;-webkit-text-fill-color:#294036!important}
+ .cov57 .save57{background:#174b6b!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+ .cov57 .remove57{background:#fff2ed!important;color:#9b3d2e!important;-webkit-text-fill-color:#9b3d2e!important;border:1px solid #e6b7aa!important}
+ .dayMgr62{position:fixed;inset:0;z-index:2147483642;background:#10171499;display:grid;align-items:end;padding:14px}
+ .dayMgr62>div{background:#f8efe2;border-radius:28px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-width:520px;width:100%;margin:auto;box-sizing:border-box;color:#263d33}
+ .dayMgr62 h2{margin:0 0 5px}.dayMgr62 p{margin:0 0 14px;color:#617069}
+ .careGrid62{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.careGrid62 button{border:0;border-radius:15px;padding:14px;background:#173f58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850;font-size:16px}
+ .close62{width:100%;margin-top:10px;border:1px solid #cdbda9!important;border-radius:15px;padding:13px;background:#fffaf2!important;color:#294036!important;-webkit-text-fill-color:#294036!important;font-weight:800}
  .cov57>div{max-width:520px;margin:auto;width:100%;box-sizing:border-box}
  .range61{margin:18px 0 20px}.rangeTimes61{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.timePill61{border:1px solid #cdbda9!important;background:#fffaf2!important;color:#263d33!important;-webkit-text-fill-color:#263d33!important;border-radius:14px!important;padding:11px 14px!important;font-size:17px!important;font-weight:800!important;min-width:112px}.rangeLine61{position:relative;height:34px}.rangeLine61:before{content:"";position:absolute;left:3px;right:3px;top:15px;height:5px;border-radius:999px;background:#d9ddd9}.rangeFill61{position:absolute;top:15px;height:5px;border-radius:999px;background:#174b6b;pointer-events:none}.rangeLine61 input[type=range]{position:absolute;inset:0;width:100%;height:34px;margin:0;background:transparent!important;pointer-events:none;-webkit-appearance:none;appearance:none}.rangeLine61 input[type=range]::-webkit-slider-runnable-track{height:5px;background:transparent}.rangeLine61 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid #c8c8c8;box-shadow:0 2px 8px #0003;margin-top:-12px;pointer-events:auto}.rangeCaption61{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#65756c!important;-webkit-text-fill-color:#65756c!important}
  `;document.head.appendChild(css);
- function decorate(){const el=document.getElementById("scheduleList");if(!el)return;const base=sunStart(scheduleCursor);[...el.querySelectorAll(".scheduleDay48")].forEach((card,i)=>{if(card.querySelector(".manage61"))return;let d=new Date(base);d.setDate(d.getDate()+i);const day=dateKey48(d);let b=document.createElement("button");b.className="manage61";b.textContent="＋ Add coverage / day details";b.onclick=()=>{let people=LUCA_RUNTIME.schedule.coveragePeople,chosen=prompt("Who has Luca?\n"+people.join(", "),people[0]);if(!chosen)return;window.lucaCoverageEditor?.({day,person:chosen})};card.appendChild(b)})}
- const prior=window.renderSchedule;window.renderSchedule=function(){prior();decorate()};
- const oldEditor=window.lucaCoverageEditor;window.lucaCoverageEditor=function(o){oldEditor(o);let w=document.querySelector(".cov57");if(!w)return;let old=w.querySelector(".times57"),sl=w.querySelector(".slider57"),ss=w.querySelector(".ss57"),es=w.querySelector(".es57"),st=w.querySelector(".st57"),en=w.querySelector(".en57");if(!ss||!es||!st||!en)return;old.style.display="none";sl.style.display="none";let box=document.createElement("div");box.className="range61";box.innerHTML='<div class="rangeTimes61"><button class="timePill61 start61">'+st.value+'</button><span>to</span><button class="timePill61 end61">'+en.value+'</button></div><div class="rangeLine61"><div class="rangeFill61"></div></div><div class="rangeCaption61"><span>12 AM</span><span>Coverage window</span><span>12 AM</span></div>';sl.after(box);let line=box.querySelector(".rangeLine61"),fill=box.querySelector(".rangeFill61");line.append(ss,es);function label(v){let m=+v,h=Math.floor(m/60),mm=m%60,ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+String(mm).padStart(2,"0")+" "+ap}function paint(){let a=+ss.value,b=+es.value;box.querySelector(".start61").textContent=label(a);box.querySelector(".end61").textContent=label(b);fill.style.left=(a/1439*100)+"%";fill.style.right=((1439-b)/1439*100)+"%";st.value=String(Math.floor(a/60)).padStart(2,"0")+":"+String(a%60).padStart(2,"0");en.value=String(Math.floor(b/60)).padStart(2,"0")+":"+String(b%60).padStart(2,"0")}ss.addEventListener("input",paint);es.addEventListener("input",paint);box.querySelector(".start61").onclick=()=>{st.showPicker?st.showPicker():st.click()};box.querySelector(".end61").onclick=()=>{en.showPicker?en.showPicker():en.click()};st.addEventListener("change",()=>{let p=st.value.split(":");ss.value=+p[0]*60+ +p[1];paint()});en.addEventListener("change",()=>{let p=en.value.split(":");es.value=+p[0]*60+ +p[1];paint()});paint()};
- if(document.getElementById("scheduleView")?.classList.contains("active"))window.pullSchedule();
-})();
 
-/* P61 — final drawer contrast, after all legacy styles */
+ window.lucaOpenDayManager=function(day){
+   document.querySelector(".dayMgr62")?.remove();
+   const w=document.createElement("div");w.className="dayMgr62";
+   w.innerHTML='<div><h2>Manage '+esc(new Date(day+"T12:00:00").toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"}))+'</h2><p>Add childcare coverage even when a parent is available.</p><div class="careGrid62">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-care62="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div><button class="close62">Cancel</button></div>';
+   document.body.appendChild(w);
+   w.querySelectorAll("[data-care62]").forEach(b=>b.onclick=()=>{const person=b.dataset.care62;w.remove();window.lucaCoverageEditor?.({day,person})});
+   w.querySelector(".close62").onclick=()=>w.remove();
+   w.onclick=e=>{if(e.target===w)w.remove()};
+ };
+
+ const oldEditor=window.lucaCoverageEditor;
+ window.lucaCoverageEditor=function(o){
+   oldEditor(o);let w=document.querySelector(".cov57");if(!w)return;
+   let old=w.querySelector(".times57"),sl=w.querySelector(".slider57"),ss=w.querySelector(".ss57"),es=w.querySelector(".es57"),st=w.querySelector(".st57"),en=w.querySelector(".en57");
+   if(!ss||!es||!st||!en||w.querySelector(".range61"))return;
+   old.style.display="none";sl.style.display="none";
+   let box=document.createElement("div");box.className="range61";
+   box.innerHTML='<div class="rangeTimes61"><button class="timePill61 start61"></button><span>to</span><button class="timePill61 end61"></button></div><div class="rangeLine61"><div class="rangeFill61"></div></div><div class="rangeCaption61"><span>12 AM</span><span>Coverage window</span><span>12 AM</span></div>';
+   sl.after(box);let line=box.querySelector(".rangeLine61"),fill=box.querySelector(".rangeFill61");line.append(ss,es);
+   function label(v){let m=+v,h=Math.floor(m/60),mm=m%60,ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+String(mm).padStart(2,"0")+" "+ap}
+   function paint(){let a=+ss.value,b=+es.value;box.querySelector(".start61").textContent=label(a);box.querySelector(".end61").textContent=label(b);fill.style.left=(a/1439*100)+"%";fill.style.right=((1439-b)/1439*100)+"%";st.value=String(Math.floor(a/60)).padStart(2,"0")+":"+String(a%60).padStart(2,"0");en.value=String(Math.floor(b/60)).padStart(2,"0")+":"+String(b%60).padStart(2,"0")}
+   ss.addEventListener("input",paint);es.addEventListener("input",paint);
+   box.querySelector(".start61").onclick=()=>{st.showPicker?st.showPicker():st.click()};
+   box.querySelector(".end61").onclick=()=>{en.showPicker?en.showPicker():en.click()};
+   st.addEventListener("change",()=>{let p=st.value.split(":");ss.value=+p[0]*60+ +p[1];paint()});
+   en.addEventListener("change",()=>{let p=en.value.split(":");es.value=+p[0]*60+ +p[1];paint()});
+   paint();
+ };
+})();
+/* P62 — final drawer contrast, after all legacy styles */
 (()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
-/* P61 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P62 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
