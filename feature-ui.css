@@ -1,0 +1,25 @@
+/* Extracted feature styles from sync-fix.js. Preserve order. */
+
+/* feature layer 1 */
+.teddyHead{display:flex;gap:11px;align-items:center}.teddyFace{font-size:34px}.teddyHead h2{margin:0}
+ .teddyChat{max-height:330px;overflow:auto;display:grid;gap:8px;margin:14px 0;padding:3px}
+ .teddyBubble{max-width:88%;padding:10px 12px;border-radius:16px;white-space:pre-wrap;line-height:1.38;font-size:14px}
+ .teddyBubble.ai{justify-self:start;background:#f1e4d3;color:#304038}.teddyBubble.me{justify-self:end;background:#173c58;color:#fffaf2}
+ .teddyAsk textarea{min-height:72px;background:#fffaf2!important;color:#304038!important}.teddyAsk button{width:100%;margin-top:8px}
+
+/* feature layer 2 */
+.quickBottlePop{position:fixed;right:74px;top:43%;z-index:10030;display:none;gap:6px;padding:8px;border-radius:18px;background:#f7eee7f2;border:1px solid #fff;box-shadow:0 10px 28px #38291e35;backdrop-filter:blur(12px)}
+ .quickBottlePop.on{display:flex}
+ .quickBottlePop button{width:47px;height:47px;border-radius:50%;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;font-size:15px;padding:0}
+ .quickBottlePop button:active{transform:scale(.93);background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+ .bottlePlus{position:absolute;width:21px;height:21px;border-radius:50%;background:#173c58;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;line-height:1;right:-2px;top:-2px;border:2px solid #f7eee7;pointer-events:none}
+
+/* feature layer 3 */
+.topQuickBottle{position:fixed;z-index:10040;display:none;grid-template-columns:repeat(5,48px);gap:6px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
+ .topQuickBottle.on{display:grid}
+ .topQuickBottle button{width:48px;height:48px;border-radius:14px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;padding:0}
+ .topQuickBottle button:active{background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important;transform:scale(.94)}
+
+/* feature layer 4 */
+.quickPoopPop{position:fixed;z-index:10045;display:none;grid-template-columns:repeat(3,minmax(68px,1fr));gap:6px;width:236px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
+ .quickPoopPop.on{display:grid}.quickPoopPop button{min-height:45px;border-radius:13px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:850;padding:7px}
