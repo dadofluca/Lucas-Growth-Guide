@@ -519,3 +519,141 @@
  }
  shortcutRoute();
 })();
+
+/* P48 — expandable history days + weekly childcare coverage board */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P48";
+
+ const st=document.createElement("style");
+ st.textContent=\`
+ /* History */
+ #historyView .card{padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ .historyDay48{background:rgba(255,250,242,.34);border:1px solid rgba(255,255,255,.72);border-radius:24px;margin:0 0 12px;overflow:hidden;box-shadow:0 8px 24px rgba(60,48,36,.07)}
+ .historyHead48{width:100%;border:0;background:transparent!important;color:#31453b!important;-webkit-text-fill-color:#31453b!important;padding:20px 18px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .historyHead48 .summary48{font-size:15px;color:#607067!important;-webkit-text-fill-color:#607067!important;font-weight:500;margin-top:4px}
+ .historyChevron48{font-size:22px;transition:transform .2s ease}
+ .historyDay48.open .historyChevron48{transform:rotate(180deg)}
+ .historyBody48{display:none;padding:0 14px 16px}
+ .historyDay48.open .historyBody48{display:block}
+ .historyEvent48{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:13px;margin:8px 0}
+ .historyEvent48 .eventLine48{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+ .historyDeleteDay48{width:100%;margin-top:12px;border:1px solid #b46b5a!important;background:rgba(180,107,90,.08)!important;color:#8b4335!important;-webkit-text-fill-color:#8b4335!important;border-radius:14px;padding:11px;font-weight:750}
+ .historyEvent48 button{color:#f8f3e9!important;-webkit-text-fill-color:#f8f3e9!important;background:#294b61!important}
+ .historyEvent48 button.del{background:#8d4e43!important}
+
+ /* Schedule */
+ #scheduleView .card{padding:12px!important}
+ #scheduleView .scheduleNav{align-items:center}
+ #scheduleView .scheduleMonth{font-size:18px;font-weight:800;color:#31453b!important;-webkit-text-fill-color:#31453b!important;text-align:center}
+ #scheduleView .scheduleToday{margin:8px auto 12px;display:block;background:#314b59!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+ .weekLegend48{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 14px;font-size:11px;font-weight:750;color:#405149}
+ .weekLegend48 span{display:flex;align-items:center;gap:5px}.weekLegend48 i{width:10px;height:10px;border-radius:3px;display:inline-block}
+ .weekStrip48{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:4px 0 14px}
+ .weekMini48{padding:8px 2px;border-radius:13px;text-align:center;background:rgba(255,255,255,.36);border:1px solid rgba(255,255,255,.7);font-size:10px;color:#47594f}
+ .weekMini48 b{display:block;font-size:14px;color:#30473b}.weekMini48.gap{background:#ffd7cf;border-color:#ed9a88}.weekMini48.covered{background:#d4f0df;border-color:#8cc9a5}
+ .scheduleDay48{background:rgba(255,250,242,.35);border:1px solid rgba(255,255,255,.76);border-radius:22px;padding:14px;margin:10px 0;color:#31453b!important;-webkit-text-fill-color:#31453b!important}
+ .scheduleDayTop48{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+ .scheduleStatus48{font-size:11px;font-weight:850;padding:6px 9px;border-radius:999px;white-space:nowrap}
+ .scheduleStatus48.home{background:#e4ece6;color:#496156!important;-webkit-text-fill-color:#496156!important}
+ .scheduleStatus48.covered{background:#c9efd8;color:#17633b!important;-webkit-text-fill-color:#17633b!important}
+ .scheduleStatus48.gap{background:#ffd1c7;color:#8d3325!important;-webkit-text-fill-color:#8d3325!important}
+ .work48,.cover48,.gap48,.home48{border-radius:13px;padding:9px 10px;margin:6px 0;font-size:13px;line-height:1.25}
+ .work48{background:#d9d9d6;color:#4f5350!important;-webkit-text-fill-color:#4f5350!important}
+ .cover48{background:#bfeacf;color:#175d39!important;-webkit-text-fill-color:#175d39!important;font-weight:750}
+ .gap48{background:#ffc7bc;color:#842e21!important;-webkit-text-fill-color:#842e21!important;font-weight:850;border:1px solid #e78875}
+ .home48{background:rgba(255,255,255,.45);color:#5b6a62!important;-webkit-text-fill-color:#5b6a62!important}
+ .assign48{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+ .assign48 button{padding:7px 9px;border-radius:11px;border:0;background:#294b61!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:750}
+ \`;document.head.appendChild(st);
+
+ function niceDay(d){return d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})}
+ function historyEventMarkup(e){
+   const c=typeof chips==="function"?chips(e):[];
+   return '<div class="historyEvent48"><div class="eventLine48"><b>'+new Date(e.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+'</b><span class="muted">'+esc((e.people||[]).join(", "))+'</span></div>'+
+   '<div class="chips">'+c.map(x=>'<span class="chip">'+esc(x)+'</span>').join("")+'</div>'+
+   (e.sourceText?'<div class="note"><span class="muted" style="font-size:11px">Original message</span><br>'+esc(e.sourceText)+'</div>':(e.notes?'<div class="note">'+esc(e.notes)+'</div>':""))+
+   '<div class="actions"><button class="tiny" data-h48edit="'+e.id+'">Edit</button><button class="tiny del" data-h48del="'+e.id+'">Delete</button></div></div>';
+ }
+ function renderHistory48(){
+   const el=document.getElementById("history");if(!el||typeof a==="undefined")return;
+   const groups={};
+   a.forEach(e=>{const k=day(e.at);(groups[k]??=[]).push(e)});
+   const ordered=Object.entries(groups).sort((x,y)=>Math.max(...y[1].map(e=>+new Date(e.at)))-Math.max(...x[1].map(e=>+new Date(e.at))));
+   el.innerHTML=ordered.map(([k,v],idx)=>{
+     v.sort((x,y)=>new Date(y.at)-new Date(x.at));
+     const feeds=v.filter(e=>e.oz),poops=v.filter(e=>(e.tags||[]).includes("poop")||e.event_type==="poop"),date=new Date(v[0].at);
+     return '<section class="historyDay48" data-h48day="'+encodeURIComponent(k)+'"><button class="historyHead48" type="button"><span><b>'+niceDay(date)+'</b><div class="summary48">'+feeds.reduce((s,e)=>s+(+e.oz||0),0)+' oz · '+feeds.length+' bottle'+(feeds.length===1?"":"s")+' · '+poops.length+' poop'+(poops.length===1?"":"s")+' · '+v.length+' entr'+(v.length===1?"y":"ies")+'</div></span><span class="historyChevron48">⌄</span></button><div class="historyBody48">'+v.map(historyEventMarkup).join("")+'<button class="historyDeleteDay48" data-h48deleteday="'+encodeURIComponent(k)+'">Delete entire day</button></div></section>';
+   }).join("")||'<div class="muted">No history yet.</div>';
+   el.querySelectorAll(".historyHead48").forEach(b=>b.onclick=()=>b.closest(".historyDay48").classList.toggle("open"));
+   el.querySelectorAll("[data-h48edit]").forEach(b=>b.onclick=()=>{
+     document.querySelector('nav [data-tab="today"]')?.click();
+     setTimeout(()=>edit(b.dataset.h48edit),80);
+   });
+   el.querySelectorAll("[data-h48del]").forEach(b=>b.onclick=async()=>{await del(b.dataset.h48del);renderHistory48()});
+   el.querySelectorAll("[data-h48deleteday]").forEach(b=>b.onclick=async()=>{
+     const key=decodeURIComponent(b.dataset.h48deleteday),items=a.filter(e=>day(e.at)===key);
+     if(!items.length||!confirm("Delete all "+items.length+" entries from "+niceDay(new Date(items[0].at))+"? This cannot be undone."))return;
+     for(const e of items){if(e.remote)try{await deleteRemote(e.id)}catch(err){console.error(err)}}
+     a=a.filter(e=>day(e.at)!==key);persist();render();toast("Day deleted");renderHistory48();
+   });
+ }
+ const oldRender48=window.render;
+ if(typeof oldRender48==="function")window.render=function(){oldRender48();renderHistory48()};
+ renderHistory48();
+
+ function sunStart(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-x.getDay());return x}
+ function dateKey48(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+ function tm48(d){return new Date(d).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
+ function overlaps48(a,b){const s=Math.max(+new Date(a.start_at),+new Date(b.start_at)),e=Math.min(+new Date(a.end_at),+new Date(b.end_at));return e>s?[s,e]:null}
+ function merge48(xs){xs=xs.sort((a,b)=>a[0]-b[0]);const out=[];for(const x of xs){const last=out[out.length-1];if(last&&x[0]<=last[1])last[1]=Math.max(last[1],x[1]);else out.push([...x])}return out}
+ function subtract48(base,covers){
+   let pieces=[base];
+   for(const c of covers){const next=[];for(const p of pieces){if(c[1]<=p[0]||c[0]>=p[1])next.push(p);else{if(c[0]>p[0])next.push([p[0],c[0]]);if(c[1]<p[1])next.push([c[1],p[1]])}}pieces=next}
+   return pieces.filter(x=>x[1]-x[0]>5*60000);
+ }
+ function dayState48(rs){
+   const works=rs.filter(x=>x.kind==="work"),covers=rs.filter(x=>x.kind==="coverage");
+   const sam=works.filter(x=>/^sam(uel)?\b/i.test(x.person||"")),maddie=works.filter(x=>/^maddie\b|^magdal/i.test(x.person||""));
+   const needs=[];for(const s of sam)for(const m of maddie){const o=overlaps48(s,m);if(o)needs.push(o)}
+   const mergedNeeds=merge48(needs),coverInts=merge48(covers.map(x=>[+new Date(x.start_at),+new Date(x.end_at)]));
+   const gaps=mergedNeeds.flatMap(n=>subtract48(n,coverInts));
+   return {works,covers,needs:mergedNeeds,gaps};
+ }
+ window.pullSchedule=async function(){
+   scheduleCursor=sunStart(scheduleCursor||new Date());
+   const start=new Date(scheduleCursor),end=new Date(start);end.setDate(end.getDate()+7);
+   const same=dateKey48(start)===dateKey48(sunStart(new Date()));
+   const label=start.toLocaleDateString([],{month:"short",day:"numeric"})+" – "+new Date(end-1).toLocaleDateString([],{month:"short",day:"numeric"});
+   $("#scheduleMonth").textContent=label;$("#scheduleToday").style.visibility=same?"hidden":"visible";$("#scheduleToday").textContent="This week";
+   if(!syncFamily){scheduleRows=[];$("#scheduleList").innerHTML='<div class="note">Connect Family Sync to load the shared schedule.</div>';return}
+   const {data,error}=await sb.from("luca_schedule").select("*").eq("family_id",syncFamily).gte("start_at",start.toISOString()).lt("start_at",end.toISOString()).order("start_at");
+   if(!error){scheduleRows=data||[];renderSchedule()}
+ };
+ window.renderSchedule=function(){
+   const el=$("#scheduleList");if(!el)return;
+   const start=sunStart(scheduleCursor),days=[];
+   for(let i=0;i<7;i++){const d=new Date(start);d.setDate(d.getDate()+i);const k=dateKey48(d),rs=scheduleRows.filter(r=>dateKey48(new Date(r.start_at))===k);days.push({d,k,rs,state:dayState48(rs)})}
+   const mini=days.map(x=>{const cls=x.state.gaps.length?"gap":(x.state.needs.length?"covered":"");return '<div class="weekMini48 '+cls+'"><span>'+x.d.toLocaleDateString([],{weekday:"narrow"})+'</span><b>'+x.d.getDate()+'</b></div>'}).join("");
+   const cards=days.map(x=>{
+     const s=x.state,status=s.gaps.length?["gap","⚠ Coverage gap"]:s.needs.length?["covered","✓ Covered"]:["home","Parent available"];
+     const work=s.works.length?s.works.map(w=>'<div class="work48">💼 <b>'+esc(w.person)+'</b> · '+tm48(w.start_at)+'–'+tm48(w.end_at)+'</div>').join(""):'<div class="home48">No Sam/Maddie work block scheduled.</div>';
+     let care="";
+     if(s.needs.length){
+       care+=s.covers.map(c=>'<div class="cover48">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+'</div>').join("");
+       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+["Nona","Boppa","Jay","Yolanda","Lindsay"].map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
+     }else care='<div class="home48">✓ No outside childcare coverage needed.</div>';
+     return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
+   }).join("");
+   el.innerHTML='<div class="weekLegend48"><span><i style="background:#d9d9d6"></i>Working</span><span><i style="background:#bfeacf"></i>Covered</span><span><i style="background:#ffc7bc"></i>Missing coverage</span></div><div class="weekStrip48">'+mini+'</div>'+cards;
+   el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=async()=>{
+     if(!syncFamily||!syncUser)return toast("Connect Family Sync first");
+     const {error}=await sb.from("luca_schedule").insert({family_id:syncFamily,person:b.dataset.gapperson,kind:"coverage",start_at:b.dataset.gapstart,end_at:b.dataset.gapend,source:"family assignment",created_by:syncUser.id});
+     if(error)return toast("Couldn't save coverage");
+     toast(b.dataset.gapperson+" covers that gap ✓");await pullSchedule();
+   });
+ };
+ $("#schedulePrev").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()-7);pullSchedule()};
+ $("#scheduleNext").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()+7);pullSchedule()};
+ $("#scheduleToday").onclick=()=>{scheduleCursor=sunStart(new Date());pullSchedule()};
+ if(document.getElementById("scheduleView")?.classList.contains("active"))pullSchedule();
+})();
