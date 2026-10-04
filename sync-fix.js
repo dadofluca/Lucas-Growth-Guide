@@ -38,15 +38,7 @@
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P35";
- const st=document.createElement("style");
- st.textContent=`
- #suppliesView{padding-right:104px!important}
- #suppliesView .card,#suppliesView .entry{overflow:visible!important}
- #suppliesView,#suppliesView *{color:#34423b!important;-webkit-text-fill-color:#34423b!important}
- #suppliesView .muted,#suppliesView .why{color:#56625c!important;-webkit-text-fill-color:#56625c!important}
- #suppliesView .chip,#suppliesView button{color:#f8f2e9!important;-webkit-text-fill-color:#f8f2e9!important;background:#173c58!important}
- @media(max-width:430px){#suppliesView{padding-right:92px!important}}
- `;document.head.appendChild(st);
+ 
 
  let ctx=null;
  function audio(){ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();return ctx}
@@ -63,11 +55,7 @@
 /* P36 — edit mode is single-choice, truthful, and visually obvious */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P36";
- const st=document.createElement("style");
- st.textContent=`
- #manualComposer .choice.on{background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;border-color:#173c58!important;box-shadow:0 0 0 3px #173c5830!important;transform:translateY(-1px)}
- #manualComposer .choice.on small,#manualComposer .choice.on span{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- `;document.head.appendChild(st);
+ 
 
  // Editing a caregiver means replacing the old caregiver, not adding another.
  document.querySelectorAll("#manualComposer [data-person]").forEach(b=>{
@@ -109,11 +97,7 @@
 /* P37 — event time is when it happened; edits preserve provenance + undo */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P37";
- const st=document.createElement("style");
- st.textContent=`
- .editMeta{font-size:12px;color:#66716b!important;-webkit-text-fill-color:#66716b!important;margin-top:8px}
- .undoEdit{margin-left:6px;border:0;background:transparent!important;color:#9b5a38!important;-webkit-text-fill-color:#9b5a38!important;font-weight:800;padding:3px 5px}
- `;document.head.appendChild(st);
+ 
 
  // Preserve original event state before editing, so Undo can restore the shared row.
  let editSnapshots={};
@@ -230,90 +214,19 @@
 /* P39 — edit form contrast/readability */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P39";
- const st=document.createElement("style");
- st.textContent=`
- #manualComposer{color:#304038!important}
- #manualComposer label{color:#405048!important;-webkit-text-fill-color:#405048!important;font-weight:800!important}
- #manualComposer textarea,#manualComposer input[type="date"],#manualComposer input[type="time"],#manualComposer input[type="text"]{
-   background:#fffaf2!important;color:#263a33!important;-webkit-text-fill-color:#263a33!important;
-   border:1.5px solid #b6a58e!important;box-shadow:inset 0 1px 0 #fff,0 2px 8px #60452c12!important;
-   opacity:1!important
- }
- #manualComposer textarea::placeholder,#manualComposer input::placeholder{color:#77827c!important;-webkit-text-fill-color:#77827c!important;opacity:1!important}
- #manualComposer input[type="date"],#manualComposer input[type="time"]{color-scheme:light!important}
- #manualComposer #saveEntry{
-   background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;
-   opacity:1!important;border:1px solid #173c58!important;font-weight:900!important
- }
- #manualComposer #cancelEdit{
-   background:#f8f0e5!important;color:#34423b!important;-webkit-text-fill-color:#34423b!important;
-   border:1px solid #c7b69f!important;opacity:1!important
- }
- `;document.head.appendChild(st);
+ 
 })();
 
 /* P40 — full-app cosmetic audit / unified warm accessible theme */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P40";
- const st=document.createElement("style");
- st.textContent=`
- :root{--ink:#304038;--muted:#5f6b64;--paper:#f8f0e4;--paper2:#efe2d1;--navy:#173c58;--line:#c5b49d;--accent:#a95e3d}
- body,.view{color:var(--ink)!important}
- .view h1,.view h2,.view h3,.card h1,.card h2,.card h3{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- .muted,.why,.note,.kicker{color:var(--muted)!important;-webkit-text-fill-color:var(--muted)!important;opacity:1!important}
- .card,.entry,.smartItem,.inlineClarify{border-color:#fff9!important}
- button{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
- .tiny,.actions button,.lbTabs button,.scheduleToday{
-   background:var(--paper)!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;
-   border:1px solid var(--line)!important;font-weight:800!important;opacity:1!important
- }
- .confirm,.smartSave{
-   background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;
-   border:1px solid var(--navy)!important;font-weight:900!important;opacity:1!important
- }
- textarea,input,select{
-   background:#fffaf2!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;
-   border-color:var(--line)!important;opacity:1!important
- }
- textarea::placeholder,input::placeholder{color:#78817c!important;-webkit-text-fill-color:#78817c!important;opacity:1!important}
- .chip{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;background:#f7eee2!important}
- nav{color:var(--muted)!important}nav button{color:var(--muted)!important;-webkit-text-fill-color:var(--muted)!important}
- nav button.active{color:var(--accent)!important;-webkit-text-fill-color:var(--accent)!important}
- #insightsView .card,#historyView .card,#leaderboardView .card,#scheduleView .card,#suppliesView .card{color:var(--ink)!important}
- #historyView .entry,#timeline .entry,#drawerTimeline .entry{color:var(--ink)!important}
- #historyView .entry .muted,#timeline .entry .muted,#drawerTimeline .entry .muted{color:var(--muted)!important}
- #suppliesView{padding-right:0!important}
- #suppliesView .entry{padding-right:78px!important;position:relative}
- #suppliesView .actions{flex-wrap:wrap!important}
- #suppliesView .chip{background:#f3e7d6!important;color:#35463e!important;-webkit-text-fill-color:#35463e!important}
- #scheduleView .scheduleNav button{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #scheduleView #scheduleList,#scheduleView #scheduleList *{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #leaderboardView .lbRow,#leaderboardView .lbRow *{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer .choice{background:#faf2e7!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;border-color:#ad9a80!important}
- #manualComposer .choice.on{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #manualComposer .choice.on *{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #manualComposer label{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer textarea,#manualComposer input{background:#fffaf2!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer #saveEntry{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- .careDock{top:36%!important;right:8px!important}
- @media(max-width:430px){.careDock{right:6px!important}.entry{scroll-margin-top:100px}}
- `;document.head.appendChild(st);
+ 
 })();
 
 /* P41 — Luca Now: live, data-driven care snapshot */
 (function(){
  const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P41";
- const st=document.createElement("style");
- st.textContent=`
- .lucaNow{margin:10px 0 14px;padding:14px;border-radius:20px;background:#f7eee2cc;border:1px solid #fff9;box-shadow:inset 0 1px #fff}
- .lucaNowTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:900;color:#304038}
- .lucaNowTitle small{font-size:11px;color:#6b746e;font-weight:750}
- .nowGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
- .nowStat{background:#fff8ef;border:1px solid #d8c9b5;border-radius:15px;padding:10px;min-height:62px}
- .nowStat span{display:block;font-size:11px;color:#68736c;margin-bottom:3px;font-weight:750}
- .nowStat b{display:block;color:#304038;font-size:16px;line-height:1.15}
- .nowInsight{margin-top:9px;padding:9px 10px;border-radius:13px;background:#e7eee8;color:#405149;font-size:12px;font-weight:700;line-height:1.35}
- `;document.head.appendChild(st);
+ 
 
  function fmtAgo(ms){let m=Math.max(0,Math.round(ms/60000));if(m<60)return m+"m ago";let h=Math.floor(m/60),r=m%60;return h+"h"+(r?(" "+r+"m"):"")+" ago"}
  function fmtClock(d){return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
