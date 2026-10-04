@@ -144,3 +144,12 @@ At the end of every meaningful development session, update this README with:
 
 **Never write “fixed” here until the behavior has been tested in the deployed iPhone app. Use “implemented / awaiting verification” instead.**
 \n\n## P63 unified schedule manager\n- Replaces the conceptual Manage-vs-Edit split with one Day Manager opened by tapping a day card.\n- Day Manager shows work rows, all recorded coverage, Add Coverage, Revert Day, and Done.\n- Existing coverage opens the same Coverage Editor used for adding.\n- Coverage Editor now includes caregiver selection plus the existing dual-handle time range and remove action.\n- Revert Day deletes coverage only; work rows are preserved.\n- P63 full sync-fix.js parse check passed before commit. Awaiting iPhone verification.\n
+
+## Teddy AI architecture — recovered product intent
+- Teddy is Luca's shared AI interpretation layer, not merely a teddy icon/shortcut.
+- Teddy should be surfaced in Insights and callable from other workflows that need interpretation, especially Schedule and Smart Entry.
+- Original Smart Entry direction: natural-language input -> parse one or multiple proposed structured events -> preview -> user confirms -> persist. Supported concepts include bottles, solids, poop, naps, caregivers, and schedule/work/coverage entries. Explicit pairings in the user's text override inference.
+- Schedule Day Manager should ultimately support three input paths: (1) direct structured editing, (2) Tell Teddy natural-language text, and (3) photo/screenshot upload. Imported/scraped incoming messages can later feed the same Teddy parsing/preview pipeline.
+- Teddy must not silently write ambiguous parsed schedule data. Show proposed work/coverage rows for confirmation/editing first.
+- Sam/Maddie work rows should become editable with the same polished time-range interaction used for coverage. Preserve an original/base schedule separately enough that Revert can restore intended work schedule rather than destroying it.
+- Next schedule architecture work should favor one canonical schedule repository/editor and one Teddy parser/preview interface rather than separate parsing logic for each input source.
