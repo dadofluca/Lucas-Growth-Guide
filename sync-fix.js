@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P59',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P60',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -627,8 +627,8 @@ const LUCA_RUNTIME={version:'P59',schedule:{coveragePeople:['Nona','Boppa','Jay'
      const work=s.works.length?s.works.map(w=>'<div class="work48">💼 <b>'+esc(w.person)+'</b> · '+tm48(w.start_at)+'–'+tm48(w.end_at)+'</div>').join(""):'<div class="home48">No Sam/Maddie work block scheduled.</div>';
      let care="";
      if(s.needs.length){
-       care+=s.covers.map(c=>'<div class="cover48">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+'</div>').join("");
-       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
+       care+=s.covers.map(c=>'<button class="cover48 editable60" data-coverid="'+esc(c.id||"")+'" data-coverday="'+x.k+'" data-coverperson="'+esc(c.person)+'" data-coverstart="'+(new Date(c.start_at).getHours()*60+new Date(c.start_at).getMinutes())+'" data-coverend="'+(new Date(c.end_at).getHours()*60+new Date(c.end_at).getMinutes())+'">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+' <span>✎ Edit</span></button>').join("");
+       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");care+='<button class="dayRevert60" data-revertday="'+x.k+'">↶ Revert day · remove coverage</button>';
      }else care='<div class="home48">✓ No outside childcare coverage needed.</div>';
      return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
@@ -639,6 +639,8 @@ const LUCA_RUNTIME={version:'P59',schedule:{coveragePeople:['Nona','Boppa','Jay'
      if(error)return toast("Couldn't save coverage");
      toast(b.dataset.gapperson+" covers that gap ✓");await pullSchedule();
    });
+   el.querySelectorAll("[data-coverid]").forEach(b=>b.onclick=()=>window.lucaCoverageEditor?.({person:b.dataset.coverperson,day:b.dataset.coverday,id:b.dataset.coverid,start:+b.dataset.coverstart,end:+b.dataset.coverend}));
+   el.querySelectorAll("[data-revertday]").forEach(b=>b.onclick=async()=>{let day=b.dataset.revertday,ids=scheduleRows.filter(r=>r.kind==="coverage"&&dateKey48(new Date(r.start_at))===day).map(r=>r.id).filter(Boolean);if(!ids.length)return toast("No coverage to remove");if(!confirm("Remove all coverage for this day? Sam and Maddie work schedules will stay exactly as they are."))return;let {error}=await sb.from("luca_schedule").delete().eq("family_id",syncFamily).in("id",ids);if(error)return toast("Couldn't revert day");toast("Day reverted ✓");await window.pullSchedule()});
  };
  $("#schedulePrev").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()-7);pullSchedule()};
  $("#scheduleNext").onclick=()=>{scheduleCursor=sunStart(scheduleCursor);scheduleCursor.setDate(scheduleCursor.getDate()+7);pullSchedule()};
@@ -662,6 +664,6 @@ const LUCA_RUNTIME={version:'P59',schedule:{coveragePeople:['Nona','Boppa','Jay'
  const baseRender=window.renderSchedule;window.renderSchedule=function(){baseRender();wire()};
  if(document.getElementById('scheduleView')?.classList.contains('active'))pullSchedule();
 })();
-/* P59 — final drawer contrast, after all legacy styles */
-(()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important}';document.head.appendChild(st)})();
-/* P59 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P60 — final drawer contrast, after all legacy styles */
+(()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
+/* P60 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
