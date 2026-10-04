@@ -299,3 +299,52 @@
  @media(max-width:430px){.careDock{right:6px!important}.entry{scroll-margin-top:100px}}
  `;document.head.appendChild(st);
 })();
+
+/* P41 — Luca Now: live, data-driven care snapshot */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P41";
+ const st=document.createElement("style");
+ st.textContent=`
+ .lucaNow{margin:10px 0 14px;padding:14px;border-radius:20px;background:#f7eee2cc;border:1px solid #fff9;box-shadow:inset 0 1px #fff}
+ .lucaNowTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:900;color:#304038}
+ .lucaNowTitle small{font-size:11px;color:#6b746e;font-weight:750}
+ .nowGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .nowStat{background:#fff8ef;border:1px solid #d8c9b5;border-radius:15px;padding:10px;min-height:62px}
+ .nowStat span{display:block;font-size:11px;color:#68736c;margin-bottom:3px;font-weight:750}
+ .nowStat b{display:block;color:#304038;font-size:16px;line-height:1.15}
+ .nowInsight{margin-top:9px;padding:9px 10px;border-radius:13px;background:#e7eee8;color:#405149;font-size:12px;font-weight:700;line-height:1.35}
+ `;document.head.appendChild(st);
+
+ function fmtAgo(ms){let m=Math.max(0,Math.round(ms/60000));if(m<60)return m+"m ago";let h=Math.floor(m/60),r=m%60;return h+"h"+(r?(" "+r+"m"):"")+" ago"}
+ function fmtClock(d){return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
+ function snapshot(){
+   const now=new Date(),today=now.toDateString();
+   const feeds=(a||[]).filter(e=>e.oz&&e.at).sort((x,y)=>new Date(y.at)-new Date(x.at));
+   const todayFeeds=feeds.filter(e=>new Date(e.at).toDateString()===today);
+   const total=todayFeeds.reduce((s,e)=>s+(+e.oz||0),0);
+   const poops=(a||[]).filter(e=>new Date(e.at).toDateString()===today&&(e.tags||[]).includes("poop")).length;
+   const solids=(a||[]).filter(e=>new Date(e.at).toDateString()===today&&(e.tags||[]).includes("solids")).length;
+   const last=feeds[0]||null;
+   let intervals=[];
+   for(let i=0;i<Math.min(feeds.length-1,10);i++){let x=(new Date(feeds[i].at)-new Date(feeds[i+1].at))/60000;if(x>=45&&x<=360)intervals.push(x)}
+   let avg=intervals.length?intervals.reduce((s,x)=>s+x,0)/intervals.length:null;
+   let next=last&&avg?new Date(new Date(last.at).getTime()+avg*60000):null;
+   let insight=feeds.length>=3?"Based on Luca's recent confirmed bottles. Estimates adjust as the family logs more.":"Keep logging confirmed feeds and Luca's rhythm will become more accurate.";
+   return {last,total,poops,solids,avg,next,insight};
+ }
+ function paint(){
+   const host=document.querySelector("#todayView .quickhome");if(!host)return;
+   let box=document.getElementById("lucaNow");
+   if(!box){box=document.createElement("div");box.id="lucaNow";box.className="lucaNow";host.insertBefore(box,host.firstChild)}
+   const s=snapshot();
+   box.innerHTML='<div class="lucaNowTitle"><span>🧸 Luca Now</span><small>LIVE FAMILY LOG</small></div>'+
+   '<div class="nowGrid">'+
+   '<div class="nowStat"><span>Last bottle</span><b>'+(s.last?(s.last.oz+' oz · '+fmtAgo(Date.now()-new Date(s.last.at))):'No feed yet')+'</b></div>'+
+   '<div class="nowStat"><span>Estimated next</span><b>'+(s.next?('~'+fmtClock(s.next)):'Learning…')+'</b></div>'+
+   '<div class="nowStat"><span>Today</span><b>'+s.total.toFixed(s.total%1?1:0)+' oz</b></div>'+
+   '<div class="nowStat"><span>Care</span><b>'+s.poops+' poop'+(s.poops===1?'':'s')+' · '+s.solids+' food</b></div>'+
+   '</div><div class="nowInsight">'+s.insight+'</div>';
+ }
+ const base=window.render;window.render=function(){base();paint()};paint();
+ setInterval(paint,60000);
+})();
