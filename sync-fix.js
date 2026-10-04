@@ -657,3 +657,7 @@
  $("#scheduleToday").onclick=()=>{scheduleCursor=sunStart(new Date());pullSchedule()};
  if(document.getElementById("scheduleView")?.classList.contains("active"))pullSchedule();
 })();
+
+
+/* P49 — canonical runtime marker */
+(()=>{const b=document.getElementById("patchBadge");if(b)b.textContent="P49";window.LUCA_PATCH="P49";})();
