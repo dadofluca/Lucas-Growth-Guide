@@ -1,0 +1,13 @@
+/* Luca Growth Guide — canonical component tokens (P54 cleanup branch) */
+:root{--luca-ink:#304038;--luca-muted:#66736c;--luca-navy:#173c58;--luca-paper:#f8efe2;--luca-paper-2:#fffaf2;--luca-danger:#9b3d2e;--luca-radius:18px}
+#scheduleView{color:var(--luca-ink)}
+#scheduleView .scheduleMonth,#scheduleView .scheduleDay48,#scheduleView .work48,#scheduleView .cover48,#scheduleView .home48{color:var(--luca-ink);-webkit-text-fill-color:var(--luca-ink)}
+#scheduleView .scheduleStatus48.gap{color:#7c3027;-webkit-text-fill-color:#7c3027}
+#scheduleView .scheduleStatus48.covered{color:#24543c;-webkit-text-fill-color:#24543c}
+.lucaSheet{position:fixed;inset:0;z-index:2147483640;background:#10171499;display:grid;align-items:end;padding:14px}
+.lucaSheet__panel{background:var(--luca-paper);border-radius:28px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));color:var(--luca-ink)}
+.lucaSheet__panel h2{color:var(--luca-ink);margin:0 0 5px}.lucaSheet__panel p{color:var(--luca-muted)}
+.lucaTimeFields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lucaTimeFields input{width:100%;box-sizing:border-box;padding:12px;border-radius:13px;border:1px solid #cdbda9;background:var(--luca-paper-2);color:#263d33;-webkit-text-fill-color:#263d33;font-size:17px}
+.lucaRange{height:62px;position:relative;margin:12px 0}.lucaRange input{position:absolute;width:100%;height:58px;background:transparent;pointer-events:none;-webkit-appearance:none}.lucaRange input::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--luca-navy);border:4px solid white;pointer-events:auto}
+.lucaSheetActions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}.lucaSheetActions button{padding:14px;border:0;border-radius:14px;font-weight:800}.lucaPrimary{background:var(--luca-navy);color:#fff;-webkit-text-fill-color:#fff}.lucaDanger{margin-top:8px;background:#fff2ed;color:var(--luca-danger);-webkit-text-fill-color:var(--luca-danger);border:1px solid #e6b7aa}
+.coverageRow{cursor:pointer}.dayCoverageReset{margin-top:8px;padding:8px 10px;border-radius:12px;border:1px solid #d5c5b2;background:#fff8ef;color:#7b5144;-webkit-text-fill-color:#7b5144;font-weight:750}
