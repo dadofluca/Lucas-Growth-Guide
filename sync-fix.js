@@ -405,3 +405,28 @@
    b.disabled=false;
  });
 })();
+
+/* P44 — Quick Bottle uses the large top-right bottle button */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P44";
+ const st=document.createElement("style");st.textContent=`
+ .topQuickBottle{position:fixed;z-index:10040;display:none;grid-template-columns:repeat(5,48px);gap:6px;padding:8px;border-radius:18px;background:#f7eee7f5;border:1px solid #fff;box-shadow:0 12px 30px #38291e35;backdrop-filter:blur(12px)}
+ .topQuickBottle.on{display:grid}
+ .topQuickBottle button{width:48px;height:48px;border-radius:14px;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;padding:0}
+ .topQuickBottle button:active{background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important;transform:scale(.94)}
+ `;document.head.appendChild(st);
+ const topBottle=document.querySelector("#todayView .icon");if(!topBottle)return;
+ topBottle.style.cursor="pointer";topBottle.setAttribute("role","button");topBottle.setAttribute("aria-label","Quick bottle");
+ const pop=document.createElement("div");pop.className="topQuickBottle";pop.innerHTML=[4,5,6,7,8].map(n=>'<button type="button" data-topoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
+ function position(){const r=topBottle.getBoundingClientRect();pop.style.top=(r.bottom+8)+"px";pop.style.right=Math.max(8,innerWidth-r.right)+"px"}
+ topBottle.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();position();pop.classList.toggle("on")});
+ document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!topBottle.contains(e.target))pop.classList.remove("on")});
+ addEventListener("resize",()=>{if(pop.classList.contains("on"))position()});
+ pop.addEventListener("click",async e=>{
+   const b=e.target.closest("[data-topoz]");if(!b)return;const oz=+b.dataset.topoz,who=deviceCaregiver(),now=new Date();
+   b.disabled=true;const entry={id:Date.now()+"-"+Math.random(),at:now.toISOString(),oz,tags:[],people:[who],notes:"",source:"quick-bottle",sourceText:oz+" oz quick bottle by "+who};
+   a.push(entry);persist();render();pop.classList.remove("on");
+   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:remote.amount_oz==null?null:+remote.amount_oz,tags:remote.tags||[],people:remote.caregivers||[],notes:remote.note||"",event_type:remote.event_type||"feed",source:remote.details?.source||"quick-bottle",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast(oz+" oz bottle logged ✓")}}
+   else toast(oz+" oz bottle saved on this phone");b.disabled=false;
+ });
+})();
