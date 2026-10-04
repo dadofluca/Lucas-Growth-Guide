@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P64',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P65',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -759,8 +759,8 @@ const LUCA_RUNTIME={version:'P64',schedule:{coveragePeople:['Nona','Boppa','Jay'
      const label=card.querySelector(".scheduleDayTop48 b")?.textContent;if(!label)return;
      const d=new Date(label+" "+new Date().getFullYear()+" 12:00:00");if(isNaN(d))return;
      const day=dateKey(d);
-     card.onclick=e=>{if(e.target.closest("button"))return;open(day)};
-     const m=card.querySelector(".manage62");if(m)m.onclick=e=>{e.stopPropagation();open(day)};
+     card.onclick=e=>{if(e.target.closest("button"))return;window.lucaOpenDayManager?.(day)};
+     const m=card.querySelector(".manage62");if(m)m.onclick=e=>{e.stopPropagation();window.lucaOpenDayManager?.(day)};
    });
  };
 
@@ -807,6 +807,6 @@ const LUCA_RUNTIME={version:'P64',schedule:{coveragePeople:['Nona','Boppa','Jay'
    t.querySelector(".parse64").onclick=()=>{let items=parseScheduleText(t.querySelector("textarea").value,day),p=t.querySelector(".preview64");if(!items.length){p.innerHTML='<div class="proposal64">I couldn’t confidently find a person plus start/end time. Try “Nona 7am–3pm”.</div>';return}p.innerHTML='<b>Teddy understood:</b>'+items.map((x,i)=>'<div class="proposal64"><label><input type="checkbox" data-i64="'+i+'" checked> '+(x.kind==="work"?"💼":"👶")+' <b>'+esc(x.person)+'</b> · '+clock(x.start)+'–'+clock(x.end)+'</label></div>').join("")+'<button class="apply64">Approve & save selected</button>';p.querySelector(".apply64").onclick=async()=>{let chosen=[...p.querySelectorAll("[data-i64]:checked")].map(c=>items[+c.dataset.i64]);if(!chosen.length)return;for(let x of chosen){let existing=scheduleRows.find(r=>r.kind===x.kind&&String(r.person).toLowerCase()===x.person.toLowerCase()&&dk(r.start_at)===day),vals={person:x.person,kind:x.kind,start_at:iso(day,x.start),end_at:iso(day,x.end),source:"teddy text"};let q=existing?sb.from("luca_schedule").update(vals).eq("id",existing.id).eq("family_id",syncFamily):sb.from("luca_schedule").insert({family_id:syncFamily,...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Teddy couldn't save the schedule")}w.remove();toast("Teddy updated the schedule ✓");await window.pullSchedule()}};
  };
 })();
-/* P64 — final drawer contrast, after all legacy styles */
+/* P65 — final drawer contrast, after all legacy styles */
 (()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
-/* P64 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P65 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
