@@ -613,7 +613,7 @@
  }
  function dayState48(rs){
    const works=rs.filter(x=>x.kind==="work"),covers=rs.filter(x=>x.kind==="coverage");
-   const sam=works.filter(x=>/^sam(uel)?\b/i.test(x.person||"")),maddie=works.filter(x=>/^maddie\b|^magdal/i.test(x.person||""));
+   const sam=works.filter(x=>(window.LucaConfig?.parents.sam||/^sam(uel)?\\b/i).test(x.person||"")),maddie=works.filter(x=>(window.LucaConfig?.parents.maddie||/^maddie\\b|^magdal/i).test(x.person||""));
    const needs=[];for(const s of sam)for(const m of maddie){const o=overlaps48(s,m);if(o)needs.push(o)}
    const mergedNeeds=merge48(needs),coverInts=merge48(covers.map(x=>[+new Date(x.start_at),+new Date(x.end_at)]));
    const gaps=mergedNeeds.flatMap(n=>subtract48(n,coverInts));
