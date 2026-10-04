@@ -1,0 +1,65 @@
+/* Consolidated legacy style layers from index.html. Order preserved intentionally. */
+
+/* layer 2 */
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}button,.tiny,.heroBtn,.choice,.menuRow,nav button{transition:transform .16s cubic-bezier(.2,.8,.2,1),opacity .16s ease,background-color .2s ease,box-shadow .2s ease}button:active,.tiny:active,.heroBtn:active,.choice:active,.menuRow:active,nav button:active{transform:scale(.97)}input,textarea{font-size:16px!important;transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease}input:focus,textarea:focus{scroll-margin-bottom:180px}.view{transition:opacity .22s ease}.inlineClarify,.smartPreview{transition:opacity .2s ease,transform .22s cubic-bezier(.2,.8,.2,1)}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.tiny,.heroBtn,.choice,.menuRow,nav button,input,textarea,.view,.inlineClarify,.smartPreview{transition:none!important}}
+
+/* layer 3 */
+#suppliesView .tiny{background:#fff8ed!important;color:#3f4943!important;border:1px solid #b9a994!important;font-weight:800!important;font-size:13px!important}#suppliesView .supplyEdit{display:flex;gap:8px;margin-top:12px}#suppliesView .supplyEdit input{flex:1;min-width:0;border:1px solid #cbbda9;background:#fffaf2;color:#354039;border-radius:13px;padding:11px;font-size:16px}#suppliesView .supplyEdit button{border:0;border-radius:13px;padding:10px 13px;background:#c96f43;color:white;font-weight:850}
+
+/* layer 4 */
+/* P19 emergency hit-test hardening */#bootCinematic[style*="display: none"],#bootCinematic[style*="display:none"],#cinematicIntro[style*="display: none"],#cinematicIntro[style*="display:none"]{pointer-events:none!important;visibility:hidden!important}.drawer:not(.open),.sideMenu:not(.open){pointer-events:none!important}.drawer:not(.open) .drawerShade,.sideMenu:not(.open) .sideShade{pointer-events:none!important}.bottleCelebrate:not(.show),#poopBurst:not(.go){pointer-events:none!important}button,nav button,.heroBtn,.careItem{touch-action:manipulation}/* P15 readability */#insightsView .muted,#insightsView .why,#suppliesView .muted,#suppliesView .why,#historyView .muted,#historyView .why{color:#575d58!important}#insightsView .card,#suppliesView .card,#historyView .card{color:#34423b!important}#insightsView .card p,#insightsView .card div:not(.chip),#suppliesView .card p,#historyView .card p{opacity:1}#drawer{transition:transform .3s cubic-bezier(.22,.8,.22,1),visibility .3s}#drawerShade{transition:opacity .25s ease}
+
+/* layer 5 */
+/* P27 readability pass */
+#insightsView .note,#insightsView .muted,#insightsView p,#insightsView .why{color:#46544d!important;opacity:1!important}
+#suppliesView .note,#suppliesView .muted,#suppliesView p,#suppliesView .why{color:#53605a!important;opacity:1!important}
+#suppliesView .tiny{color:#34463f!important;background:#f6efe5!important;border-color:#b9a88f!important;opacity:1!important}
+#suppliesView .chip{color:#f4eadb!important;background:#173c58!important;opacity:1!important}
+
+/* layer 6 */
+/* P28 supplies hard contrast fix */
+#suppliesView button.tiny,
+#suppliesView .actions button,
+#suppliesView button[data-supply-edit],
+#suppliesView button[data-supply-remove]{
+ color:#263b34!important;
+ -webkit-text-fill-color:#263b34!important;
+ background:#f7efe4!important;
+ border:1.5px solid #aa987e!important;
+ opacity:1!important;
+ text-shadow:none!important;
+ font-weight:800!important
+}
+#suppliesView button[data-supply]{
+ color:#263b34!important;
+ -webkit-text-fill-color:#263b34!important
+}
+
+/* layer 8 */
+/* P30 global warm-theme contrast audit. Keep intentional dark/nav/intro controls light. */
+body{color:#34423b}
+.view,.card,.entry,.note,.why,.muted,.smartItem,.clarify,.historyDay,.lbRow,.scheduleMonth{color:#34423b}
+.card h1,.card h2,.card h3,.entry b,.smartItem .label,.clarify .q,.historyDay b,.lbRow b{color:#304038!important;-webkit-text-fill-color:#304038!important}
+.view .muted,.view .why,.view .note,.view .sub,.view small{color:#56625c!important;-webkit-text-fill-color:#56625c!important;opacity:1!important}
+.view button:not(.confirm):not(.smartSave):not(.careHead):not(.introSkip),
+.drawer button:not(.confirm),.sideMenu button:not(.confirm){
+ color:#304038!important;-webkit-text-fill-color:#304038!important
+}
+.view .tiny,.view .choice,.view .clarifyBtns button,.view .scheduleNav button,.view .scheduleToday,.view .lbTabs button{
+ color:#304038!important;-webkit-text-fill-color:#304038!important;background:#f7efe4!important;border-color:#aa987e!important;opacity:1!important
+}
+.view input,.view textarea{color:#304038!important;-webkit-text-fill-color:#304038!important}
+.view input::placeholder,.view textarea::placeholder{color:#6c746f!important;-webkit-text-fill-color:#6c746f!important;opacity:1}
+.view .chip{color:#34423b!important;-webkit-text-fill-color:#34423b!important}
+.view .confirm,.view .smartSave{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
+nav,nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
+.sideMenu,.sideMenu *,.drawer,.drawer *{--menuText:#f7f1e8}
+.sideMenu .sidePanel,.drawer .drawerPanel{color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
+.sideMenu .sidePanel *,.drawer .drawerPanel *{color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
+#patchBadge,#bootCinematic .introSkip{color:#fff8ee!important;-webkit-text-fill-color:#fff8ee!important}
+
+/* layer 9 */
+/* P31 schedule contrast */
+#scheduleView #scheduleList,#scheduleView #scheduleList *{color:#34423b!important;-webkit-text-fill-color:#34423b!important;opacity:1!important}
+#scheduleView #scheduleList .note,#scheduleView #scheduleList .muted{color:#56625c!important;-webkit-text-fill-color:#56625c!important}
+#scheduleView .scheduleNav button{background:#173c58!important;color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
