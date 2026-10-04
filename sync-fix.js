@@ -59,3 +59,49 @@
  const oldToast=window.toast;
  if(typeof oldToast==="function")window.toast=function(s){oldToast(s);if(/saved|logged|added|synced|restocked|running low/i.test(s))window.lucaSound.saved();else if(/deleted|removed/i.test(s))window.lucaSound.deleted();else if(/updated|changes/i.test(s))window.lucaSound.edited()};
 })();
+
+/* P36 — edit mode is single-choice, truthful, and visually obvious */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P36";
+ const st=document.createElement("style");
+ st.textContent=`
+ #manualComposer .choice.on{background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;border-color:#173c58!important;box-shadow:0 0 0 3px #173c5830!important;transform:translateY(-1px)}
+ #manualComposer .choice.on small,#manualComposer .choice.on span{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
+ `;document.head.appendChild(st);
+
+ // Editing a caregiver means replacing the old caregiver, not adding another.
+ document.querySelectorAll("#manualComposer [data-person]").forEach(b=>{
+   b.addEventListener("click",()=>{
+     if(!editId)return;
+     const chosen=b.dataset.person;
+     people.clear();
+     document.querySelectorAll("#manualComposer [data-person]").forEach(x=>x.classList.remove("on"));
+     people.add(chosen);b.classList.add("on");
+     if(chosen!=="Other"){const o=document.getElementById("otherPerson");o.value="";o.style.display="none"}
+     else document.getElementById("otherPerson").style.display="block";
+   });
+ });
+
+ // In edit mode, ounce buttons are radio buttons and update displayed details.
+ document.querySelectorAll("#manualComposer [data-oz]").forEach(b=>{
+   b.addEventListener("click",()=>{
+     if(!editId)return;
+     ozPick=+b.dataset.oz;
+     document.querySelectorAll("#manualComposer [data-oz]").forEach(x=>x.classList.toggle("on",x===b));
+     const n=document.getElementById("notes");
+     if(n&&/^\s*\d+(?:\.\d+)?\s*oz\b/i.test(n.value))n.value=n.value.replace(/^\s*\d+(?:\.\d+)?\s*oz\b/i,ozPick+" oz");
+   });
+ });
+
+ // The original smart sentence is provenance, not the editable note.
+ // On entering edit mode show the structured note; for a plain bottle leave it blank.
+ document.addEventListener("click",e=>{
+   const b=e.target.closest("[data-edit]");if(!b)return;
+   setTimeout(()=>{
+     const row=a.find(x=>String(x.id)===String(b.dataset.edit));
+     if(!row)return;
+     const n=document.getElementById("notes");
+     n.value=row.notes||"";
+   },0);
+ },true);
+})();
