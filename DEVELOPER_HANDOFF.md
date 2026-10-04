@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P60** (2026-10-04)
+**Current runtime at handoff:** **P60 FAILED VERIFICATION** (2026-10-04)
 
 ## Product intent
 
@@ -54,7 +54,7 @@ Important history:
 - **Root regression discovered at P59:** Quick Menu's Schedule handler in `index.html` called the old lexical `pullSchedule()`, bypassing `window.pullSchedule` from P48. This is why the app showed the old **October 2026 monthly screen** and none of the editor/Revert decorators appeared.
 - P59 changed the menu route to `(window.pullSchedule||pullSchedule)()`.
 
-**Verified on iPhone at P59:** Quick Menu → Luca Schedule now opens the intended weekly board.\n\n**Still failed at P59:** covered rows had no visible edit control/Revert Day; Quick Menu labels remained dark. P60 moves edit/Revert controls directly into the P48 weekly renderer instead of relying on a later decorator. P60 is implemented and awaiting iPhone verification.
+**Verified on iPhone at P59:** Quick Menu → Luca Schedule now opens the intended weekly board.\n\n**Still failed at P59:** covered rows had no visible edit control/Revert Day; Quick Menu labels remained dark. P60 moves edit/Revert controls directly into the P48 weekly renderer instead of relying on a later decorator. P60 FAILED iPhone verification: user reports no slider, no Revert Day, and no noticeable behavioral change. Critical discovery: the visible Pxx badge is also hard-coded in index.html, so seeing P60 does NOT prove sync-fix.js P60 executed. Do not use the badge as runtime proof until this is corrected.
 
 ## Event persistence / Supabase — HIGH PRIORITY
 
@@ -103,7 +103,7 @@ Use Git history for exact diffs instead of relying only on this summary.
 
 ## Immediate test checklist
 
-Before broad cleanup resumes, P60 must pass:
+STOP FEATURE PATCHING. First prove the deployed runtime asset is executing with a runtime-only build marker/diagnostic; then fix the canonical schedule path. P60 did not pass:
 - Quick Menu labels readable/light.
 - Quick Menu → Luca Schedule opens **weekly** board, not old monthly October screen.
 - Assigning coverage opens editor.
