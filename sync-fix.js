@@ -379,3 +379,29 @@
  document.querySelector('nav button[data-tab="insights"]')?.addEventListener("click",()=>setTimeout(load,150));
  setTimeout(load,1200);
 })();
+
+/* P43 — one-tap Quick Bottle from persistent bottle dock */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P43";
+ const st=document.createElement("style");st.textContent=`
+ .quickBottlePop{position:fixed;right:74px;top:43%;z-index:10030;display:none;gap:6px;padding:8px;border-radius:18px;background:#f7eee7f2;border:1px solid #fff;box-shadow:0 10px 28px #38291e35;backdrop-filter:blur(12px)}
+ .quickBottlePop.on{display:flex}
+ .quickBottlePop button{width:47px;height:47px;border-radius:50%;border:1px solid #c9b79e;background:#fff8ef!important;color:#304038!important;-webkit-text-fill-color:#304038!important;font-weight:900;font-size:15px;padding:0}
+ .quickBottlePop button:active{transform:scale(.93);background:#173c58!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+ .bottlePlus{position:absolute;width:21px;height:21px;border-radius:50%;background:#173c58;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;line-height:1;right:-2px;top:-2px;border:2px solid #f7eee7;pointer-events:none}
+ `;document.head.appendChild(st);
+ const bottle=[...document.querySelectorAll(".careDock button")].find(b=>/🍼/.test(b.textContent));if(!bottle)return;
+ bottle.style.position="relative";if(!bottle.querySelector(".bottlePlus"))bottle.insertAdjacentHTML("beforeend",'<span class="bottlePlus">+</span>');
+ const pop=document.createElement("div");pop.className="quickBottlePop";pop.id="quickBottlePop";pop.innerHTML=[4,5,6,7,8].map(n=>'<button type="button" data-qoz="'+n+'">'+n+' oz</button>').join("");document.body.appendChild(pop);
+ bottle.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();pop.classList.toggle("on")});
+ document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!bottle.contains(e.target))pop.classList.remove("on")});
+ pop.addEventListener("click",async e=>{
+   const b=e.target.closest("[data-qoz]");if(!b)return;const oz=+b.dataset.qoz,who=deviceCaregiver(),now=new Date();
+   b.disabled=true;
+   const entry={id:Date.now()+"-"+Math.random(),at:now.toISOString(),oz,tags:[],people:[who],notes:"",source:"quick-bottle",sourceText:oz+" oz quick bottle by "+who};
+   a.push(entry);persist();render();pop.classList.remove("on");
+   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:remote.amount_oz==null?null:+remote.amount_oz,tags:remote.tags||[],people:remote.caregivers||[],notes:remote.note||"",event_type:remote.event_type||"feed",source:remote.details?.source||"quick-bottle",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast(oz+" oz bottle logged ✓")}}
+   else toast(oz+" oz bottle saved on this phone");
+   b.disabled=false;
+ });
+})();
