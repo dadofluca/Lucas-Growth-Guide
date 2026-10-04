@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P63',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P64',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -775,6 +775,38 @@ const LUCA_RUNTIME={version:'P63',schedule:{coveragePeople:['Nona','Boppa','Jay'
  };
  if(document.getElementById("scheduleView")?.classList.contains("active"))window.pullSchedule();
 })();
-/* P63 — final drawer contrast, after all legacy styles */
+/* P64 — editable work blocks + Teddy schedule text preview */
+(function(){
+ const css=document.createElement("style");css.textContent=`
+ .workMgr63{width:100%;border:0;text-align:left;font-size:16px;color:#263d33!important;-webkit-text-fill-color:#263d33!important}.workMgr63 b:last-child{float:right}
+ .teddySched64{margin-top:14px;padding-top:14px;border-top:1px solid #d5c7b6}.teddySched64 textarea{width:100%;box-sizing:border-box;min-height:82px;border:1px solid #cdbda9;border-radius:15px;padding:12px;background:#fffaf2!important;color:#263d33!important;-webkit-text-fill-color:#263d33!important;font:inherit}.teddySched64 button{width:100%;margin-top:8px;border:0;border-radius:15px;padding:13px;background:#5a4a3d!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850}
+ .preview64{margin-top:10px}.proposal64{background:#fffaf2;border:1px solid #d6c8b7;border-radius:14px;padding:10px;margin:7px 0}.proposal64 label{display:flex;gap:8px;align-items:center}.apply64{background:#174b6b!important}
+ `;document.head.appendChild(css);
+ const dk=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const mins=x=>{let d=new Date(x);return d.getHours()*60+d.getMinutes()};
+ const iso=(day,m)=>{let p=day.split("-").map(Number);return new Date(p[0],p[1]-1,p[2],Math.floor(m/60),m%60).toISOString()};
+ function parseTime(raw,ampm){let p=String(raw).replace(".",":").split(":"),h=+p[0],m=+(p[1]||0),a=(ampm||"").toLowerCase();if(a==="pm"&&h<12)h+=12;if(a==="am"&&h===12)h=0;return h*60+m}
+ function parseScheduleText(text,day){
+   let out=[],parts=text.split(/\n|;|,(?=\s*(?:Sam|Maddie|Nona|Boppa|Jay|Yolanda|Lindsay)\b)/i);
+   const people=["Sam","Maddie",...LUCA_RUNTIME.schedule.coveragePeople];
+   for(let part of parts){let person=people.find(n=>new RegExp("\\b"+n+"\\b","i").test(part));if(!person)continue;let m=part.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?\s*(?:-|–|to|until)\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)?/i);if(!m)continue;let ap1=m[2],ap2=m[4];if(!ap1&&ap2)ap1=ap2;let start=parseTime(m[1],ap1),end=parseTime(m[3],ap2);if(end<=start)continue;out.push({person,kind:/^(sam|maddie)$/i.test(person)?"work":"coverage",day,start,end})}
+   return out
+ }
+ function workEditor(row,day){
+   window.lucaCoverageEditor?.({day,person:row.person,id:row.id,start:mins(row.start_at),end:mins(row.end_at)});
+   let w=document.querySelector(".cov57");if(!w)return;let h=w.querySelector("h2");if(h)h.textContent="Edit "+row.person+" work";
+   let sel=w.querySelector(".personPick63");if(sel){sel.innerHTML='<option>'+esc(row.person)+'</option>';sel.disabled=true}
+   let rem=w.querySelector(".remove57");if(rem)rem.style.display="none";
+   let save=w.querySelector(".save57");if(save){save.textContent="Save work hours";save.onclick=async()=>{let ss=w.querySelector(".ss57"),es=w.querySelector(".es57"),{error}=await sb.from("luca_schedule").update({start_at:iso(day,+ss.value),end_at:iso(day,+es.value),source:"work override"}).eq("id",row.id).eq("family_id",syncFamily);if(error)return toast("Couldn't save work hours");w.remove();toast("Work hours updated ✓");await window.pullSchedule()}}
+ }
+ const oldOpen=window.lucaOpenDayManager;
+ window.lucaOpenDayManager=function(day){
+   oldOpen(day);let w=document.querySelector(".dayMgr63");if(!w)return;let sheet=w.querySelector(".sheet63"),rows=scheduleRows.filter(r=>dk(r.start_at)===day),works=rows.filter(r=>r.kind==="work");
+   let workEls=[...w.querySelectorAll(".workMgr63")];workEls.forEach((el,i)=>{if(!works[i])return;let r=works[i];let b=document.createElement("button");b.className="workMgr63";b.innerHTML=el.innerHTML+' <b>Edit ›</b>';el.replaceWith(b);b.onclick=()=>{w.remove();workEditor(r,day)}});
+   let t=document.createElement("div");t.className="teddySched64";t.innerHTML='<b>🧸 Tell Teddy</b><div class="sub63">Paste or type a schedule. Teddy will preview it before anything is saved.</div><textarea placeholder="Example: Sam 6am–3pm; Maddie 7am–7:30pm; Nona 7am–3pm"></textarea><button class="parse64">Preview schedule</button><div class="preview64"></div>';sheet.querySelector(".closeMgr63").before(t);
+   t.querySelector(".parse64").onclick=()=>{let items=parseScheduleText(t.querySelector("textarea").value,day),p=t.querySelector(".preview64");if(!items.length){p.innerHTML='<div class="proposal64">I couldn’t confidently find a person plus start/end time. Try “Nona 7am–3pm”.</div>';return}p.innerHTML='<b>Teddy understood:</b>'+items.map((x,i)=>'<div class="proposal64"><label><input type="checkbox" data-i64="'+i+'" checked> '+(x.kind==="work"?"💼":"👶")+' <b>'+esc(x.person)+'</b> · '+clock(x.start)+'–'+clock(x.end)+'</label></div>').join("")+'<button class="apply64">Approve & save selected</button>';p.querySelector(".apply64").onclick=async()=>{let chosen=[...p.querySelectorAll("[data-i64]:checked")].map(c=>items[+c.dataset.i64]);if(!chosen.length)return;for(let x of chosen){let existing=scheduleRows.find(r=>r.kind===x.kind&&String(r.person).toLowerCase()===x.person.toLowerCase()&&dk(r.start_at)===day),vals={person:x.person,kind:x.kind,start_at:iso(day,x.start),end_at:iso(day,x.end),source:"teddy text"};let q=existing?sb.from("luca_schedule").update(vals).eq("id",existing.id).eq("family_id",syncFamily):sb.from("luca_schedule").insert({family_id:syncFamily,...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Teddy couldn't save the schedule")}w.remove();toast("Teddy updated the schedule ✓");await window.pullSchedule()}};
+ };
+})();
+/* P64 — final drawer contrast, after all legacy styles */
 (()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
-/* P63 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P64 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
