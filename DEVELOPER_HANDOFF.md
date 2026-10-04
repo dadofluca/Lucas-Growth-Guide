@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P63** (2026-10-04)
+**Current runtime at handoff:** **P64** (2026-10-04)
 
 ## Product intent
 
@@ -153,3 +153,4 @@ At the end of every meaningful development session, update this README with:
 - Teddy must not silently write ambiguous parsed schedule data. Show proposed work/coverage rows for confirmation/editing first.
 - Sam/Maddie work rows should become editable with the same polished time-range interaction used for coverage. Preserve an original/base schedule separately enough that Revert can restore intended work schedule rather than destroying it.
 - Next schedule architecture work should favor one canonical schedule repository/editor and one Teddy parser/preview interface rather than separate parsing logic for each input source.
+\n\n## P64 schedule + Teddy text input\n- Sam/Maddie work rows in Day Manager are now tappable/editable and reuse the time-range editor; work edits update the existing work row and do not expose coverage removal.\n- Day Manager now includes Tell Teddy text entry. It parses explicit person + time-range statements into work/coverage proposals, previews them with checkboxes, and requires Approve & save before writes.\n- Existing same-person/same-kind rows for the day are updated; otherwise new rows are inserted.\n- This is the first local schedule-text parser/preview layer, not yet the full AI/vision ingestion system. Photo/screenshot and imported-message ingestion should feed the same preview contract later.\n- Full sync-fix.js parse check passed. P64 awaiting iPhone verification.\n
