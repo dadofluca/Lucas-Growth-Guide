@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P55',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P56',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -661,4 +661,4 @@ const LUCA_RUNTIME={version:'P55',schedule:{coveragePeople:['Nona','Boppa','Jay'
  window.decorateSchedule53=()=>{let el=document.getElementById('scheduleList');if(!el)return;let cards=[...el.querySelectorAll('.scheduleDay48')];if(!cards.length)return;let base=new Date(scheduleCursor||new Date());base.setHours(0,0,0,0);base.setDate(base.getDate()-base.getDay());cards.forEach((card,i)=>{let d=new Date(base);d.setDate(d.getDate()+i);let day=d.toLocaleDateString('en-CA'),covers=(scheduleRows||[]).filter(x=>x.kind==='coverage'&&key53(x.start_at)===day);card.querySelectorAll('.cover48').forEach(n=>{let row=covers.find(x=>n.textContent.includes(x.person));if(row){n.classList.add('coverRow53');n.onclick=()=>open(day,row.person,row.id,m53(row.start_at),m53(row.end_at))}});if(covers.length){let b=document.createElement('button');b.className='dayRevert53';b.textContent='↶ Revert day · remove coverage';b.onclick=async()=>{if(!confirm('Remove all coverage for this day? Sam and Maddie work schedules will stay exactly as they are.'))return;let ids=covers.map(x=>x.id).filter(Boolean);if(!ids.length)return toast('No saved coverage to remove');let {error}=await sb.from('luca_schedule').delete().in('id',ids).eq('family_id',syncFamily);if(error)return toast("Couldn't revert day");toast('Coverage removed ✓');await pullSchedule()};card.appendChild(b)}})};
  const render53=window.renderSchedule;if(typeof render53==='function')window.renderSchedule=function(){render53();window.decorateSchedule53()};
 })();
-/* P55 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P56 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
