@@ -1,11 +1,9 @@
 import Foundation
 
-enum LucaEventKind: String, Codable {
-    case bottle = "feed"
-    case poop = "poop"
-}
+enum LucaEventKind: String, Codable { case bottle = "feed"; case poop = "poop" }
 
 struct LucaEventPayload: Codable {
+    let baby_id: String
     let event_type: String
     let event_time: String
     let amount_oz: Double?
@@ -15,29 +13,39 @@ struct LucaEventPayload: Codable {
 }
 
 enum LucaNativeLogger {
-    static func payload(kind: LucaEventKind, ounces: Double? = nil) -> LucaEventPayload {
-        LucaEventPayload(
+    static func log(kind: LucaEventKind, ounces: Double? = nil) async throws {
+        guard let session = try LucaSessionStore.load() else { throw NativeLoggerError.sessionNotConfigured }
+        guard session.expiresAt > Date().addingTimeInterval(30) else { throw NativeLoggerError.sessionExpired }
+
+        let payload = LucaEventPayload(
+            baby_id: session.babyID,
             event_type: kind.rawValue,
             event_time: ISO8601DateFormatter().string(from: .now),
             amount_oz: kind == .bottle ? ounces : nil,
             tags: kind == .poop ? ["poop"] : [],
-            caregivers: [LucaShared.caregiver],
-            details: ["source": "ios-native"]
+            caregivers: [session.caregiver],
+            details: ["source": "ios-widget"]
         )
-    }
 
-    // Network insertion will use the signed-in Luca family session shared through
-    // the App Group/Keychain. This intentionally does not contain privileged keys.
-    static func log(kind: LucaEventKind, ounces: Double? = nil) async throws {
-        _ = payload(kind: kind, ounces: ounces)
-        throw NativeLoggerError.sessionNotConfigured
+        var req = URLRequest(url: LucaShared.supabaseURL.appending(path: "rest/v1/baby_events"))
+        req.httpMethod = "POST"
+        req.setValue(LucaShared.publishableKey, forHTTPHeaderField: "apikey")
+        req.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        req.httpBody = try JSONEncoder().encode(payload)
+        let (_, response) = try await URLSession.shared.data(for: req)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw NativeLoggerError.writeFailed }
     }
 }
 
 enum NativeLoggerError: LocalizedError {
-    case sessionNotConfigured
-
+    case sessionNotConfigured, sessionExpired, writeFailed
     var errorDescription: String? {
-        "Open Luca's Growth Guide once to finish secure widget setup."
+        switch self {
+        case .sessionNotConfigured: return "Open Luca's Growth Guide once to finish widget setup."
+        case .sessionExpired: return "Open Luca's Growth Guide to refresh your family session."
+        case .writeFailed: return "Luca couldn't save that entry."
+        }
     }
 }
