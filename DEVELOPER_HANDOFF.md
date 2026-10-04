@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P61** (2026-10-04)
+**Current runtime at handoff:** **P62** (2026-10-04)
 
 ## Product intent
 
@@ -54,7 +54,7 @@ Important history:
 - **Root regression discovered at P59:** Quick Menu's Schedule handler in `index.html` called the old lexical `pullSchedule()`, bypassing `window.pullSchedule` from P48. This is why the app showed the old **October 2026 monthly screen** and none of the editor/Revert decorators appeared.
 - P59 changed the menu route to `(window.pullSchedule||pullSchedule)()`.
 
-**Verified on iPhone at P59:** Quick Menu → Luca Schedule now opens the intended weekly board.\n\n**Still failed at P59:** covered rows had no visible edit control/Revert Day; Quick Menu labels remained dark. P60 moves edit/Revert controls directly into the P48 weekly renderer instead of relying on a later decorator. P60 initially failed because sync-fix.js had a runtime-blocking P48 syntax error (escaped template-literal backticks). After repairing it and full-file parse validation, iPhone verification showed the weekly schedule, coverage gap controls, Revert Day, and coverage editor/sliders actually executing. P61 redesigns the editor toward iOS conventions: one dual-handle coverage track with tappable exact-time pills, plus a Manage/Add coverage action on every day including Parent available days. P61 awaiting iPhone verification.
+**Verified on iPhone at P59:** Quick Menu → Luca Schedule now opens the intended weekly board.\n\n**Still failed at P59:** covered rows had no visible edit control/Revert Day; Quick Menu labels remained dark. P60 moves edit/Revert controls directly into the P48 weekly renderer instead of relying on a later decorator. P60 initially failed because sync-fix.js had a runtime-blocking P48 syntax error (escaped template-literal backticks). After repairing it and full-file parse validation, iPhone verification showed the weekly schedule, coverage gap controls, Revert Day, and coverage editor/sliders actually executing. P61 slider redesign verified on iPhone, but Manage Day did not appear because obsolete P57 post-render wire() threw on out-of-scope P48 helpers. P62 removes that wrapper, puts Manage Day directly in the canonical weekly renderer, shows manual coverage on every day (even when Parent available), adds a caregiver selection sheet, and fixes schedule/editor button contrast. P62 awaiting iPhone verification.
 
 ## Event persistence / Supabase — HIGH PRIORITY
 
