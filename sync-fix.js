@@ -105,3 +105,66 @@
    },0);
  },true);
 })();
+
+/* P37 — event time is when it happened; edits preserve provenance + undo */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P37";
+ const st=document.createElement("style");
+ st.textContent=`
+ .editMeta{font-size:12px;color:#66716b!important;-webkit-text-fill-color:#66716b!important;margin-top:8px}
+ .undoEdit{margin-left:6px;border:0;background:transparent!important;color:#9b5a38!important;-webkit-text-fill-color:#9b5a38!important;font-weight:800;padding:3px 5px}
+ `;document.head.appendChild(st);
+
+ // Preserve original event state before editing, so Undo can restore the shared row.
+ let editSnapshots={};
+ document.addEventListener("click",e=>{
+   const b=e.target.closest("[data-edit]");if(!b)return;
+   const row=a.find(x=>String(x.id)===String(b.dataset.edit));
+   if(row)editSnapshots[String(row.id)]=JSON.parse(JSON.stringify(row));
+ },true);
+
+ const baseUpdate=window.updateRemote;
+ window.updateRemote=async function(e){
+   if(!syncBaby||!e.remote)return;
+   const prior=editSnapshots[String(e.id)];
+   const details={};
+   if(prior){
+     details.original_event={
+       event_time:prior.at,amount_oz:prior.oz,tags:prior.tags||[],
+       caregivers:prior.people||[],note:prior.notes||"",
+       sourceText:prior.sourceText||""
+     };
+     details.edited_at=new Date().toISOString();
+   }
+   const payload={event_time:e.at,amount_oz:e.oz||null,note:e.notes||null,tags:e.tags||[],caregivers:e.people||[],event_type:e.oz?"feed":((e.tags&&e.tags[0])||"other")};
+   if(prior)payload.details={source:prior.source||"smart",sourceText:prior.sourceText||null,...details};
+   const {error}=await sb.from("baby_events").update(payload).eq("id",e.id);
+   if(error)toast("Couldn't save shared edit");
+ };
+
+ window.undoLucaEdit=async function(id){
+   const old=editSnapshots[String(id)];if(!old)return toast("Nothing to undo");
+   let cur=a.find(x=>String(x.id)===String(id));if(!cur)return;
+   const restored={...old,id:cur.id,remote:cur.remote};
+   a=a.map(x=>String(x.id)===String(id)?restored:x);persist();render();
+   if(restored.remote)await sb.from("baby_events").update({
+     event_time:restored.at,amount_oz:restored.oz||null,note:restored.notes||null,
+     tags:restored.tags||[],caregivers:restored.people||[],
+     event_type:restored.oz?"feed":((restored.tags&&restored.tags[0])||"other"),
+     details:{source:restored.source||"smart",sourceText:restored.sourceText||null}
+   }).eq("id",id);
+   delete editSnapshots[String(id)];toast("Edit undone ✓");
+ };
+
+ // After a successful edit, offer a short-lived Undo action without changing original provenance.
+ document.getElementById("saveEntry")?.addEventListener("click",()=>{
+   const id=editId;if(!id)return;
+   setTimeout(()=>{
+     if(!editSnapshots[String(id)])return;
+     const t=document.getElementById("toast");if(!t)return;
+     t.innerHTML='Entry updated ✓ <button class="undoEdit" type="button">Undo</button>';
+     t.classList.add("on");
+     t.querySelector(".undoEdit")?.addEventListener("click",()=>window.undoLucaEdit(id));
+   },80);
+ },true);
+})();
