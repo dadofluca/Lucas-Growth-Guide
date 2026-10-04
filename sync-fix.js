@@ -465,3 +465,35 @@
    setTimeout(finish,9000);
  }
 })();
+
+/* P46 — top Quick Poop + reliable single-layer intro */
+(function(){
+ const badge=document.getElementById("patchBadge");if(badge)badge.textContent="P46";
+ // Put poop beside the top bottle, not in the side dock.
+ const head=document.querySelector("#todayView header.top"),bottle=head?.querySelector(".icon");
+ if(head&&bottle){
+   let wrap=document.getElementById("topQuickActions");
+   if(!wrap){wrap=document.createElement("div");wrap.id="topQuickActions";wrap.style.cssText="display:flex;gap:9px;align-items:center";bottle.parentNode.insertBefore(wrap,bottle);wrap.appendChild(bottle);
+     const p=document.createElement("div");p.id="topPoop";p.className="icon";p.textContent="💩";p.setAttribute("role","button");p.setAttribute("aria-label","Quick poop");wrap.appendChild(p);
+   }
+   const p=document.getElementById("topPoop"),pop=document.querySelector(".quickPoopPop");
+   if(p&&pop){p.onclick=e=>{e.preventDefault();e.stopPropagation();const r=p.getBoundingClientRect();pop.style.top=(r.bottom+8)+"px";pop.style.right=Math.max(8,innerWidth-r.right)+"px";pop.classList.toggle("on")}}
+ }
+ // Disable P45's side-dock quick-poop interception; side dock goes back to status/fun.
+ const side=document.getElementById("carePoop");if(side){const clone=side.cloneNode(true);side.parentNode.replaceChild(clone,side)}
+
+ // iOS intro: use ONE visible video layer. A second simultaneous decode was freezing on frame 1.
+ const intro=document.getElementById("bootCinematic");
+ if(intro){
+   const blur=intro.querySelector(".introBlur"),main=intro.querySelector(".introMain"),skip=intro.querySelector(".introSkip");
+   if(blur){try{blur.pause()}catch(e){} blur.remove()}
+   if(main){
+     main.muted=true;main.playsInline=true;main.setAttribute("playsinline","");main.setAttribute("webkit-playsinline","");main.preload="auto";
+     const finish=()=>{intro.classList.add("done");setTimeout(()=>intro.style.display="none",650)};
+     let watchdog=setTimeout(()=>{if(main.currentTime<0.08)finish()},2600);
+     main.addEventListener("playing",()=>clearTimeout(watchdog),{once:true});main.addEventListener("ended",finish,{once:true});main.addEventListener("error",finish,{once:true});
+     skip?.addEventListener("click",finish,{once:true});
+     try{main.currentTime=0;main.load();const play=main.play();if(play?.catch)play.catch(()=>{})}catch(e){}
+   }
+ }
+})();
