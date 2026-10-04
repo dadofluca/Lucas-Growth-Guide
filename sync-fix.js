@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P62',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P63',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -716,6 +716,65 @@ const LUCA_RUNTIME={version:'P62',schedule:{coveragePeople:['Nona','Boppa','Jay'
    paint();
  };
 })();
-/* P62 — final drawer contrast, after all legacy styles */
+/* P63 — unified schedule day manager */
+(function(){
+ const css=document.createElement("style");css.textContent=`
+ #scheduleView .manage62{display:none!important}
+ #scheduleView .scheduleDay48{position:relative;cursor:pointer;padding-right:14px!important}
+ #scheduleView .scheduleDay48:after{content:"•••";position:absolute;right:16px;bottom:11px;font-weight:900;letter-spacing:2px;color:#5d6d64;-webkit-text-fill-color:#5d6d64}
+ #scheduleView .scheduleDay48 button{cursor:pointer}
+ .dayMgr63{position:fixed;inset:0;z-index:2147483642;background:#10171499;display:grid;align-items:end;padding:14px}
+ .dayMgr63>.sheet63{background:#f8efe2;border-radius:28px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-width:520px;width:100%;margin:auto;box-sizing:border-box;color:#263d33;max-height:82vh;overflow:auto}
+ .dayMgr63 h2{margin:0 0 4px;font-size:23px}.dayMgr63 .sub63{color:#617069;-webkit-text-fill-color:#617069;margin-bottom:14px}
+ .workMgr63,.covMgr63{border-radius:15px;padding:12px 13px;margin:8px 0}.workMgr63{background:#e2e3df}.covMgr63{width:100%;border:0;background:#c8eed7!important;color:#174f34!important;-webkit-text-fill-color:#174f34!important;text-align:left;font-size:16px;font-weight:800;display:flex;justify-content:space-between;gap:10px}.covMgr63 span{font-weight:700}
+ .addMgr63{width:100%;border:0;border-radius:15px;padding:14px;margin-top:12px;background:#174b6b!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850;font-size:16px}
+ .revertMgr63,.closeMgr63{width:100%;border-radius:15px;padding:13px;margin-top:9px;font-weight:800}.revertMgr63{background:#fff2ed!important;color:#8f3c30!important;-webkit-text-fill-color:#8f3c30!important;border:1px solid #e3b3a7!important}.closeMgr63{background:#fffaf2!important;color:#294036!important;-webkit-text-fill-color:#294036!important;border:1px solid #cdbda9!important}
+ .carePick63{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.carePick63 button{border:0;border-radius:15px;padding:14px;background:#174b6b!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;font-weight:850;font-size:16px}
+ .cov57 .personPick63{width:100%;box-sizing:border-box;margin:10px 0 4px;padding:12px 14px;border:1px solid #cdbda9;border-radius:14px;background:#fffaf2;color:#263d33;font-size:17px;font-weight:800}
+ `;document.head.appendChild(css);
+
+ const dateKey=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const fmt=x=>new Date(x).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+ function rowsFor(day){return scheduleRows.filter(r=>dateKey(r.start_at)===day)}
+ function open(day){
+   document.querySelector(".dayMgr63")?.remove();
+   const rows=rowsFor(day),works=rows.filter(r=>r.kind==="work"),covers=rows.filter(r=>r.kind==="coverage"),d=new Date(day+"T12:00:00");
+   let w=document.createElement("div");w.className="dayMgr63";
+   w.innerHTML='<div class="sheet63"><h2>'+d.toLocaleDateString([],{weekday:"long",month:"long",day:"numeric"})+'</h2><div class="sub63">Work schedule and childcare coverage</div>'+
+     (works.length?works.map(r=>'<div class="workMgr63">💼 <b>'+esc(r.person)+'</b> · '+fmt(r.start_at)+'–'+fmt(r.end_at)+'</div>').join(""):'<div class="workMgr63">No Sam/Maddie work block scheduled.</div>')+
+     '<div class="coverList63">'+(covers.length?covers.map(r=>'<button class="covMgr63" data-edit63="'+esc(r.id||"")+'" data-person63="'+esc(r.person)+'" data-start63="'+(new Date(r.start_at).getHours()*60+new Date(r.start_at).getMinutes())+'" data-end63="'+(new Date(r.end_at).getHours()*60+new Date(r.end_at).getMinutes())+'"><span>👶 '+esc(r.person)+' · '+fmt(r.start_at)+'–'+fmt(r.end_at)+'</span><b>Edit ›</b></button>').join(""):'<div class="sub63">No childcare coverage recorded.</div>')+'</div>'+
+     '<button class="addMgr63">＋ Add coverage</button>'+(covers.length?'<button class="revertMgr63">↶ Revert day · remove all coverage</button>':'')+'<button class="closeMgr63">Done</button></div>';
+   document.body.appendChild(w);
+   w.querySelectorAll("[data-edit63]").forEach(b=>b.onclick=()=>{w.remove();window.lucaCoverageEditor?.({day,person:b.dataset.person63,id:b.dataset.edit63,start:+b.dataset.start63,end:+b.dataset.end63})});
+   w.querySelector(".addMgr63").onclick=()=>{let box=w.querySelector(".sheet63"),old=box.querySelector(".carePick63");if(old){old.remove();return}let p=document.createElement("div");p.className="carePick63";p.innerHTML=LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-p63="'+esc(n)+'">'+esc(n)+'</button>').join("");box.querySelector(".addMgr63").after(p);p.querySelectorAll("[data-p63]").forEach(b=>b.onclick=()=>{let person=b.dataset.p63;w.remove();window.lucaCoverageEditor?.({day,person})})};
+   w.querySelector(".revertMgr63")?.addEventListener("click",async()=>{if(!confirm("Remove all childcare coverage for this day? Sam and Maddie work schedules stay unchanged."))return;let ids=covers.map(x=>x.id).filter(Boolean),{error}=await sb.from("luca_schedule").delete().eq("family_id",syncFamily).in("id",ids);if(error)return toast("Couldn't revert day");w.remove();toast("Day reverted ✓");await window.pullSchedule()});
+   w.querySelector(".closeMgr63").onclick=()=>w.remove();w.onclick=e=>{if(e.target===w)w.remove()};
+ }
+ window.lucaOpenDayManager=open;
+
+ const priorRender=window.renderSchedule;
+ window.renderSchedule=function(){
+   priorRender();
+   document.querySelectorAll("#scheduleList .scheduleDay48").forEach(card=>{
+     const label=card.querySelector(".scheduleDayTop48 b")?.textContent;if(!label)return;
+     const d=new Date(label+" "+new Date().getFullYear()+" 12:00:00");if(isNaN(d))return;
+     const day=dateKey(d);
+     card.onclick=e=>{if(e.target.closest("button"))return;open(day)};
+     const m=card.querySelector(".manage62");if(m)m.onclick=e=>{e.stopPropagation();open(day)};
+   });
+ };
+
+ const priorEditor=window.lucaCoverageEditor;
+ window.lucaCoverageEditor=function(o){
+   priorEditor(o);const w=document.querySelector(".cov57");if(!w)return;
+   const h=w.querySelector("h2");if(h)h.textContent=o.id?"Edit coverage":"Add coverage";
+   let sel=w.querySelector(".personPick63");
+   if(!sel){sel=document.createElement("select");sel.className="personPick63";sel.innerHTML=LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<option value="'+esc(n)+'" '+(n===o.person?"selected":"")+'>'+esc(n)+'</option>').join("");h?.after(sel)}
+   const save=w.querySelector(".save57");
+   if(save){const original=save.onclick;save.onclick=async()=>{const chosen=sel.value;if(chosen===o.person)return original();let st=w.querySelector(".ss57"),en=w.querySelector(".es57");const iso=(day,m)=>{let p=day.split("-").map(Number);return new Date(p[0],p[1]-1,p[2],Math.floor(m/60),m%60).toISOString()};let vals={person:chosen,start_at:iso(o.day,+st.value),end_at:iso(o.day,+en.value),source:"coverage editor"};let q=o.id?sb.from("luca_schedule").update(vals).eq("id",o.id).eq("family_id",syncFamily):sb.from("luca_schedule").insert({family_id:syncFamily,kind:"coverage",...vals,created_by:syncUser.id});let {error}=await q;if(error)return toast("Couldn't save coverage");w.remove();toast("Coverage saved ✓");await window.pullSchedule()}};
+ };
+ if(document.getElementById("scheduleView")?.classList.contains("active"))window.pullSchedule();
+})();
+/* P63 — final drawer contrast, after all legacy styles */
 (()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
-/* P62 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
+/* P63 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();
