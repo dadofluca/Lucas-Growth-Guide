@@ -1,5 +1,5 @@
 /** Safe Builder patch planner. Produces deterministic, reviewed change requests only. */
-const allowedFiles=new Set(["agents/README.md","docs/autonomous-agent-operations.md","docs/spark-design-research.md"]);
+const allowedFiles=new Set(["docs/agent-generated-proposal.md","agents/README.md","docs/autonomous-agent-operations.md","docs/spark-design-research.md"]);
 export function prepareBuilderPatch({finding,files=[]}={}){
  if(!finding||typeof finding.code!=="string"||!/^[a-z][a-z0-9_-]{1,63}$/.test(finding.code))throw new TypeError("Invalid finding code");
  if(!Array.isArray(files)||files.length===0||files.length>3)throw new TypeError("1-3 proposed files required");
