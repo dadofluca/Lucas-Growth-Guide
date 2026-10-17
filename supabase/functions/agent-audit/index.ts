@@ -10,7 +10,7 @@ async function query(table:string,columns:string,limit=1000){
 }
 async function save(table:string,rows:unknown[],upsert=false){
  if(!rows.length)return;
- const privateSchema=table.startsWith("agent_ops.");
+ const privateSchema=false;
  const resource=privateSchema?table.split(".")[1]:table;
  const endpoint=`${url}/rest/v1/${resource}${upsert?"?on_conflict=fingerprint":""}`;
  const r=await fetch(endpoint,{method:"POST",headers:{...headers,...(privateSchema?{"Content-Profile":"agent_ops"}:{}),"Prefer":upsert?"resolution=ignore-duplicates,return=minimal":"return=minimal"},body:JSON.stringify(rows)});
@@ -46,8 +46,8 @@ Deno.serve(async(req)=>{
   for(const report of reports.filter((r:any)=>r.status==="new"||r.status==="triaged"))
    add("guardian","user_report_pending","medium",[report.id],{category:report.category});
   const runRows=["atlas","guardian"].map(agent=>({agent,status:"completed",finished_at:new Date().toISOString(),summary:{checked_events:events.length,checked_reports:reports.length,findings:findings.filter(f=>f.agent===agent).length}}));
-  await save("agent_ops.runs",runRows);
-  await save("agent_ops.findings",findings.map(f=>({...f,status:"open",updated_at:new Date().toISOString()})),true);
+  await save("agent_runs",runRows);
+  await save("agent_findings",findings.map(f=>({...f,status:"open",updated_at:new Date().toISOString()})),true);
   return Response.json({ok:true,events_checked:events.length,reports_checked:reports.length,findings:findings.length});
  }catch(e){return Response.json({ok:false,error:"Agent audit failed; inspect server logs"},{status:500});}
 });
