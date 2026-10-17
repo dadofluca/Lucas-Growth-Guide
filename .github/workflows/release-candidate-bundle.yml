@@ -1,0 +1,43 @@
+name: Luca release candidate bundle
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/agent-operations-v1]
+    paths:
+      - 'index.html'
+      - 'emergency.html'
+      - 'sw.js'
+      - 'family-pin.js'
+      - 'sync-fix.js'
+      - 'agents/**'
+      - '.github/workflows/release-candidate-bundle.yml'
+permissions:
+  contents: read
+jobs:
+  preview-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run regression suite
+        run: node --test agents/*.test.mjs
+      - name: Check deployable entry points
+        run: |
+          test -s index.html
+          test -s emergency.html
+          test -s sw.js
+          test -s family-pin.js
+          test -s sync-fix.js
+      - name: Package static candidate (no deployment)
+        run: |
+          mkdir -p release-candidate
+          cp index.html emergency.html sw.js family-pin.js sync-fix.js release-candidate/
+          cp -r agents release-candidate/
+          printf '%s\n' "${GITHUB_SHA}" > release-candidate/commit.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: luca-static-release-candidate
+          path: release-candidate/
+          retention-days: 14
