@@ -142,3 +142,23 @@ test("confirmed emergency deletion survives reload and does not appear in backup
  const payload=JSON.parse(readFileSync(await file.path(),"utf8"));
  expect(payload.entries.some(entry=>entry.text==="Synthetic QA: delete this entry")).toBe(false);
 });
+
+test("phone layout keeps family forms full width and care dock out of the way",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  for(const tab of ["chat","profile"]){
+   await page.locator('nav button[data-tab="'+tab+'"]').click();
+   await expect(page.locator("#careDock")).toBeHidden();
+   const selector=tab==="chat"?"#familyChatText":"#profileName";
+   const field=page.locator(selector);
+   await expect(field).toBeVisible();
+   const box=await field.boundingBox();
+   expect(box).not.toBeNull();
+   expect(box.x).toBeGreaterThanOrEqual(0);
+   expect(box.x+box.width).toBeLessThanOrEqual(391);
+  }
+ }finally{await context.close();}
+});
