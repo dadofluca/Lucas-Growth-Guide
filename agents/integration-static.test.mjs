@@ -23,3 +23,11 @@ test("worker requires authorization and does not log private report descriptions
 test("PWA does not embed service role credentials",()=>{
  assert.doesNotMatch(html,/SUPABASE_SERVICE_ROLE_KEY|sb_secret_/);
 });
+
+test("audit catches null bottle quantities rather than coercing null to zero",()=>{
+ assert.match(worker,/e\.amount_oz===null/);
+});
+test("agent findings use idempotent fingerprint insertion",()=>{
+ assert.match(worker,/on_conflict=fingerprint/);
+ assert.match(worker,/resolution=ignore-duplicates/);
+});
