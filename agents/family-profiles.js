@@ -10,6 +10,7 @@ function lastSeen(iso){
 }
 export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio,avatar,save,status}){
  const say=t=>status.textContent=t;
+ async function heartbeat(){const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}
  async function refresh(){
   const client=getClient(),family=getFamilyId(),user=getUser();
   if(!client||!family||!user){say("Sign in to Family Sync to see profiles.");return;}
@@ -34,11 +35,11 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   try{
    const {error}=await client.from("family_profiles").upsert({family_id:family,user_id:user.id,display_name,bio:description,avatar_preset:preset,updated_at:new Date().toISOString()},{onConflict:"family_id,user_id"});
    if(error)throw error;
-   await refresh();say("Profile saved.");
+   await heartbeat();await refresh();say("Profile saved.");
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
  });
- refresh();
- const timer=setInterval(()=>{if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
+ refresh();heartbeat();
+ const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
  return ()=>clearInterval(timer);
 }
