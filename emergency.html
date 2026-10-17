@@ -6,9 +6,9 @@
 <label for="who">Caregiver</label><input id="who" autocomplete="name" placeholder="Sam, Maddie, Nona…" maxlength="60">
 <p><label for="note">What happened? Include amount and time when relevant.</label></p>
 <textarea id="note" placeholder="8:30 AM · Luca drank 6 oz, changed wet diaper — Sam" maxlength="3000"></textarea>
-<div class="actions"><button id="save">Save on this device</button><button id="export">Export backup</button></div>
+<div class="actions"><button id="save">Save on this device</button><button id="export">Export backup</button><button id="review">Review for recovery</button></div>
 <p id="notice" role="status" aria-live="polite">This is a temporary backup, not a synchronized family timeline.</p>
-<h2>Saved entries <span id="count"></span></h2><div id="entries"></div>
+<section id="recovery" hidden><h2>Recovery review</h2><p>Nothing is added to shared history automatically. Check entries before exporting.</p><div id="reviewItems"></div><button id="exportReviewed">Export reviewed entries</button></section><h2>Saved entries <span id="count"></span></h2><div id="entries"></div>
 </main><script>
 (function(){
 "use strict";
@@ -38,6 +38,27 @@ $("export").onclick=()=>{
  const data=JSON.stringify({format:"luca-emergency-log-v1",exported_at:new Date().toISOString(),entries:read()},null,2);
  const url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");
  a.href=url;a.download="luca-emergency-log-"+new Date().toISOString().slice(0,10)+".json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);status("Backup export requested. Check Files or Downloads before clearing any entries.");
+};
+
+$("review").onclick=()=>{
+ $("recovery").hidden=false;
+ const list=$("reviewItems");list.replaceChildren();const seen=new Set();
+ for(const item of read()){
+  const card=document.createElement("article"),label=document.createElement("label"),check=document.createElement("input"),note=document.createElement("div");
+  check.type="checkbox";check.dataset.sourceId=item.id;check.disabled=seen.has(item.id);seen.add(item.id);
+  label.append(check,document.createTextNode(" Confirm "+(item.caregiver||"Unspecified")+" · "+new Date(item.recorded_at).toLocaleString()));
+  note.className="entry";note.textContent=item.text;card.append(label,note);list.append(card);
+ }
+ status("Review entries; only checked entries will be exported for later reconciliation.");
+};
+$("exportReviewed").onclick=()=>{
+ const selected=new Set([...$("reviewItems").querySelectorAll("input:checked")].map(x=>x.dataset.sourceId));
+ const entries=read().filter(x=>selected.has(x.id)).map(x=>({...x,reviewed:true}));
+ if(!entries.length){status("Select entries to export.");return}
+ const payload={format:"luca-emergency-reviewed-v1",exported_at:new Date().toISOString(),entries};
+ const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"})),a=document.createElement("a");
+ a.href=url;a.download="luca-reviewed-recovery.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+ status("Reviewed backup exported. It has NOT been imported into shared history.");
 };
 render();
 })();
