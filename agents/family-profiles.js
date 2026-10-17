@@ -13,9 +13,10 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
  async function heartbeat(){const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}
  async function refresh(){
   const client=getClient(),family=getFamilyId(),user=getUser();
-  if(!client||!family||!user){say("Sign in to Family Sync to see profiles.");return;}
+  if(!client||!family||!user){list.replaceChildren();say("Sign in to Family Sync to see profiles.");return;}
   const {data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at").eq("family_id",family).order("display_name");
   if(error){say("Profiles unavailable. Try again.");return;}
+  if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   list.replaceChildren();
   for(const p of data||[]){
    const row=document.createElement("div");row.style.cssText="padding:12px;border-bottom:1px solid #ddd";
