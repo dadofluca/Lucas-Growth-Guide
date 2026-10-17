@@ -47,13 +47,13 @@ $("review").onclick=()=>{
   const card=document.createElement("article"),label=document.createElement("label"),check=document.createElement("input"),note=document.createElement("div");
   check.type="checkbox";check.dataset.sourceId=item.id;check.disabled=seen.has(item.id);seen.add(item.id);
   label.append(check,document.createTextNode(" Confirm "+(item.caregiver||"Unspecified")+" · "+new Date(item.recorded_at).toLocaleString()));
-  note.className="entry";note.textContent=item.text;card.append(label,note);list.append(card);
+  note.className="entry";note.textContent=item.text;const correction=document.createElement("textarea");correction.value=item.text;correction.dataset.editId=item.id;correction.setAttribute("aria-label","Correct event details before export");card.append(label,note,correction);list.append(card);
  }
  status("Review entries; only checked entries will be exported for later reconciliation.");
 };
 $("exportReviewed").onclick=()=>{
  const selected=new Set([...$("reviewItems").querySelectorAll("input:checked")].map(x=>x.dataset.sourceId));
- const entries=read().filter(x=>selected.has(x.id)).map(x=>({...x,reviewed:true}));
+ const entries=read().filter(x=>selected.has(x.id)).map(x=>{const editor=[...$("reviewItems").querySelectorAll("textarea")].find(e=>e.dataset.editId===x.id);return {...x,text:editor?.value.trim()||x.text,reviewed:true}});
  if(!entries.length){status("Select entries to export.");return}
  const payload={format:"luca-emergency-reviewed-v1",exported_at:new Date().toISOString(),entries};
  const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"})),a=document.createElement("a");
