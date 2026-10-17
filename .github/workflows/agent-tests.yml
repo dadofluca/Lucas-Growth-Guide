@@ -52,6 +52,8 @@ jobs:
           find . -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" -o -iname "*.ico" -o -iname "*.webp" -o -iname "*.mov" -o -iname "*.mp3" -o -iname "*.mp4" \) -exec cp {} artifacts/luca-release/ \;
           cp artifacts/release-readiness.json artifacts/luca-release/
           printf '%s\n' "${GITHUB_SHA}" > artifacts/luca-release/commit.txt
+      - name: Validate packaged local assets
+        run: node agents/check-release-bundle.mjs artifacts/luca-release
       - name: Upload installable static release candidate
         uses: actions/upload-artifact@v4
         with:
