@@ -21,7 +21,7 @@ test("service worker retains current emergency cache during activation",()=>{
 });
 
 test("emergency standalone script parses without the main app bundle",()=>{
- const match=html.match(/<script>([\\s\\S]*?)<\\/script>/);
+ const start=html.indexOf("<script>"),end=html.indexOf("</script>",start); const match=start>=0&&end>start?[null,html.slice(start+8,end)]:null;
  assert.ok(match,"inline emergency script exists");
  assert.doesNotThrow(()=>new Script(match[1],{filename:"emergency.html"}));
 });
