@@ -49,6 +49,7 @@ export async function commitApprovedRecovery(client,preview,{babyId,userId}={}){
  const rows=prepareRecoveryRows(preview,{babyId,userId});
  // Caller must not invoke until the unique emergency-source index is deployed.
  if(rows.length===0)return {inserted:0,alreadyPresent:0,failed:0};
+ if(new Set(rows.map(row=>row.details.emergency_source_id)).size!==rows.length)throw Error("Duplicate recovery source keys");
  const results={inserted:0,alreadyPresent:0,failed:0};
  for(const row of rows){
   const key=row.details.emergency_source_id;
