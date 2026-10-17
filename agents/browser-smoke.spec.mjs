@@ -66,3 +66,18 @@ test("emergency page is available offline after service-worker installation",asy
   await expect(page.locator("h1")).toContainText("emergency log");
  }finally{await context.close();}
 });
+
+test("emergency recovery review never silently syncs records",async({page})=>{
+ let remoteWrites=0;
+ await page.route("https://**/*",route=>{
+  if(["POST","PUT","PATCH","DELETE"].includes(route.request().method()))remoteWrites++;
+  return route.abort();
+ });
+ await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#note").fill("Synthetic QA: 7 oz bottle");
+ await page.locator("#save").click();
+ await page.locator("#review").click();
+ await expect(page.locator("#recovery")).toBeVisible();
+ await expect(page.locator("#reviewItems")).toContainText("Synthetic QA: 7 oz bottle");
+ expect(remoteWrites).toBe(0);
+});
