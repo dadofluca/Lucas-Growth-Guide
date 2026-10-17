@@ -1,5 +1,5 @@
 /** Evidence-based gate: a synthetic run is not proof of production readiness. */
-export const checks=["unit","authentication","logging","family_chat","profiles","audio","family_isolation","iphone"];
+export const checks=["unit","authentication","logging","family_chat","profiles","audio","family_isolation","iphone","offline_fallback","rollback"];
 export function assessReadiness(evidence={}){
  const results=checks.map(id=>{
   const item=evidence[id];
