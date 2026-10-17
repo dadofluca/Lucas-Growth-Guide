@@ -16,9 +16,10 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  async function load(){
   const request=++requestId;
   const sb=getClient(),family=getFamilyId(),user=getUser();
-  if(!sb||!family||!user){say("Sign in to Family Sync to use chat.");return;}
+  if(!sb||!family||!user){feed.replaceChildren();say("Sign in to Family Sync to use chat.");return;}
   const {data,error}=await sb.from("family_chat_messages").select("id,sender_id,body,created_at").eq("family_id",family).order("created_at",{ascending:false}).limit(100);
-  if(disposed||request!==requestId||getFamilyId()!==family||getUser()?.id!==user.id)return;
+  if(disposed||request!==requestId)return;
+  if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   if(error){say("Chat is unavailable right now. Please try again.");return;}
   const {data:people}=await sb.from("family_profiles").select("user_id,display_name").eq("family_id",family);
   const names=new Map((people||[]).map(p=>[p.user_id,p.display_name]));
