@@ -16,3 +16,8 @@ test("last-active is based on visible app heartbeat and not a permanent online c
 test("family membership and self-update are enforced by RLS",()=>{
  assert.match(sql,/enable row level security/);assert.match(sql,/family_profiles_read/);assert.match(sql,/family_profiles_update/);assert.match(sql,/user_id=\(select auth\.uid\(\)\)/);
 });
+
+test("profile view clears prior family on sign-out or account switch",()=>{
+ assert.match(js,/if\(!client\|\|!family\|\|!user\)\{list\.replaceChildren\(\)/);
+ assert.match(js,/if\(getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)\{list\.replaceChildren\(\)/);
+});
