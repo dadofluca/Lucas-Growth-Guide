@@ -26,7 +26,7 @@ test("server-side family membership and sender identity enforced",()=>{
 
 test("chat ignores stale refresh results and stops updates after unmount",()=>{
  assert.match(js,/requestId=0,disposed=false/);
- assert.match(js,/if\(disposed\|\|request!==requestId\)return/g);
+ assert.match(js,/if\(disposed\|\|request!==requestId\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)return/g);
  assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\)/);
 });
 
