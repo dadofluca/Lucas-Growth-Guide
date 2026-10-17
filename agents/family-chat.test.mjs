@@ -23,3 +23,9 @@ test("server-side family membership and sender identity enforced",()=>{
  assert.match(sql,/sender_id=\(select auth\.uid\(\)\)/);
  assert.doesNotMatch(sql,/grant .* to anon/);
 });
+
+test("chat ignores stale refresh results and stops updates after unmount",()=>{
+ assert.match(js,/requestId=0,disposed=false/);
+ assert.match(js,/if\(disposed\|\|request!==requestId\)return/g);
+ assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\)/);
+});
