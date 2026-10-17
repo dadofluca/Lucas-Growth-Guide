@@ -1,4 +1,5 @@
 import {test,expect} from "@playwright/test";
+import {readFileSync} from "node:fs";
 
 test("app loads and core tabs are reachable without a signed-in session",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
@@ -30,6 +31,9 @@ test("emergency entry persists after reload and can be exported",async({page})=>
  await page.locator("#export").click();
  const download=await downloadPromise;
  expect(download.suggestedFilename()).toMatch(/\.json$/);
+ const backup=JSON.parse(readFileSync(await download.path(),"utf8"));
+ expect(backup.format).toBe("luca-emergency-log-v1");
+ expect(backup.entries).toEqual(expect.arrayContaining([expect.objectContaining({caregiver:"Test caregiver",text:"Synthetic QA entry: 6 oz at 8:30",source:"emergency-local"})]));
 });
 
 test("emergency log refuses empty entries and preserves a saved entry when deletion is cancelled",async({page})=>{
