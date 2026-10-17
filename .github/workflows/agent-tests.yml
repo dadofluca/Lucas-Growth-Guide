@@ -70,6 +70,16 @@ jobs:
           printf '%s\n' "${GITHUB_SHA}" > artifacts/luca-release/commit.txt
       - name: Validate packaged local assets
         run: node agents/check-release-bundle.mjs artifacts/luca-release
+      - name: Build isolated demo preview
+        run: |
+          node agents/build-demo-preview.mjs
+          node agents/check-release-bundle.mjs artifacts/luca-preview
+      - name: Upload isolated demo preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: luca-demo-preview
+          path: artifacts/luca-preview/
+          retention-days: 14
       - name: Upload installable static release candidate
         uses: actions/upload-artifact@v4
         with:
