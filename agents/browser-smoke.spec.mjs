@@ -91,3 +91,19 @@ test("sign-out and family tabs do not expose previous messages to a guest",async
  await page.locator('nav button[data-tab="profile"]').click();
  await expect(page.locator("#familyProfileList")).toBeEmpty();
 });
+
+test("mobile-size viewport can navigate Family Chat, profiles, and emergency backup",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.locator('nav button[data-tab="chat"]').click();
+  await expect(page.locator("#chatView")).toHaveClass(/active/);
+  await page.locator('nav button[data-tab="profile"]').click();
+  await expect(page.locator("#profileView")).toHaveClass(/active/);
+  await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+  await expect(page.locator("#save")).toBeVisible();
+  await expect(page.locator("#export")).toBeVisible();
+ }finally{await context.close();}
+});
