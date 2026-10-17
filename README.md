@@ -41,9 +41,9 @@ See [Agent Operations Plan](docs/agent-operations.md).
 | Initial read-only backend inspection | Done |
 | Daily ChatGPT read-only audit | Scheduled separately; not an app agent runtime |
 | Create agent architecture and safety plan | Done on `feature/agent-operations-v1` |
-| Create agent findings / run-history schema | Not started |
+| Create agent findings / run-history schema | Deployed in private `agent_ops` schema; RLS enabled; access restricted |
 | Implement Atlas data-integrity worker | Pure read-only prototype committed; tests not yet executed |
-| Implement Teddy, Scout, Guardian, Builder workers | Not started |
+| Implement Teddy, Scout, Guardian, Builder workers | Pure read-only / proposal modules committed; tests not yet executed |
 | Deploy authenticated recurring backend scheduler | Not started |
 | In-app reporting dashboard | Not started |
 | Test and approve production rollout | Not started |
@@ -68,6 +68,7 @@ See [Agent Operations Plan](docs/agent-operations.md).
 - Implement Atlas first; expand to other agents only after tests pass.
 
 ## Progress log
+- **2026-10-17 (agent foundation):** Committed Scout, Guardian, Teddy and Builder modules plus four additional tests. Created private Supabase `agent_ops.runs` and `agent_ops.findings` tables with RLS enabled and restricted service-role access; verified table existence and RLS. Security advisor reports no-policy INFO for these intentionally backend-only tables. Existing privileged-function and leaked-password warnings remain. **No agent scheduler or production Edge Function deployed; tests not yet executed.**
 - **2026-10-17 (continued):** Confirmed the frontend is a static HTML/JS PWA (index.html and sw.js), not a package.json-based React project. Added \`agents/atlas.mjs\` with duplicate, timestamp, bottle-amount and sparse-history checks, plus \`agents/atlas.test.mjs\` with four Node test cases. **Tests not yet executed; no runtime scheduled or deployed.**\n- **2026-10-17:** Connected to GitHub repository `dadofluca/Lucas-Growth-Guide` and Supabase; read-only inspection found 135 baby events, 86 schedule records, five deployed functions and zero Muse import rows. Created agent operations branch and draft PR #2. Updated README to separate historical prototype claims, observed backend state, and planned work. **No production changes deployed.**
 
 ## Immediate next step
