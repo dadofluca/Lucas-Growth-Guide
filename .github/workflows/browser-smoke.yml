@@ -1,0 +1,48 @@
+name: Browser smoke checks
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'emergency.html'
+      - 'agents/**'
+      - 'sw.js'
+      - 'family-pin.js'
+      - 'sync-fix.js'
+      - 'playwright.config.mjs'
+      - '.github/workflows/browser-smoke.yml'
+  push:
+    branches:
+      - feature/agent-operations-v1
+    paths:
+      - 'index.html'
+      - 'emergency.html'
+      - 'agents/**'
+      - 'sw.js'
+      - 'family-pin.js'
+      - 'sync-fix.js'
+      - 'playwright.config.mjs'
+      - '.github/workflows/browser-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  chromium-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runner
+        run: npm install --no-save --no-package-lock @playwright/test@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run local browser smoke checks
+        run: npx playwright test --config=playwright.config.mjs
+      - name: Upload browser failure report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-smoke-report
+          path: artifacts/playwright-report/
+          retention-days: 7
