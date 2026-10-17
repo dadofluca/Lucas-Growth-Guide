@@ -3,12 +3,22 @@ on:
   pull_request:
     paths:
       - 'agents/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'sync-fix.js'
+      - 'family-pin.js'
+      - 'supabase/migrations/**'
       - '.github/workflows/agent-tests.yml'
   push:
     branches:
       - feature/agent-operations-v1
     paths:
       - 'agents/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'sync-fix.js'
+      - 'family-pin.js'
+      - 'supabase/migrations/**'
       - '.github/workflows/agent-tests.yml'
 permissions:
   contents: read
