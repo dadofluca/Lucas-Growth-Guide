@@ -3,8 +3,9 @@
  * only after a verified authenticated family session is established.
  * Never include secrets or full baby records in descriptions.
  */
-export function mountAgentReportWidget({supabase,familyId,container=document.body}){
+export function mountAgentReportWidget({supabase,familyId,container=document.body,getFamilyId=()=>familyId}){
  if(!supabase || !familyId)throw new Error("Authenticated Supabase client and family ID required");
+ let disposed=false,requestId=0;
  const root=document.createElement("section");
  root.setAttribute("aria-label","Report an app problem");
  root.style.cssText="margin:16px 0;padding:16px;border:1px solid #8ca9bc;border-radius:16px;background:#11283a;color:#fff";
@@ -22,7 +23,10 @@ export function mountAgentReportWidget({supabase,familyId,container=document.bod
  form.append(category,desc,submit,status);root.append(form);
  const history=document.createElement("div");history.setAttribute("aria-label","Recent family reports");root.append(history);container.append(root);
  async function refreshReports(){
+  const request=++requestId;
+  if(disposed||getFamilyId()!==familyId)return;
   const {data,error}=await supabase.from("agent_user_reports").select("id,category,status,created_at").eq("family_id",familyId).order("created_at",{ascending:false}).limit(10);
+  if(disposed||request!==requestId||getFamilyId()!==familyId)return;
   history.replaceChildren();
   if(error){const p=document.createElement("p");p.textContent="Report history unavailable.";history.append(p);return;}
   const title=document.createElement("h3");title.textContent="Recent reports";history.append(title);
@@ -34,15 +38,18 @@ export function mountAgentReportWidget({supabase,familyId,container=document.bod
  }
  refreshReports();
  form.addEventListener("submit",async e=>{
-  e.preventDefault();submit.disabled=true;status.textContent="Sending...";
+  e.preventDefault();
+  if(disposed||getFamilyId()!==familyId){status.textContent="Family session changed. Reopen reports.";return;}
+  submit.disabled=true;status.textContent="Sending...";
   try{
    const {data:{user},error:authError}=await supabase.auth.getUser();
-   if(authError||!user)throw new Error("Please sign in first");
+   if(authError||!user||getFamilyId()!==familyId||disposed)throw new Error("Please sign in to this family first");
    const {error}=await supabase.from("agent_user_reports").insert({family_id:familyId,reporter_id:user.id,category:category.value,description:desc.value.trim()});
    if(error)throw error;
    desc.value="";status.textContent="Report submitted. The team can review it.";await refreshReports();
   }catch(err){status.textContent="Could not submit. Please try again or check your connection.";}
   finally{submit.disabled=false;}
  });
+ root.addEventListener("luca:dispose",()=>{disposed=true;requestId++;});
  return root;
 }
