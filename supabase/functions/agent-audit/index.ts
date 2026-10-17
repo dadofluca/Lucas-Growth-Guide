@@ -10,7 +10,10 @@ async function query(table:string,columns:string,limit=1000){
 }
 async function save(table:string,rows:unknown[],upsert=false){
  if(!rows.length)return;
- const r=await fetch(`${url}/rest/v1/${table}`,{method:"POST",headers:{...headers,"Prefer":upsert?"resolution=merge-duplicates,return=minimal":"return=minimal"},body:JSON.stringify(rows)});
+ const privateSchema=table.startsWith("agent_ops.");
+ const resource=privateSchema?table.split(".")[1]:table;
+ const endpoint=`${url}/rest/v1/${resource}${upsert?"?on_conflict=fingerprint":""}`;
+ const r=await fetch(endpoint,{method:"POST",headers:{...headers,...(privateSchema?{"Content-Profile":"agent_ops"}:{}),"Prefer":upsert?"resolution=ignore-duplicates,return=minimal":"return=minimal"},body:JSON.stringify(rows)});
  if(!r.ok)throw new Error(`database write failed (${r.status})`);
 }
 function fingerprint(parts:unknown[]){return parts.map(x=>String(x??"")).join(":").slice(0,300);}
