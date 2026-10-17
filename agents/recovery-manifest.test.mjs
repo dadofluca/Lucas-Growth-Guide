@@ -34,8 +34,8 @@ test("recovery rejects repeated parts and invalid bottle amounts",()=>{
 test("recovery rows carry separate idempotency keys and caller identity",()=>{
  const m=buildRecoveryManifest({format:"luca-emergency-reviewed-v1",entries:[e]});
  const preview=previewRecoveryEvents(m,[{approved:true,source_id:e.id,part:1,event_type:"bottle",amount_oz:6,event_time:e.recorded_at},{approved:true,source_id:e.id,part:2,event_type:"poop",event_time:e.recorded_at}]);
- const rows=prepareRecoveryRows(preview,{babyId:"baby-test",userId:"user-test"});
+ const rows=prepareRecoveryRows(preview,{babyId:"00000000-0000-4000-8000-000000000001",userId:"00000000-0000-4000-8000-000000000002"});
  assert.equal(rows.length,2);assert.notEqual(rows[0].details.emergency_source_id,rows[1].details.emergency_source_id);
- assert.equal(rows[0].created_by,"user-test");
+ assert.equal(rows[0].created_by,"00000000-0000-4000-8000-000000000002");
  assert.throws(()=>prepareRecoveryRows(preview,{}));
 });
