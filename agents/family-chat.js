@@ -29,7 +29,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   show((data||[]).reverse(),names);say("");
  }
- send.addEventListener("click",async()=>{
+ const onSend=async()=>{
   if(busy||disposed)return;
   const sb=getClient(),family=getFamilyId(),user=getUser(),body=input.value.trim();
   if(!sb||!family||!user){say("Sign in to send a message.");return;}
@@ -42,11 +42,12 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
    if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){input.value="";await load();}
   }catch{say("Couldn't send. Your message is still here; try again.");}
   finally{busy=false;send.disabled=false;}
- });
+ };
+ send.addEventListener("click",onSend);
  load();
  const refresh=()=>{if(document.querySelector("#chatView")?.classList.contains("active"))load();};
  const timer=setInterval(refresh,12000);
  const tab=document.querySelector('[data-tab="chat"]');
  tab?.addEventListener("click",load);
- return ()=>{disposed=true;requestId++;clearInterval(timer);tab?.removeEventListener("click",load);feed.replaceChildren();};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);tab?.removeEventListener("click",load);send.removeEventListener("click",onSend);feed.replaceChildren();};
 }
