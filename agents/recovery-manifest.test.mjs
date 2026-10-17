@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {buildRecoveryManifest,previewRecoveryEvents,prepareRecoveryRows} from "./recovery-manifest.mjs";
+import {buildRecoveryManifest,previewRecoveryEvents,prepareRecoveryRows,commitApprovedRecovery} from "./recovery-manifest.mjs";
 const e={id:"emergency-123",text:"6 oz and poop",recorded_at:"2026-10-17T12:00:00Z",caregiver:"Sam",reviewed:true};
 test("reviewed backup becomes uncommitted manifest",()=>{
  const result=buildRecoveryManifest({format:"luca-emergency-reviewed-v1",entries:[e]});
@@ -38,4 +38,12 @@ test("recovery rows carry separate idempotency keys and caller identity",()=>{
  assert.equal(rows.length,2);assert.notEqual(rows[0].details.emergency_source_id,rows[1].details.emergency_source_id);
  assert.equal(rows[0].created_by,"00000000-0000-4000-8000-000000000002");
  assert.throws(()=>prepareRecoveryRows(preview,{}));
+});
+
+test("recovery commit rejects missing session before any database write",async()=>{
+ const preview={dryRun:true,records:[]};
+ let writes=0;
+ const client={auth:{getUser:async()=>({data:{user:{id:"different"}}})},from:()=>{writes++;throw Error("unexpected DB access")}};
+ await assert.rejects(()=>commitApprovedRecovery(client,preview,{babyId:"00000000-0000-4000-8000-000000000001",userId:"00000000-0000-4000-8000-000000000002"}),/session mismatch/);
+ assert.equal(writes,0);
 });
