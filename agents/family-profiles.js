@@ -9,14 +9,18 @@ function lastSeen(iso){
  return `Last active ${Math.floor(minutes/1440)} days ago`;
 }
 export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio,avatar,save,status}){
- const say=t=>status.textContent=t;
- async function heartbeat(){const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;try{await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}catch{}}
+ let disposed=false,requestId=0;
+ const say=t=>{if(!disposed)status.textContent=t;};
+ async function heartbeat(){if(disposed)return;const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;try{await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}catch{}}
  async function refresh(){
+  if(disposed)return;
+  const request=++requestId;
   const client=getClient(),family=getFamilyId(),user=getUser();
   if(!client||!family||!user){list.replaceChildren();say("Sign in to Family Sync to see profiles.");return;}
   let data,error;
   try{({data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at").eq("family_id",family).order("display_name"));}catch{error=true;}
-  if(error){say("Profiles unavailable. Try again.");return;}
+  if(disposed||request!==requestId)return;
+  if(error){list.replaceChildren();say("Profiles unavailable. Try again.");return;}
   if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   list.replaceChildren();
   for(const p of data||[]){
@@ -30,18 +34,19 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
  }
  save.addEventListener("click",async()=>{
   const client=getClient(),family=getFamilyId(),user=getUser();
-  if(!client||!family||!user)return say("Sign in first.");
+  if(disposed||!client||!family||!user)return say("Sign in first.");
   const display_name=name.value.trim(),description=bio.value.trim(),preset=avatar.value;
   if(!display_name||display_name.length>40||description.length>160||!presets[preset])return say("Check your name, bio and avatar.");
   save.disabled=true;
   try{
+   if(disposed||getFamilyId()!==family||getUser()?.id!==user.id)return say("Family session changed. Reopen profiles.");
    const {error}=await client.from("family_profiles").upsert({family_id:family,user_id:user.id,display_name,bio:description,avatar_preset:preset,updated_at:new Date().toISOString()},{onConflict:"family_id,user_id"});
    if(error)throw error;
-   await heartbeat();await refresh();say("Profile saved.");
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){await heartbeat();await refresh();say("Profile saved.");}
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
  });
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>clearInterval(timer);
+ return ()=>{disposed=true;requestId++;clearInterval(timer);list.replaceChildren();};
 }
