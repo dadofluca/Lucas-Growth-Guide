@@ -11,3 +11,21 @@ export function buildRecoveryManifest(backup){
  });
  return {format:"luca-recovery-manifest-v1",records,requiresAuthentication:true,requiresFamilyScope:true,requiresExplicitCommit:true};
 }
+
+/** Convert explicit, reviewed event decisions into a dry-run proposal. */
+export function previewRecoveryEvents(manifest,decisions=[]){
+ if(manifest?.format!=="luca-recovery-manifest-v1"||!Array.isArray(decisions))throw Error("Invalid recovery plan");
+ const records=[];const seen=new Set();
+ for(const d of decisions){
+  if(d.approved!==true)continue;
+  const source=manifest.records.find(r=>r.source_id===d.source_id);
+  if(!source)throw Error("Unknown emergency entry");
+  if(!["bottle","pee","poop","nap","other"].includes(d.event_type))throw Error("Invalid event type");
+  if(!Number.isFinite(Date.parse(d.event_time)))throw Error("Invalid event time");
+  if(d.event_type==="bottle"&&!(Number(d.amount_oz)>0&&Number(d.amount_oz)<=16))throw Error("Invalid bottle amount");
+  const key=source.source_id+":"+String(d.part||1);
+  if(seen.has(key))throw Error("Duplicate recovery part");seen.add(key);
+  records.push({source_id:source.source_id,part:String(d.part||1),event_type:d.event_type,event_time:new Date(d.event_time).toISOString(),amount_oz:d.event_type==="bottle"?Number(d.amount_oz):null,caregiver:String(d.caregiver||source.caregiver),original_note:source.note});
+ }
+ return {dryRun:true,requiresAuthenticatedCommit:true,records};
+}
