@@ -29,3 +29,8 @@ test("chat ignores stale refresh results and stops updates after unmount",()=>{
  assert.match(js,/if\(disposed\|\|request!==requestId\)return/g);
  assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\)/);
 });
+
+test("chat and profile tabs can initialize after family sign-in",()=>{
+ assert.match(html,/if\(!chatStarted&&\(!syncFamily\|\|!syncUser\)\)/);
+ assert.match(html,/if\(!sb\|\|!syncFamily\|\|!syncUser\)\{document\.querySelector\("#profileStatus"\)/);
+});
