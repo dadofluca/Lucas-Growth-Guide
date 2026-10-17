@@ -42,5 +42,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  load();
  const refresh=()=>{if(document.querySelector("#chatView")?.classList.contains("active"))load();};
  const timer=setInterval(refresh,12000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);};
+ const tab=document.querySelector('[data-tab="chat"]');
+ tab?.addEventListener("click",load);
+ return ()=>{disposed=true;requestId++;clearInterval(timer);tab?.removeEventListener("click",load);feed.replaceChildren();};
 }
