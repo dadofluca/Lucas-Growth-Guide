@@ -9,12 +9,12 @@ export const criticalFlows=Object.freeze([
 ]);
 export function assessSyntheticRuns(runs){
  if(!Array.isArray(runs))throw new TypeError("runs must be an array");
- const byId=new Map(runs.map(r=>[r?.flowId,r]));
+ const byId=new Map(runs.filter(r=>r&&typeof r.flowId==="string").map(r=>[r.flowId,r]));
  const findings=[];
  for(const flow of criticalFlows){
   const r=byId.get(flow.id);
   if(!r){findings.push({code:"not_tested",flowId:flow.id,severity:"info"});continue;}
-  if(r.status!=="passed")findings.push({code:"flow_failed",flowId:flow.id,severity:flow.id==="bottle"||flow.id==="auth"?"high":"medium"});
+  if(r.status!=="passed")findings.push({code:r.status==="failed"?"flow_failed":"flow_not_verified",flowId:flow.id,severity:r.status==="failed"&&(flow.id==="bottle"||flow.id==="auth")?"high":"medium"});
  }
  return {total:criticalFlows.length,passed:criticalFlows.length-findings.length,findings,productionMutation:false};
 }
