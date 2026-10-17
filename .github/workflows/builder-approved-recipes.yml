@@ -1,0 +1,53 @@
+name: Builder approved auto-repair recipes
+on:
+  schedule:
+    - cron: '41 */12 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: luca-builder-approved-recipes
+  cancel-in-progress: false
+jobs:
+  safe-repairs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/agent-operations-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply reviewed Family Chat stale-response recipe only if missing
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from "node:fs";
+          const file="agents/family-chat.js";
+          let s=readFileSync(file,"utf8");
+          if(s.includes("request!==requestId")){console.log("Guard already exists; no repair needed.");process.exit(0)}
+          const replacements=[
+           [' let busy=false;',' let busy=false,requestId=0,disposed=false;'],
+           [' async function load(){\n  const sb=',' async function load(){\n  const request=++requestId;\n  const sb='],
+           ['  if(error){say("Chat is unavailable right now. Please try again.");return;}','  if(disposed||request!==requestId)return;\n  if(error){say("Chat is unavailable right now. Please try again.");return;}'],
+           ['  show((data||[]).reverse(),names);say("");','  if(disposed||request!==requestId)return;\n  show((data||[]).reverse(),names);say("");'],
+           [' return ()=>clearInterval(timer);',' return ()=>{disposed=true;requestId++;clearInterval(timer);};']
+          ];
+          for(const [before,after] of replacements){if(!s.includes(before))throw Error("Unrecognized chat source; refuse patch");s=s.replace(before,after)}
+          writeFileSync(file,s);
+          NODE
+      - name: Verify all agent tests
+        run: node --test agents/*.test.mjs
+      - name: Create draft repair PR only if source changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          base: feature/agent-operations-v1
+          branch: agent/recipe-chat-stale-response
+          draft: true
+          title: 'Builder auto-repair: guard stale Family Chat refreshes'
+          body: |
+            Deterministic, approved recipe only. Tests ran before PR creation.
+            Requires human review. No production merge or deployment.
+          add-paths: agents/family-chat.js
