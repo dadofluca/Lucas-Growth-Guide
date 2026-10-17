@@ -1,4 +1,4 @@
-const CACHE="luca-v70-emergency-offline";
+const CACHE="luca-v71-emergency-offline";
 const EMERGENCY="./emergency.html";
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);try{await c.add("./index.html")}catch{}}).catch(()=>{}))});
 self.addEventListener("install",e=>{self.skipWaiting()});
