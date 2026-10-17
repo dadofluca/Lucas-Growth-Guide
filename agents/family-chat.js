@@ -1,6 +1,6 @@
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status}){
- let busy=false;
+ let busy=false,requestId=0,disposed=false;
  function say(message){status.textContent=message;}
  function show(rows,profiles=new Map()){
   feed.replaceChildren();
@@ -14,12 +14,15 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   }
  }
  async function load(){
+  const request=++requestId;
   const sb=getClient(),family=getFamilyId(),user=getUser();
   if(!sb||!family||!user){say("Sign in to Family Sync to use chat.");return;}
   const {data,error}=await sb.from("family_chat_messages").select("id,sender_id,body,created_at").eq("family_id",family).order("created_at",{ascending:false}).limit(100);
+  if(disposed||request!==requestId)return;
   if(error){say("Chat is unavailable right now. Please try again.");return;}
   const {data:people}=await sb.from("family_profiles").select("user_id,display_name").eq("family_id",family);
   const names=new Map((people||[]).map(p=>[p.user_id,p.display_name]));
+  if(disposed||request!==requestId)return;
   show((data||[]).reverse(),names);say("");
  }
  send.addEventListener("click",async()=>{
@@ -38,5 +41,5 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  load();
  const refresh=()=>{if(document.querySelector("#chatView")?.classList.contains("active"))load();};
  const timer=setInterval(refresh,12000);
- return ()=>clearInterval(timer);
+ return ()=>{disposed=true;requestId++;clearInterval(timer);};
 }
