@@ -44,3 +44,9 @@ test("chat send checks session before writing and retains draft after session sw
  assert.match(js,/if\(disposed\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)/);
  assert.match(js,/if\(!disposed&&getFamilyId\(\)===family&&getUser\(\)\?\.id===user\.id\)/);
 });
+
+test("chat tab remounts after family switch without duplicate send listeners",()=>{
+ assert.match(html,/chatSession!==session/);
+ assert.match(html,/chatDispose\?\.\(\)/);
+ assert.match(js,/send\.removeEventListener\("click",onSend\)/);
+});
