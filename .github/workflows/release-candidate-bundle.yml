@@ -23,6 +23,8 @@ jobs:
           node-version: '22'
       - name: Run regression suite
         run: node --test agents/*.test.mjs
+      - name: Produce release gate evidence report
+        run: node agents/release-readiness.mjs
       - name: Check deployable entry points
         run: |
           test -s index.html
@@ -36,6 +38,7 @@ jobs:
           mkdir -p release-candidate
           cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest release-candidate/
           cp -r agents release-candidate/
+          cp artifacts/release-readiness.json release-candidate/release-readiness.json
           # Keep root-level static assets referenced by the app, without copying repository metadata.
           find . -maxdepth 1 -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.ico' -o -iname '*.webp' -o -iname '*.mov' -o -iname '*.mp3' -o -iname '*.mp4' -o -iname '*.css' \\) -exec cp '{}' release-candidate/ \\;
           printf '%s\n' "${GITHUB_SHA}" > release-candidate/commit.txt
