@@ -36,3 +36,8 @@ test("offline navigation resolves a cached page before error response",()=>{
  assert.match(sw,/await caches\.match\(EMERGENCY\)/);
  assert.doesNotMatch(sw,/caches\.match\("\.\/index\.html"\)\|\|Response\.error\(\)/);
 });
+
+test("service worker does not intercept private cross-origin APIs or non-GET writes",()=>{
+ assert.match(sw,/e\.request\.method!=="GET"/);
+ assert.match(sw,/new URL\(e\.request\.url\)\.origin!==self\.location\.origin/);
+});
