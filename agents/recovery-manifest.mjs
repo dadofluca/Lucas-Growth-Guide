@@ -47,6 +47,7 @@ export async function commitApprovedRecovery(client,preview,{babyId,userId}={}){
  const {data:member,error:memberError}=await client.from("family_members").select("user_id").eq("family_id",baby.family_id).eq("user_id",userId).single();
  if(memberError||!member)throw Error("Family membership required");
  const rows=prepareRecoveryRows(preview,{babyId,userId});
+ // Caller must not invoke until the unique emergency-source index is deployed.
  if(rows.length===0)return {inserted:0,alreadyPresent:0,failed:0};
  const results={inserted:0,alreadyPresent:0,failed:0};
  for(const row of rows){
