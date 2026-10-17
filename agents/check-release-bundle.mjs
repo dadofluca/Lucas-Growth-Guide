@@ -1,10 +1,10 @@
 import {readFileSync,existsSync,readdirSync} from "node:fs";
 import {join,resolve,relative} from "node:path";
 
-export function inspectBundle(root){
+export function inspectBundle(root,{preview=false}={}){
  const problems=[];
  const pages=["index.html","emergency.html"];
- for(const name of [...pages,"sw.js","family-pin.js","sync-fix.js","manifest.webmanifest"]){
+ for(const name of [...pages,...(preview?[]:["sw.js"]),"family-pin.js","sync-fix.js","manifest.webmanifest"]){
   if(!existsSync(join(root,name)))problems.push("Missing required file: "+name);
  }
  for(const name of pages){
@@ -25,7 +25,7 @@ export function inspectBundle(root){
  return {ok:problems.length===0,problems,fileCount:readdirSync(root).length};
 }
 if(process.argv[1]&&import.meta.url===new URL("file://"+resolve(process.argv[1])).href){
- const result=inspectBundle(resolve(process.argv[2]||"artifacts/luca-release"));
+ const result=inspectBundle(resolve(process.argv[2]||"artifacts/luca-release"),{preview:process.argv.includes("--preview")});
  console.log(JSON.stringify(result,null,2));
  if(!result.ok)process.exitCode=1;
 }
