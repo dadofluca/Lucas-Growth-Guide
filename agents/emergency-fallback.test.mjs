@@ -41,3 +41,9 @@ test("service worker does not intercept private cross-origin APIs or non-GET wri
  assert.match(sw,/e\.request\.method!=="GET"/);
  assert.match(sw,/new URL\(e\.request\.url\)\.origin!==self\.location\.origin/);
 });
+
+test("service worker caches only known static file types",()=>{
+ assert.match(sw,/const staticAsset=/);
+ assert.match(sw,/if\(!staticAsset\)return/);
+ assert.match(sw,/webmanifest/);
+});
