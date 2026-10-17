@@ -22,7 +22,6 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   if(error){list.replaceChildren();say("Profiles unavailable. Try again.");return;}
-  if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   list.replaceChildren();
   for(const p of data||[]){
    const row=document.createElement("div");row.style.cssText="padding:12px;border-bottom:1px solid #ddd";
