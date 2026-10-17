@@ -21,3 +21,13 @@ test("profile view clears prior family on sign-out or account switch",()=>{
  assert.match(js,/if\(!client\|\|!family\|\|!user\)\{list\.replaceChildren\(\)/);
  assert.match(js,/if\(getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)\{list\.replaceChildren\(\)/);
 });
+
+test("profile refresh rejects stale asynchronous responses and clears offline content",()=>{
+ assert.match(js,/request=\+\+requestId/);
+ assert.match(js,/if\(disposed\|\|request!==requestId\)return/);
+ assert.match(js,/if\(error\)\{list\.replaceChildren\(\)/);
+});
+test("profile saves check family session and unmount cleanup",()=>{
+ assert.match(js,/if\(disposed\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)/);
+ assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\);list\.replaceChildren\(\)/);
+});
