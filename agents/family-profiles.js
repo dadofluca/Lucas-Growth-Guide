@@ -27,12 +27,12 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   list.replaceChildren();
   for(const p of data||[]){
    const row=document.createElement("div");row.style.cssText="padding:12px;border-bottom:1px solid #ddd";
-   const title=document.createElement("strong");title.textContent=(presets[p.avatar_preset]||"🧸")+" "+p.display_name+(p.user_id===user.id?" (You)":"");
+   const title=document.createElement("strong");const deviceName=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"");title.textContent=(presets[p.avatar_preset]||"🧸")+" "+(deviceName?"Family member":p.display_name)+(p.user_id===user.id?" (You)":"");
    const seen=document.createElement("div");seen.className="muted";seen.textContent=lastSeen(p.last_active_at);
    row.append(title,seen);list.append(row);
    if(p.user_id===user.id&&!dirty){name.value=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"")?"":p.display_name;bio.value=p.bio||"";avatar.value=p.avatar_preset;}
   }
-  say("");
+  say((data||[]).some(p=>p.user_id===user.id&&/^device-[a-f0-9-]{12,}$/i.test(p.display_name||""))?"Choose a display name and tap Save profile.":"");
  }
  const onSave=async()=>{
   const client=getClient(),family=getFamilyId(),user=getUser();
