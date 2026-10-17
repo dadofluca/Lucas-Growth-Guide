@@ -36,3 +36,27 @@ export function prepareRecoveryRows(preview,{babyId,userId}={}){
  if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(babyId)||!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(userId))throw Error("Invalid UUID context");
  return preview.records.map(r=>({baby_id:babyId,created_by:userId,event_type:r.event_type,event_time:r.event_time,amount_oz:r.amount_oz,note:r.original_note,caregivers:r.caregiver?[r.caregiver]:[],details:{emergency_source_id:r.source_id+":"+r.part,emergency_original_source_id:r.source_id,emergency_recovered:true}}));
 }
+
+/** Signed-in Supabase client only; RLS must authorize baby membership. */
+export async function commitApprovedRecovery(client,preview,{babyId,userId}={}){
+ if(!client?.auth?.getUser||!client?.from)throw Error("Authenticated client required");
+ const auth=await client.auth.getUser();
+ if(auth.error||auth.data?.user?.id!==userId)throw Error("User session mismatch");
+ const {data:baby,error:lookupError}=await client.from("babies").select("id,family_id").eq("id",babyId).single();
+ if(lookupError||!baby?.family_id)throw Error("Baby unavailable to signed-in user");
+ const {data:member,error:memberError}=await client.from("family_members").select("user_id").eq("family_id",baby.family_id).eq("user_id",userId).single();
+ if(memberError||!member)throw Error("Family membership required");
+ const rows=prepareRecoveryRows(preview,{babyId,userId});
+ if(rows.length===0)return {inserted:0,alreadyPresent:0,failed:0};
+ const results={inserted:0,alreadyPresent:0,failed:0};
+ for(const row of rows){
+  const key=row.details.emergency_source_id;
+  const {data:existing,error:checkError}=await client.from("baby_events").select("id").eq("baby_id",babyId).contains("details",{emergency_source_id:key}).limit(1);
+  if(checkError)throw Error("Cannot verify existing recovery events");
+  if(existing?.length){results.alreadyPresent++;continue;}
+  const {error}=await client.from("baby_events").insert(row);
+  if(error){results.failed++;throw Error("Recovery write failed; keep backup and retry only after checking history");}
+  results.inserted++;
+ }
+ return results;
+}
