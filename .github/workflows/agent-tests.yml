@@ -1,0 +1,88 @@
+name: Agent prototype tests
+on:
+  pull_request:
+    paths:
+      - 'agents/**'
+      - 'emergency.html'
+      - 'manifest.webmanifest'
+      - '*.png'
+      - '*.jpg'
+      - '*.jpeg'
+      - '*.svg'
+      - '*.webp'
+      - '*.mov'
+      - '*.mp3'
+      - '*.mp4'
+      - 'index.html'
+      - 'sw.js'
+      - 'sync-fix.js'
+      - 'family-pin.js'
+      - 'supabase/migrations/**'
+      - '.github/workflows/agent-tests.yml'
+  push:
+    branches:
+      - feature/agent-operations-v1
+    paths:
+      - 'agents/**'
+      - 'emergency.html'
+      - 'manifest.webmanifest'
+      - '*.png'
+      - '*.jpg'
+      - '*.jpeg'
+      - '*.svg'
+      - '*.webp'
+      - '*.mov'
+      - '*.mp3'
+      - '*.mp4'
+      - 'index.html'
+      - 'sw.js'
+      - 'sync-fix.js'
+      - 'family-pin.js'
+      - 'supabase/migrations/**'
+      - '.github/workflows/agent-tests.yml'
+permissions:
+  contents: read
+jobs:
+  agent-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test agents/*.test.mjs
+      - name: Verify synthetic Watchdog-to-Builder handoff
+        run: node agents/synthetic-handoff.mjs
+      - name: Upload synthetic QA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-agent-qa
+          path: artifacts/synthetic-agent-qa.json
+          retention-days: 7
+      - name: Build candidate with release evidence
+        run: |
+          node agents/release-readiness.mjs
+          mkdir -p artifacts/luca-release
+          cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest artifacts/luca-release/
+          cp -r agents artifacts/luca-release/
+          find . -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" -o -iname "*.ico" -o -iname "*.webp" -o -iname "*.mov" -o -iname "*.mp3" -o -iname "*.mp4" \) -exec cp {} artifacts/luca-release/ \;
+          cp artifacts/release-readiness.json artifacts/luca-release/
+          printf '%s\n' "${GITHUB_SHA}" > artifacts/luca-release/commit.txt
+      - name: Validate packaged local assets
+        run: node agents/check-release-bundle.mjs artifacts/luca-release
+      - name: Build isolated demo preview
+        run: |
+          node agents/build-demo-preview.mjs
+          node agents/check-release-bundle.mjs artifacts/luca-preview --preview
+      - name: Upload isolated demo preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: luca-demo-preview
+          path: artifacts/luca-preview/
+          retention-days: 14
+      - name: Upload installable static release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: luca-release-candidate
+          path: artifacts/luca-release/
+          retention-days: 14

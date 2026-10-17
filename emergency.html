@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172d37"><title>Luca · Emergency log</title>
+<style>body{margin:0;background:#f4f0e7;color:#172d37;font:16px system-ui,-apple-system,sans-serif}main{max-width:660px;margin:auto;padding:18px 16px 110px}h1{font-size:1.55rem}p{line-height:1.45}.muted{color:#47565b}textarea,input,button{font:inherit;box-sizing:border-box}textarea{width:100%;min-height:110px;padding:14px;border:2px solid #778f93;border-radius:14px;background:white;color:#172d37}button,.link{border:0;border-radius:12px;background:#16475a;color:white;padding:12px 16px;font-weight:700;display:inline-block;text-decoration:none;margin:5px 5px 5px 0}button:disabled{opacity:.6}article{padding:12px;margin:10px 0;background:white;border:1px solid #d0d6d2;border-radius:12px;overflow-wrap:anywhere}small{color:#4e5c5e}#notice{font-weight:700} .danger{background:#70402f} .actions{display:flex;flex-wrap:wrap} .entry{white-space:pre-wrap}</style></head><body><main>
+<a class="link" href="./index.html">← Full app</a><h1>🧸 Luca's emergency log</h1>
+<p>Use this simple log if the main app crashes. Entries are <strong>saved on this device only</strong> until you export and reconcile them. They are <strong>not</strong> shared with other family members yet.</p>
+<label for="who">Caregiver</label><input id="who" autocomplete="name" placeholder="Sam, Maddie, Nona…" maxlength="60">
+<p><label for="note">What happened? Include amount and time when relevant.</label></p>
+<textarea id="note" placeholder="8:30 AM · Luca drank 6 oz, changed wet diaper — Sam" maxlength="3000"></textarea>
+<div class="actions"><button id="save">Save on this device</button><button id="export">Export backup</button><button id="review">Review for recovery</button></div>
+<p id="notice" role="status" aria-live="polite">This is a temporary backup, not a synchronized family timeline.</p>
+<section id="recovery" hidden><h2>Recovery review</h2><p>Nothing is added to shared history automatically. Check entries before exporting.</p><div id="reviewItems"></div><button id="exportReviewed">Export reviewed entries</button></section><h2>Saved entries <span id="count"></span></h2><div id="entries"></div>
+</main><script>
+(function(){
+"use strict";
+const KEY="luca_emergency_log_v1",WHO="luca_emergency_caregiver_v1";
+const $=id=>document.getElementById(id);
+function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(x)?x:[]}catch{return []}}
+function status(t){$("notice").textContent=t}
+function render(){
+ const items=read();$("count").textContent="("+items.length+")";$("entries").replaceChildren();
+ for(const item of [...items].reverse()){
+  const card=document.createElement("article"),head=document.createElement("small"),body=document.createElement("div"),actions=document.createElement("div"),remove=document.createElement("button");
+  head.textContent=new Date(item.recorded_at).toLocaleString()+" · "+(item.caregiver||"Unspecified");
+  body.className="entry";body.textContent=item.text;
+  remove.className="danger";remove.textContent="Delete";remove.setAttribute("aria-label","Delete entry recorded "+new Date(item.recorded_at).toLocaleString());
+  remove.onclick=()=>{if(!confirm("Delete this local entry? Export a backup first if needed."))return;const remaining=read().filter(x=>x.id!==item.id);try{localStorage.setItem(KEY,JSON.stringify(remaining));render();status("Local entry deleted.")}catch{status("Could not delete; storage unavailable.")}};
+  actions.append(remove);card.append(head,body,actions);$("entries").append(card);
+ }
+}
+try{$("who").value=localStorage.getItem(WHO)||""}catch{}
+$("save").onclick=()=>{
+ const text=$("note").value.trim(),caregiver=$("who").value.trim();
+ if(!text){status("Write an event before saving.");return}
+ const item={id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+"-"+Math.random(),recorded_at:new Date().toISOString(),caregiver,text,source:"emergency-local",reconciled:false};
+ try{const entries=read();entries.push(item);localStorage.setItem(KEY,JSON.stringify(entries));localStorage.setItem(WHO,caregiver);$("note").value="";render();status("Saved on this device. Export a backup before clearing app data.")}catch{status("SAVE FAILED: device storage is unavailable or full. Copy the text elsewhere before leaving this page.")};
+};
+$("export").onclick=()=>{
+ const data=JSON.stringify({format:"luca-emergency-log-v1",exported_at:new Date().toISOString(),entries:read()},null,2);
+ const url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");
+ a.href=url;a.download="luca-emergency-log-"+new Date().toISOString().slice(0,10)+".json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);status("Backup export requested. Check Files or Downloads before clearing any entries.");
+};
+
+$("review").onclick=()=>{
+ $("recovery").hidden=false;
+ const list=$("reviewItems");list.replaceChildren();const seen=new Set();
+ for(const item of read()){
+  const card=document.createElement("article"),label=document.createElement("label"),check=document.createElement("input"),note=document.createElement("div");
+  check.type="checkbox";check.dataset.sourceId=item.id;check.disabled=seen.has(item.id);seen.add(item.id);
+  label.append(check,document.createTextNode(" Confirm "+(item.caregiver||"Unspecified")+" · "+new Date(item.recorded_at).toLocaleString()));
+  note.className="entry";note.textContent=item.text;const correction=document.createElement("textarea");correction.value=item.text;correction.dataset.editId=item.id;correction.setAttribute("aria-label","Correct event details before export");card.append(label,note,correction);list.append(card);
+ }
+ status("Review entries; only checked entries will be exported for later reconciliation.");
+};
+$("exportReviewed").onclick=()=>{
+ const selected=new Set([...$("reviewItems").querySelectorAll("input:checked")].map(x=>x.dataset.sourceId));
+ const entries=read().filter(x=>selected.has(x.id)).map(x=>{const editor=[...$("reviewItems").querySelectorAll("textarea")].find(e=>e.dataset.editId===x.id);return {...x,text:editor?.value.trim()||x.text,reviewed:true}});
+ if(!entries.length){status("Select entries to export.");return}
+ const payload={format:"luca-emergency-reviewed-v1",exported_at:new Date().toISOString(),entries};
+ const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"})),a=document.createElement("a");
+ a.href=url;a.download="luca-reviewed-recovery.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+ status("Reviewed backup exported. It has NOT been imported into shared history.");
+};
+render();
+})();
+</script></body></html>

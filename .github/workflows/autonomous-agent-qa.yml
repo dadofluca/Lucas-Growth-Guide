@@ -1,0 +1,57 @@
+name: Autonomous agent QA
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/agent-operations-v1
+    paths:
+      - 'agents/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'sync-fix.js'
+      - 'family-pin.js'
+      - 'supabase/migrations/**'
+      - '.github/workflows/autonomous-agent-qa.yml'
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: autonomous-agent-qa
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Agent regression tests
+        run: node --test agents/*.test.mjs
+      - name: Synthetic handoff (never touches family records)
+        run: node agents/synthetic-handoff.mjs
+      - name: Release readiness report
+        run: node agents/release-readiness.mjs
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-audit-evidence
+          path: artifacts/
+          retention-days: 14
+      - name: Open or update failure issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Agent QA failed: review required"
+          body="Automated agent checks failed. Review this workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. No production data was modified or code deployed."
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
