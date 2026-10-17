@@ -49,3 +49,13 @@ Status: requirements/design only; not yet implemented or deployed.
 
 ## Engagement-first adjustment (2026-10-17)
 The goal is instant delight for casual family users, not a configuration-heavy experience. Default to occasional low-volume funny chat highlights with an obvious mute switch. Keep the care UI clean, and avoid surprise loud sounds, graphic jokes, personal photos, or sensitive event details in automatic messages. Humor feedback is lightweight and optional. This remains a design specification, not a deployed feature.
+
+## Poop-O-Meter Easter egg
+- Optional 1–5 poop intensity slider in the diaper confirmation flow; do not add a required field or extra tap to quick logging.
+- Labels: Tiny / Normal / Rough / Containment required / System failure. The rating is a playful subjective report, not medical advice.
+- At maximum, an occasional, short, cartoon-style 'slider knob falls off track' and scattered diaper overlay may trigger; it should be rare, not on every max rating.
+- Keep the underlying confirmation and correction controls readable and available. No animation that blocks saving, locks navigation, or prevents cancellation.
+- Respect reduced-motion, sound-off, and an explicit 'disable surprises' preference. Keep the effect brief and non-flashing.
+- If a joke is shared automatically, do not include private details about the baby's health, time, caregiver, or medical symptoms.
+- Test 1–5 selection, skipping the slider, cancellation, saving, offline behavior, reduced motion, and animation cleanup.
+- Status: concept/specification, not implemented.
