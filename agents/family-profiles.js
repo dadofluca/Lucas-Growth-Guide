@@ -32,7 +32,7 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   }
   say("");
  }
- save.addEventListener("click",async()=>{
+ const onSave=async()=>{
   const client=getClient(),family=getFamilyId(),user=getUser();
   if(disposed||!client||!family||!user)return say("Sign in first.");
   const display_name=name.value.trim(),description=bio.value.trim(),preset=avatar.value;
@@ -45,8 +45,9 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
    if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){await heartbeat();await refresh();say("Profile saved.");}
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
- });
+ };
+ save.addEventListener("click",onSave);
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);list.replaceChildren();};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);list.replaceChildren();};
 }
