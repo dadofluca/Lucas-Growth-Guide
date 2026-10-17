@@ -5,3 +5,4 @@ const report={createdAt:new Date().toISOString(),mode:"read-only",...assessReadi
 mkdirSync("artifacts",{recursive:true});
 writeFileSync("artifacts/release-readiness.json",JSON.stringify(report,null,2)+"\n");
 console.log("Release readiness:",report.ready?"verified":"not yet verified");
+console.log("Unverified gates:",report.results.filter(x=>x.status!=="passed").map(x=>x.id).join(", "));
