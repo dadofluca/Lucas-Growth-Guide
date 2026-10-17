@@ -29,7 +29,7 @@ test("profile refresh rejects stale asynchronous responses and clears offline co
 });
 test("profile saves check family session and unmount cleanup",()=>{
  assert.match(js,/if\(disposed\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)/);
- assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\);list\.replaceChildren\(\)/);
+ assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\);save\.removeEventListener\("click",onSave\);list\.replaceChildren\(\)/);
 });
 
 test("profile tab remounts on session switch without duplicate save listeners",()=>{
