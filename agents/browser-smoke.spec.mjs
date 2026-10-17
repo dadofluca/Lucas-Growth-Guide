@@ -126,3 +126,19 @@ test("reviewed emergency export includes only selected corrected entries",async(
  expect(payload.entries[0]).toEqual(expect.objectContaining({text:"QA corrected bottle: 8 oz",reviewed:true}));
  await expect(page.locator("#notice")).toContainText("NOT been imported");
 });
+
+test("confirmed emergency deletion survives reload and does not appear in backup",async({page})=>{
+ await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#note").fill("Synthetic QA: delete this entry");
+ await page.locator("#save").click();
+ page.once("dialog",dialog=>dialog.accept());
+ await page.locator("#entries button").first().click();
+ await expect(page.locator("#entries")).not.toContainText("Synthetic QA: delete this entry");
+ await page.reload();
+ await expect(page.locator("#entries")).not.toContainText("Synthetic QA: delete this entry");
+ const downloading=page.waitForEvent("download");
+ await page.locator("#export").click();
+ const file=await downloading;
+ const payload=JSON.parse(readFileSync(await file.path(),"utf8"));
+ expect(payload.entries.some(entry=>entry.text==="Synthetic QA: delete this entry")).toBe(false);
+});
