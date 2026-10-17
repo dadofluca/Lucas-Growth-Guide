@@ -14,7 +14,8 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
  async function refresh(){
   const client=getClient(),family=getFamilyId(),user=getUser();
   if(!client||!family||!user){list.replaceChildren();say("Sign in to Family Sync to see profiles.");return;}
-  const {data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at").eq("family_id",family).order("display_name");
+  let data,error;
+  try{({data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at").eq("family_id",family).order("display_name"));}catch{error=true;}
   if(error){say("Profiles unavailable. Try again.");return;}
   if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   list.replaceChildren();
