@@ -1,4 +1,4 @@
-const CACHE="luca-v71-emergency-offline";
+const CACHE="luca-v72-emergency-offline";
 const EMERGENCY="./emergency.html";
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);try{await c.add("./index.html")}catch{}}).catch(()=>{}))});
 self.addEventListener("install",e=>{self.skipWaiting()});
@@ -14,5 +14,7 @@ self.addEventListener("fetch",e=>{
    return new Response(html,{status:r.status,statusText:r.statusText,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
   }catch(err){return (await caches.match("./index.html"))||(await caches.match(EMERGENCY))||Response.error()}})());return;
  }
+ const staticAsset=/\.(?:js|css|png|jpe?g|svg|ico|webp|mov|mp3|mp4|woff2?|webmanifest)$/i.test(new URL(e.request.url).pathname);
+ if(!staticAsset)return;
  e.respondWith(fetch(e.request,{cache:"no-store"}).then(r=>{if(r&&r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request)))
 });
