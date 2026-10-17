@@ -22,6 +22,7 @@ on:
   push:
     branches:
       - feature/agent-operations-v1
+      - main
     paths:
       - 'agents/**'
       - 'emergency.html'
