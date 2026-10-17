@@ -59,3 +59,10 @@ The goal is instant delight for casual family users, not a configuration-heavy e
 - If a joke is shared automatically, do not include private details about the baby's health, time, caregiver, or medical symptoms.
 - Test 1–5 selection, skipping the slider, cancellation, saving, offline behavior, reduced motion, and animation cleanup.
 - Status: concept/specification, not implemented.
+
+## Personality balance (user-approved)
+- 81% clean, elegant, usable, and calm.
+- 15% playful and funny.
+- 3% rare over-the-top absurdity/Easter eggs.
+- 1% R-rated adult humor, limited to adult profiles with an appropriate humor preference; do not broadcast adult jokes into shared spaces where children may view them.
+- These percentages are creative direction, not literal randomized probabilities per event. Prioritize usability and accessibility at all times.
