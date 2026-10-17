@@ -11,8 +11,8 @@ export function inspectBundle(root){
   const file=join(root,name);
   if(!existsSync(file))continue;
   const html=readFileSync(file,"utf8");
-  const paths=[...html.matchAll(/(?:src|href)\\s*=\\s*["']([^"']+)["']/gi)].map(x=>x[1]);
-  paths.push(...[...html.matchAll(/\\b(?:import|from)\\s*["']([^"']+)["']/g)].map(x=>x[1]));
+  const paths=[...html.matchAll(/(?:src|href)\s*=\s*["']([^"']+)["']/gi)].map(x=>x[1]);
+  paths.push(...[...html.matchAll(/\b(?:import|from)\s*["']([^"']+)["']/g)].map(x=>x[1]));
   for(const raw of paths){
    if(!raw||raw.startsWith("#")||raw.startsWith("data:")||raw.startsWith("blob:")||raw.startsWith("http:")||raw.startsWith("https:")||raw.startsWith("mailto:")||raw.startsWith("javascript:"))continue;
    const clean=raw.split(/[?#]/)[0];
