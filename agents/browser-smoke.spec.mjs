@@ -107,3 +107,22 @@ test("mobile-size viewport can navigate Family Chat, profiles, and emergency bac
   await expect(page.locator("#export")).toBeVisible();
  }finally{await context.close();}
 });
+
+test("reviewed emergency export includes only selected corrected entries",async({page})=>{
+ await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+ for(const note of ["QA selected bottle","QA excluded diaper"]){
+  await page.locator("#note").fill(note);
+  await page.locator("#save").click();
+ }
+ await page.locator("#review").click();
+ await page.locator('#reviewItems input[type="checkbox"]').first().check();
+ await page.locator("#reviewItems textarea").first().fill("QA corrected bottle: 8 oz");
+ const downloading=page.waitForEvent("download");
+ await page.locator("#exportReviewed").click();
+ const file=await downloading;
+ const payload=JSON.parse(readFileSync(await file.path(),"utf8"));
+ expect(payload.format).toBe("luca-emergency-reviewed-v1");
+ expect(payload.entries).toHaveLength(1);
+ expect(payload.entries[0]).toEqual(expect.objectContaining({text:"QA corrected bottle: 8 oz",reviewed:true}));
+ await expect(page.locator("#notice")).toContainText("NOT been imported");
+});
