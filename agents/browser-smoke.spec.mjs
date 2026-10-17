@@ -31,3 +31,32 @@ test("emergency entry persists after reload and can be exported",async({page})=>
  const download=await downloadPromise;
  expect(download.suggestedFilename()).toMatch(/\.json$/);
 });
+
+test("emergency log refuses empty entries and preserves a saved entry when deletion is cancelled",async({page})=>{
+ await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#save").click();
+ await expect(page.locator("#notice")).toContainText("Write an event");
+ await page.locator("#note").fill("Synthetic QA: wet diaper");
+ await page.locator("#save").click();
+ await expect(page.locator("#entries")).toContainText("Synthetic QA: wet diaper");
+ page.once("dialog",dialog=>dialog.dismiss());
+ await page.locator("#entries button").first().click();
+ await expect(page.locator("#entries")).toContainText("Synthetic QA: wet diaper");
+});
+
+test("emergency page is available offline after service-worker installation",async({browser})=>{
+ const context=await browser.newContext({serviceWorkers:"allow"});
+ const page=await context.newPage();
+ try{
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.evaluate(async()=>{
+   if(!("serviceWorker" in navigator))throw new Error("Service workers unavailable");
+   await navigator.serviceWorker.register("./sw.js");
+   await navigator.serviceWorker.ready;
+  });
+  await expect.poll(async()=>page.evaluate(()=>navigator.serviceWorker.controller!==null),{timeout:15000}).toBe(true);
+  await context.setOffline(true);
+  await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+  await expect(page.locator("h1")).toContainText("emergency log");
+ }finally{await context.close();}
+});
