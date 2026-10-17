@@ -1,3 +1,4 @@
+import {Script} from "node:vm";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
@@ -17,4 +18,10 @@ test("emergency backup requires manual review before recovery export",()=>{
 test("service worker retains current emergency cache during activation",()=>{
  assert.match(sw,/if\(k!==CACHE\)await caches\.delete\(k\)/);
  assert.match(sw,/caches\.open\(CACHE\)\.then\(c=>c\.add\(EMERGENCY\)\)/);
+});
+
+test("emergency standalone script parses without the main app bundle",()=>{
+ const match=html.match(/<script>([\\s\\S]*?)<\\/script>/);
+ assert.ok(match,"inline emergency script exists");
+ assert.doesNotThrow(()=>new Script(match[1],{filename:"emergency.html"}));
 });
