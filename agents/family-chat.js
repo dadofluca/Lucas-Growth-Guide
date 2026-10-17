@@ -21,7 +21,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   try{({data,error}=await sb.from("family_chat_messages").select("id,sender_id,body,created_at").eq("family_id",family).order("created_at",{ascending:false}).limit(100));}catch{error=true;}
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
-  if(error){say("Chat is unavailable right now. Please try again.");return;}
+  if(error){feed.replaceChildren();say("Chat is unavailable right now. Please try again.");return;}
   let people=[];
   try{({data:people}=await sb.from("family_profiles").select("user_id,display_name").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p.display_name]));
@@ -30,15 +30,16 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   show((data||[]).reverse(),names);say("");
  }
  send.addEventListener("click",async()=>{
-  if(busy)return;
+  if(busy||disposed)return;
   const sb=getClient(),family=getFamilyId(),user=getUser(),body=input.value.trim();
   if(!sb||!family||!user){say("Sign in to send a message.");return;}
   if(!body||body.length>2000){say("Write a message of up to 2,000 characters.");return;}
   busy=true;send.disabled=true;
   try{
+   if(disposed||getFamilyId()!==family||getUser()?.id!==user.id){say("Family session changed. Reopen chat.");return;}
    const {error}=await sb.from("family_chat_messages").insert({family_id:family,sender_id:user.id,body});
    if(error)throw error;
-   input.value="";await load();
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){input.value="";await load();}
   }catch{say("Couldn't send. Your message is still here; try again.");}
   finally{busy=false;send.disabled=false;}
  });
