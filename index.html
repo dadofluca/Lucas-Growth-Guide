@@ -410,7 +410,9 @@ $("#dismissSync").onclick=()=>{$("#authGate").style.display="none"};$("#careHead
 import {mountFamilyProfiles} from "./agents/family-profiles.js";
 let profileStarted=false;
 document.querySelector('[data-tab="profile"]')?.addEventListener("click",()=>{
- if(profileStarted)return;profileStarted=true;
+ if(profileStarted)return;
+ if(!sb||!syncFamily||!syncUser){document.querySelector("#profileStatus").textContent="Sign in to Family Sync, then reopen Family.";return;}
+ profileStarted=true;
  mountFamilyProfiles({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,list:document.querySelector("#familyProfileList"),name:document.querySelector("#profileName"),bio:document.querySelector("#profileBio"),avatar:document.querySelector("#profileAvatar"),save:document.querySelector("#profileSave"),status:document.querySelector("#profileStatus")});
 });
 </script><script type="module">
@@ -418,6 +420,8 @@ import {mountFamilyChat} from "./agents/family-chat.js";
 const chatTab=document.querySelector('[data-tab="chat"]');
 let chatStarted=false;
 chatTab?.addEventListener("click",()=>{
+ if(!chatStarted&&!sb){document.querySelector("#familyChatStatus").textContent="Sign in to Family Sync to use chat.";return;}
+ if(!chatStarted&&(!syncFamily||!syncUser)){document.querySelector("#familyChatStatus").textContent="Finish Family Sync sign-in, then reopen Chat.";return;}
  if(!chatStarted){chatStarted=true;mountFamilyChat({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,feed:document.querySelector("#familyChatFeed"),input:document.querySelector("#familyChatText"),send:document.querySelector("#familyChatSend"),status:document.querySelector("#familyChatStatus")});}
 });
 </script><style>
