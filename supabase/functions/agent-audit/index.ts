@@ -10,10 +10,8 @@ async function query(table:string,columns:string,limit=1000){
 }
 async function save(table:string,rows:unknown[],upsert=false){
  if(!rows.length)return;
- const privateSchema=false;
- const resource=privateSchema?table.split(".")[1]:table;
- const endpoint=`${url}/rest/v1/${resource}${upsert?"?on_conflict=fingerprint":""}`;
- const r=await fetch(endpoint,{method:"POST",headers:{...headers,...(privateSchema?{"Content-Profile":"agent_ops"}:{}),"Prefer":upsert?"resolution=ignore-duplicates,return=minimal":"return=minimal"},body:JSON.stringify(rows)});
+ const endpoint=`${url}/rest/v1/${table}${upsert?"?on_conflict=fingerprint":""}`;
+ const r=await fetch(endpoint,{method:"POST",headers:{...headers,"Prefer":upsert?"resolution=ignore-duplicates,return=minimal":"return=minimal"},body:JSON.stringify(rows)});
  if(!r.ok)throw new Error(`database write failed (${r.status})`);
 }
 function fingerprint(parts:unknown[]){return parts.map(x=>String(x??"")).join(":").slice(0,300);}
@@ -33,7 +31,7 @@ Deno.serve(async(req)=>{
   };
   const sorted=events.filter((e:any)=>e.id&&e.event_time&&Number.isFinite(Date.parse(e.event_time))).sort((a:any,b:any)=>Date.parse(a.event_time)-Date.parse(b.event_time));
   for(const e of sorted){
-   if(e.event_type==="bottle"&&(!Number.isFinite(Number(e.amount_oz))||Number(e.amount_oz)<=0||Number(e.amount_oz)>16))add("atlas","bottle_amount_review","medium",[e.id]);
+   if(e.event_type==="bottle"&&(e.amount_oz===null||e.amount_oz===undefined||!Number.isFinite(Number(e.amount_oz))||Number(e.amount_oz)<=0||Number(e.amount_oz)>16))add("atlas","bottle_amount_review","medium",[e.id]);
    if(Date.parse(e.event_time)>Date.now()+600000)add("atlas","future_timestamp","medium",[e.id]);
   }
   for(let i=0;i<sorted.length;i++)for(let j=i+1;j<sorted.length;j++){
