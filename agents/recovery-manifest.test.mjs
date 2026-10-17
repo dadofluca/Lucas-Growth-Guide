@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {buildRecoveryManifest,previewRecoveryEvents} from "./recovery-manifest.mjs";
+import {buildRecoveryManifest,previewRecoveryEvents,prepareRecoveryRows} from "./recovery-manifest.mjs";
 const e={id:"emergency-123",text:"6 oz and poop",recorded_at:"2026-10-17T12:00:00Z",caregiver:"Sam",reviewed:true};
 test("reviewed backup becomes uncommitted manifest",()=>{
  const result=buildRecoveryManifest({format:"luca-emergency-reviewed-v1",entries:[e]});
@@ -29,4 +29,13 @@ test("recovery rejects repeated parts and invalid bottle amounts",()=>{
  const d={approved:true,source_id:e.id,part:1,event_type:"bottle",amount_oz:6,event_time:e.recorded_at};
  assert.throws(()=>previewRecoveryEvents(m,[d,d]));
  assert.throws(()=>previewRecoveryEvents(m,[{...d,amount_oz:0}]));
+});
+
+test("recovery rows carry separate idempotency keys and caller identity",()=>{
+ const m=buildRecoveryManifest({format:"luca-emergency-reviewed-v1",entries:[e]});
+ const preview=previewRecoveryEvents(m,[{approved:true,source_id:e.id,part:1,event_type:"bottle",amount_oz:6,event_time:e.recorded_at},{approved:true,source_id:e.id,part:2,event_type:"poop",event_time:e.recorded_at}]);
+ const rows=prepareRecoveryRows(preview,{babyId:"baby-test",userId:"user-test"});
+ assert.equal(rows.length,2);assert.notEqual(rows[0].details.emergency_source_id,rows[1].details.emergency_source_id);
+ assert.equal(rows[0].created_by,"user-test");
+ assert.throws(()=>prepareRecoveryRows(preview,{}));
 });
