@@ -49,6 +49,7 @@ jobs:
           mkdir -p artifacts/luca-release
           cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest artifacts/luca-release/
           cp -r agents artifacts/luca-release/
+          find . -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" -o -iname "*.ico" -o -iname "*.webp" -o -iname "*.mov" -o -iname "*.mp3" -o -iname "*.mp4" \) -exec cp {} artifacts/luca-release/ \;
           cp artifacts/release-readiness.json artifacts/luca-release/
           printf '%s\n' "${GITHUB_SHA}" > artifacts/luca-release/commit.txt
       - name: Upload installable static release candidate
