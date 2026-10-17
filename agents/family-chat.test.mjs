@@ -1,0 +1,25 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
+const js=readFileSync(new URL("./family-chat.js",import.meta.url),"utf8");
+const sql=readFileSync(new URL("../supabase/migrations/20261017_family_chat.sql",import.meta.url),"utf8");
+test("family chat is a main tab with a separate composer",()=>{
+ assert.match(html,/data-tab="chat"/);
+ assert.match(html,/id="chatView"/);
+ assert.match(html,/id="familyChatText"/);
+ assert.match(html,/mountFamilyChat/);
+});
+test("chat only reads family-scoped messages and never inserts care events",()=>{
+ assert.match(js,/eq\("family_id",family\)/);
+ assert.match(js,/family_chat_messages/);
+ assert.doesNotMatch(js,/baby_events|pushEntry|saveEvent/);
+ assert.match(js,/body\.textContent=m\.body/);
+});
+test("server-side family membership and sender identity enforced",()=>{
+ assert.match(sql,/enable row level security/);
+ assert.match(sql,/family_chat_read/);
+ assert.match(sql,/family_chat_send/);
+ assert.match(sql,/sender_id=\(select auth\.uid\(\)\)/);
+ assert.doesNotMatch(sql,/grant .* to anon/);
+});
