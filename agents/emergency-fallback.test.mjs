@@ -16,8 +16,8 @@ test("emergency backup requires manual review before recovery export",()=>{
  assert.match(html,/NOT been imported into shared history/);
 });
 test("service worker retains current emergency cache during activation",()=>{
- assert.match(sw,/if\(k!==CACHE\)await caches\.delete\(k\)/);
- assert.match(sw,/caches\.open\(CACHE\)\.then\(c=>c\.add\(EMERGENCY\)\)/);
+ assert.match(sw,/if\(k\.startsWith\("luca-"\)&&k!==CACHE\)await caches\.delete\(k\)/);
+ assert.match(sw,/caches\.open\(CACHE\)\.then\(async c=>\{await c\.add\(EMERGENCY\)/);
 });
 
 test("emergency standalone script parses without the main app bundle",()=>{
@@ -29,4 +29,10 @@ test("emergency standalone script parses without the main app bundle",()=>{
 test("emergency response is cloned before asynchronous cache update",()=>{
  assert.match(sw,/const copy=r\.clone\(\);caches\.open\(CACHE\)\.then\(c=>c\.put\(EMERGENCY,copy\)\)/);
  assert.doesNotMatch(sw,/c\.put\(EMERGENCY,r\.clone\(\)\)/);
+});
+
+test("offline navigation resolves a cached page before error response",()=>{
+ assert.match(sw,/await caches\.match\("\.\/index\.html"\)/);
+ assert.match(sw,/await caches\.match\(EMERGENCY\)/);
+ assert.doesNotMatch(sw,/caches\.match\("\.\/index\.html"\)\|\|Response\.error\(\)/);
 });
