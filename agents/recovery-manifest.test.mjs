@@ -47,3 +47,16 @@ test("recovery commit rejects missing session before any database write",async()
  await assert.rejects(()=>commitApprovedRecovery(client,preview,{babyId:"00000000-0000-4000-8000-000000000001",userId:"00000000-0000-4000-8000-000000000002"}),/session mismatch/);
  assert.equal(writes,0);
 });
+
+test("recovery import rejects repeated source keys before database reads or writes",async()=>{
+ const id="00000000-0000-4000-8000-000000000001";
+ const user="00000000-0000-4000-8000-000000000002";
+ const entry={source_id:"emergency-123",part:"1",event_type:"poop",event_time:"2026-10-17T12:00:00.000Z",amount_oz:null,caregiver:"Sam",original_note:"poop"};
+ let eventQueries=0;
+ const client={auth:{getUser:async()=>({data:{user:{id:user}}})},from:(table)=>{
+  if(table==="baby_events"){eventQueries++;throw Error("must not query events");}
+  return {select:()=>({eq:()=>({single:async()=>({data:table==="babies"?{id,family_id:id}:{user_id:user}}),eq:()=>({single:async()=>({data:{user_id:user}})})})})};
+ }};
+ await assert.rejects(()=>commitApprovedRecovery(client,{dryRun:true,records:[entry,entry]},{babyId:id,userId:user}),/Duplicate recovery source keys/);
+ assert.equal(eventQueries,0);
+});
