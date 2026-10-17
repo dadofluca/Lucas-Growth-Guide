@@ -36,6 +36,8 @@ jobs:
           mkdir -p release-candidate
           cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest release-candidate/
           cp -r agents release-candidate/
+          # Keep root-level static assets referenced by the app, without copying repository metadata.
+          find . -maxdepth 1 -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.ico' -o -iname '*.webp' -o -iname '*.mov' -o -iname '*.mp3' -o -iname '*.mp4' -o -iname '*.css' \\) -exec cp '{}' release-candidate/ \\;
           printf '%s\n' "${GITHUB_SHA}" > release-candidate/commit.txt
       - uses: actions/upload-artifact@v4
         with:
