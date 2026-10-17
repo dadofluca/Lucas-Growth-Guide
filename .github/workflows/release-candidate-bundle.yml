@@ -30,10 +30,11 @@ jobs:
           test -s sw.js
           test -s family-pin.js
           test -s sync-fix.js
+          test -s manifest.webmanifest
       - name: Package static candidate (no deployment)
         run: |
           mkdir -p release-candidate
-          cp index.html emergency.html sw.js family-pin.js sync-fix.js release-candidate/
+          cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest release-candidate/
           cp -r agents release-candidate/
           printf '%s\n' "${GITHUB_SHA}" > release-candidate/commit.txt
       - uses: actions/upload-artifact@v4
