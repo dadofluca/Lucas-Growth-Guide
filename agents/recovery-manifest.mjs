@@ -29,3 +29,9 @@ export function previewRecoveryEvents(manifest,decisions=[]){
  }
  return {dryRun:true,requiresAuthenticatedCommit:true,records};
 }
+
+/** Prepare insert rows for an already authenticated, family-scoped server handler. */
+export function prepareRecoveryRows(preview,{babyId,userId}={}){
+ if(preview?.dryRun!==true||!Array.isArray(preview.records)||!babyId||!userId)throw Error("Missing authenticated recovery context");
+ return preview.records.map(r=>({baby_id:babyId,created_by:userId,event_type:r.event_type,event_time:r.event_time,amount_oz:r.amount_oz,note:r.original_note,caregivers:r.caregiver?[r.caregiver]:[],details:{emergency_source_id:r.source_id+":"+r.part,emergency_original_source_id:r.source_id,emergency_recovered:true}}));
+}
