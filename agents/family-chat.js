@@ -25,7 +25,8 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   let people=[];
   try{({data:people}=await sb.from("family_profiles").select("user_id,display_name").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p.display_name]));
-  if(disposed||request!==requestId||getFamilyId()!==family||getUser()?.id!==user.id)return;
+  if(disposed||request!==requestId)return;
+  if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   show((data||[]).reverse(),names);say("");
  }
  send.addEventListener("click",async()=>{
