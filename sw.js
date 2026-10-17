@@ -4,6 +4,7 @@ self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith("luca-")&&k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
+ if(e.request.method!=="GET"||new URL(e.request.url).origin!==self.location.origin)return;
  if(new URL(e.request.url).pathname.endsWith("/emergency.html")){e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(EMERGENCY,copy))}return r}).catch(()=>caches.match(EMERGENCY).then(r=>r||Response.error())));return;}
  if(e.request.mode==="navigate"){
   e.respondWith((async()=>{try{
