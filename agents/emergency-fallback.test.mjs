@@ -25,3 +25,8 @@ test("emergency standalone script parses without the main app bundle",()=>{
  assert.ok(match,"inline emergency script exists");
  assert.doesNotThrow(()=>new Script(match[1],{filename:"emergency.html"}));
 });
+
+test("emergency response is cloned before asynchronous cache update",()=>{
+ assert.match(sw,/const copy=r\.clone\(\);caches\.open\(CACHE\)\.then\(c=>c\.put\(EMERGENCY,copy\)\)/);
+ assert.doesNotMatch(sw,/c\.put\(EMERGENCY,r\.clone\(\)\)/);
+});
