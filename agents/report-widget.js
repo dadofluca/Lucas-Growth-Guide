@@ -25,7 +25,8 @@ export function mountAgentReportWidget({supabase,familyId,container=document.bod
  async function refreshReports(){
   const request=++requestId;
   if(disposed||getFamilyId()!==familyId)return;
-  const {data,error}=await supabase.from("agent_user_reports").select("id,category,status,created_at").eq("family_id",familyId).order("created_at",{ascending:false}).limit(10);
+  let data,error;
+  try{({data,error}=await supabase.from("agent_user_reports").select("id,category,status,created_at").eq("family_id",familyId).order("created_at",{ascending:false}).limit(10));}catch{error=true;}
   if(disposed||request!==requestId||getFamilyId()!==familyId)return;
   history.replaceChildren();
   if(error){const p=document.createElement("p");p.textContent="Report history unavailable.";history.append(p);return;}
