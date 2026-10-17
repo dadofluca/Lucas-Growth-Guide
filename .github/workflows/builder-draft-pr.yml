@@ -1,0 +1,45 @@
+name: Builder draft PR smoke test
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/agent-operations-v1
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Builder constraints and tests
+        run: node --test agents/*.test.mjs
+      - name: Generate deterministic synthetic proposal
+        run: node agents/builder-proposal.mjs
+      - name: Materialize allowlisted proposal only
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync,mkdirSync} from "node:fs";
+          const patch=JSON.parse(readFileSync("artifacts/builder-proposal.json","utf8"));
+          if(patch.mayAutoMerge!==false||patch.mayDeploy!==false||patch.files.length!==1||patch.files[0].path!=="docs/agent-generated-proposal.md")throw Error("Unsafe Builder proposal");
+          mkdirSync("docs",{recursive:true});
+          writeFileSync(patch.files[0].path,patch.files[0].content);
+          NODE
+      - name: Create draft PR for human review
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          base: feature/agent-operations-v1
+          branch: agent/builder-safe-proposal
+          delete-branch: false
+          draft: true
+          title: 'Builder: synthetic design proposal (review only)'
+          body: |
+            Safe, synthetic Builder PR smoke test. Only the dedicated proposal document is changed.
+            No baby data, app behavior, database, secrets, auto-merge or deployment.
+            Requires human review. This is not a real AI-generated bug fix.
+          add-paths: docs/agent-generated-proposal.md
