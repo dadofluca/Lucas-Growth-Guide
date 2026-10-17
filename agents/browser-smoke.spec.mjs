@@ -17,3 +17,17 @@ test("emergency log page remains available without external services",async({pag
  await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
  await expect(page.locator("body")).toContainText(/emergency|offline/i);
 });
+
+test("emergency entry persists after reload and can be exported",async({page})=>{
+ await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#who").fill("Test caregiver");
+ await page.locator("#note").fill("Synthetic QA entry: 6 oz at 8:30");
+ await page.locator("#save").click();
+ await expect(page.locator("#entries")).toContainText("Synthetic QA entry: 6 oz at 8:30");
+ await page.reload();
+ await expect(page.locator("#entries")).toContainText("Synthetic QA entry: 6 oz at 8:30");
+ const downloadPromise=page.waitForEvent("download");
+ await page.locator("#export").click();
+ const download=await downloadPromise;
+ expect(download.suggestedFilename()).toMatch(/\.json$/);
+});
