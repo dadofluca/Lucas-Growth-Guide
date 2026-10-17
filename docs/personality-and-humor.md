@@ -36,13 +36,16 @@ Status: specification only, not deployed or implemented.
 - Store ratings per signed-in user and joke identifier; allow changing/removing a vote. Do not infer a baby's health, caregiver quality, or family relationships from votes.
 - Personalize the user's joke rotation using their own feedback. Aggregate family popularity only if the joke is appropriate for each viewer's humor settings.
 - Show an explicit **Share to Family Chat** action on each joke.
-- Optional automatic sharing must be off by default, with a per-user opt-in and a clear setting to turn it off.
-- To avoid flooding chat, automatically share only an occasional positively rated joke, subject to a daily cap and cooldown. Never auto-share every diaper event.
+- Automatic sharing of occasional non-sensitive comedy highlights is enabled by default for family members, with a clearly accessible per-user mute/disable control. Do not automatically share personal photos or sensitive baby-care details.
+- To avoid flooding chat, automatically share only occasional standout jokes, subject to a daily cap and cooldown. New jokes may be highlighted before receiving votes; later feedback tunes frequency. Never auto-share every diaper event.
 - Share the joke and an optional non-sensitive event label only. Do not expose medication details, exact feeding quantities, caregiver attribution, timestamps, or private Teddy conversations by default.
 - Auto-share requires a successful persisted event, valid family membership, and a unique share key to prevent duplicates on retries.
 - Votes and chat posts should fail independently of saving baby events: humor must never block care tracking.
 - Allow chat recipients to hide automated jokes locally and allow senders to delete their shared jokes.
 - Do not include dangerous medical claims or alarming fictional statements in a way that could be confused with real alerts.
-- Agent tests should cover changed votes, cross-family isolation, opted-out users, rate limits, retries, offline behavior, and no posting after a failed save.
+- Agent tests should cover changed votes, cross-family isolation, disabled sharing, rate limits, retries, offline behavior, and no posting after a failed save.
 
 Status: requirements/design only; not yet implemented or deployed.
+
+## Engagement-first adjustment (2026-10-17)
+The goal is instant delight for casual family users, not a configuration-heavy experience. Default to occasional low-volume funny chat highlights with an obvious mute switch. Keep the care UI clean, and avoid surprise loud sounds, graphic jokes, personal photos, or sensitive event details in automatic messages. Humor feedback is lightweight and optional. This remains a design specification, not a deployed feature.
