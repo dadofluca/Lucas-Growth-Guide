@@ -47,3 +47,8 @@ test("service worker caches only known static file types",()=>{
  assert.match(sw,/if\(!staticAsset\)return/);
  assert.match(sw,/webmanifest/);
 });
+
+test("failed emergency precache does not silently install a broken replacement worker",()=>{
+ assert.match(sw,/await c\.add\(EMERGENCY\)/);
+ assert.doesNotMatch(sw,/c\.add\(EMERGENCY\)[\s\S]{0,100}\.catch\(\(\)=>\{\}\)/);
+});
