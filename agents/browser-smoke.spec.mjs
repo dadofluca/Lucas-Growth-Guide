@@ -81,3 +81,13 @@ test("emergency recovery review never silently syncs records",async({page})=>{
  await expect(page.locator("#reviewItems")).toContainText("Synthetic QA: 7 oz bottle");
  expect(remoteWrites).toBe(0);
 });
+
+test("sign-out and family tabs do not expose previous messages to a guest",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator('nav button[data-tab="chat"]').click();
+ await expect(page.locator("#familyChatStatus")).toContainText(/sign in|family sync/i);
+ await expect(page.locator("#familyChatFeed")).toBeEmpty();
+ await page.locator('nav button[data-tab="profile"]').click();
+ await expect(page.locator("#familyProfileList")).toBeEmpty();
+});
