@@ -12,7 +12,7 @@ export function buildDailyInsights(events, {day,timezone="UTC"}={}){
  if(!Array.isArray(events))throw new TypeError("events must be an array");
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day||""))throw new TypeError("day must be YYYY-MM-DD");
  const format=new Intl.DateTimeFormat("en-CA",{timeZone:timezone,year:"numeric",month:"2-digit",day:"2-digit"});
- const daily=events.filter(e=>e?.event_time&&Number.isFinite(Date.parse(e.event_time))&&format.format(new Date(e.event_time))===day);
+ const daily=events.filter(e=>e?.event_time&&Number.isFinite(Date.parse(e.event_time))&&(()=>{const p=Object.fromEntries(format.formatToParts(new Date(e.event_time)).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`===day})());
  const bottles=daily.filter(e=>e.event_type==="bottle"&&Number(e.amount_oz)>0&&Number.isFinite(Number(e.amount_oz)));
  const oz=Math.round(bottles.reduce((n,e)=>n+Number(e.amount_oz),0)*100)/100;
  const diapers=daily.filter(e=>["poop","pee"].includes(e.event_type)).length;
