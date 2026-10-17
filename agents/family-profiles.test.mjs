@@ -31,3 +31,9 @@ test("profile saves check family session and unmount cleanup",()=>{
  assert.match(js,/if\(disposed\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)/);
  assert.match(js,/disposed=true;requestId\+\+;clearInterval\(timer\);list\.replaceChildren\(\)/);
 });
+
+test("profile tab remounts on session switch without duplicate save listeners",()=>{
+ assert.match(html,/profileSession!==session/);
+ assert.match(html,/profileDispose\?\.\(\)/);
+ assert.match(js,/save\.removeEventListener\("click",onSave\)/);
+});
