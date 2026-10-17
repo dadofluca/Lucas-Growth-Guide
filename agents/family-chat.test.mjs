@@ -35,3 +35,12 @@ test("chat and profile tabs can initialize after family sign-in",()=>{
  assert.match(html,/if\(!chatStarted&&\(!syncFamily\|\|!syncUser\)\)/);
  assert.match(html,/if\(!sb\|\|!syncFamily\|\|!syncUser\)\{document\.querySelector\("#profileStatus"\)/);
 });
+
+test("chat clears prior messages when network fetch fails",()=>{
+ assert.match(js,/if\(error\)\{feed\.replaceChildren\(\);say\("Chat is unavailable/);
+});
+test("chat send checks session before writing and retains draft after session switch",()=>{
+ assert.match(js,/if\(busy\|\|disposed\)return/);
+ assert.match(js,/if\(disposed\|\|getFamilyId\(\)!==family\|\|getUser\(\)\?\.id!==user\.id\)/);
+ assert.match(js,/if\(!disposed&&getFamilyId\(\)===family&&getUser\(\)\?\.id===user\.id\)/);
+});
