@@ -42,7 +42,7 @@ See [Agent Operations Plan](docs/agent-operations.md).
 | Daily ChatGPT read-only audit | Scheduled separately; not an app agent runtime |
 | Create agent architecture and safety plan | Done on `feature/agent-operations-v1` |
 | Create agent findings / run-history schema | Not started |
-| Implement Atlas data-integrity worker | Not started |
+| Implement Atlas data-integrity worker | Pure read-only prototype committed; tests not yet executed |
 | Implement Teddy, Scout, Guardian, Builder workers | Not started |
 | Deploy authenticated recurring backend scheduler | Not started |
 | In-app reporting dashboard | Not started |
@@ -68,7 +68,7 @@ See [Agent Operations Plan](docs/agent-operations.md).
 - Implement Atlas first; expand to other agents only after tests pass.
 
 ## Progress log
-- **2026-10-17:** Connected to GitHub repository `dadofluca/Lucas-Growth-Guide` and Supabase; read-only inspection found 135 baby events, 86 schedule records, five deployed functions and zero Muse import rows. Created agent operations branch and draft PR #2. Updated README to separate historical prototype claims, observed backend state, and planned work. **No production changes deployed.**
+- **2026-10-17 (continued):** Confirmed the frontend is a static HTML/JS PWA (index.html and sw.js), not a package.json-based React project. Added \`agents/atlas.mjs\` with duplicate, timestamp, bottle-amount and sparse-history checks, plus \`agents/atlas.test.mjs\` with four Node test cases. **Tests not yet executed; no runtime scheduled or deployed.**\n- **2026-10-17:** Connected to GitHub repository `dadofluca/Lucas-Growth-Guide` and Supabase; read-only inspection found 135 baby events, 86 schedule records, five deployed functions and zero Muse import rows. Created agent operations branch and draft PR #2. Updated README to separate historical prototype claims, observed backend state, and planned work. **No production changes deployed.**
 
 ## Immediate next step
-Identify the live frontend entrypoint and deployment pipeline, then build the protected agent findings schema and a read-only Atlas prototype on this branch.
+Run Atlas unit tests, inspect how the static PWA is deployed, and design the protected agent findings schema. Keep all live data and production code unchanged until reviewed.
