@@ -9,7 +9,9 @@ function lastSeen(iso){
  return `Last active ${Math.floor(minutes/1440)} days ago`;
 }
 export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio,avatar,save,status}){
- let disposed=false,requestId=0;
+ let disposed=false,requestId=0,dirty=false;
+ const markDirty=()=>{dirty=true;};
+ for(const field of [name,bio,avatar])field.addEventListener("input",markDirty);
  const say=t=>{if(!disposed)status.textContent=t;};
  async function heartbeat(){if(disposed)return;const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;try{await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}catch{}}
  async function refresh(){
@@ -28,7 +30,7 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
    const title=document.createElement("strong");title.textContent=(presets[p.avatar_preset]||"🧸")+" "+p.display_name+(p.user_id===user.id?" (You)":"");
    const seen=document.createElement("div");seen.className="muted";seen.textContent=lastSeen(p.last_active_at);
    row.append(title,seen);list.append(row);
-   if(p.user_id===user.id){name.value=p.display_name;bio.value=p.bio||"";avatar.value=p.avatar_preset;}
+   if(p.user_id===user.id&&!dirty){name.value=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"")?"":p.display_name;bio.value=p.bio||"";avatar.value=p.avatar_preset;}
   }
   say("");
  }
@@ -42,12 +44,12 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
    if(disposed||getFamilyId()!==family||getUser()?.id!==user.id)return say("Family session changed. Reopen profiles.");
    const {error}=await client.from("family_profiles").upsert({family_id:family,user_id:user.id,display_name,bio:description,avatar_preset:preset,updated_at:new Date().toISOString()},{onConflict:"family_id,user_id"});
    if(error)throw error;
-   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){await heartbeat();await refresh();say("Profile saved.");}
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){dirty=false;await heartbeat();await refresh();say("Profile saved.");}
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
  };
  save.addEventListener("click",onSave);
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);list.replaceChildren();};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();};
 }
