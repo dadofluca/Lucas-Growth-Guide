@@ -21,3 +21,11 @@ jobs:
         with:
           node-version: '22'
       - run: node --test agents/*.test.mjs
+      - name: Verify synthetic Watchdog-to-Builder handoff
+        run: node agents/synthetic-handoff.mjs
+      - name: Upload synthetic QA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-agent-qa
+          path: artifacts/synthetic-agent-qa.json
+          retention-days: 7
