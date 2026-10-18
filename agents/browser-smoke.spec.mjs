@@ -338,7 +338,8 @@ test("P95 history always displays an explicit result, never a blank panel",async
  await page.locator('nav [data-tab="history"]').click();
  await expect(page.locator("#historyView")).toHaveClass(/active/);
  await expect(page.locator("#history")).not.toBeEmpty();
- await expect(page.locator("#history")).toContainText(/No history yet|entries|Loading history/);
+ await expect(page.locator("#history .historyEmpty")).toContainText("Your story starts here.");
+ await expect(page.locator("#historyCount")).toContainText("0 entries");
 });
 
 
@@ -749,10 +750,10 @@ test('P135: hidden click discovery equips a banner that survives reload and appe
  await page.locator('#navMore').click();await page.locator('#menuAchievements').click();await expect(page.locator('#achievementsView')).toHaveClass(/active/);
  const badge=page.locator('[data-achievement="block-party"]');await expect(badge).toHaveClass(/unlocked/);await badge.locator('[data-equip-banner]').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('block-party');
- await page.evaluate(()=>scrollTo(0,0));await page.screenshot({animations:'disabled',path:'test-results/p135-achievements-390.png'});
+ await page.evaluate(()=>scrollTo(0,0));await expect.poll(()=>page.locator('.achievementHero img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.screenshot({animations:'disabled',fullPage:true,path:'test-results/p135-achievements-390.png'});
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="chat"]').click();
  await expect(page.locator('#familyChatFeed .avatarCharacter')).toHaveText("Dada's Dude");await expect(page.locator('#familyChatFeed .profileBanner')).toContainText('Block Party');
- await expect(page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img')).toHaveAttribute('src',/avatar-armory-original.png/);await page.screenshot({animations:'disabled',path:'test-results/p135-chat-banner-390.png'});
+ await expect(page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img')).toHaveAttribute('src',/avatar-armory-original.png/);await expect.poll(()=>page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.screenshot({animations:'disabled',path:'test-results/p135-chat-banner-390.png'});
  await page.locator('#navMore').click();await page.locator('#menuFamily').click();await expect(page.locator('#familyProfileList .profileBanner')).toContainText('Block Party');
 });
 
@@ -772,7 +773,7 @@ test('P135: History filters the real journal and edit/delete controls preserve c
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption('Lindsay');await page.locator('#quickPoopSave').click();
  await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await expect(page.locator('.historyEvent')).toHaveCount(2);
- await page.screenshot({animations:'disabled',path:'test-results/p135-history-390.png'});
+ await page.evaluate(()=>document.getElementById('toast').classList.remove('on'));await page.screenshot({animations:'disabled',path:'test-results/p135-history-390.png'});
  await page.locator('#historySearch').fill('Lindsay');await expect(page.locator('.historyEvent')).toHaveCount(1);await expect(page.locator('.historyEvent')).toContainText('Lindsay');
  await page.locator('#historySearch').fill('');await page.locator('#historyKind').selectOption('bottle');await expect(page.locator('.historyEvent')).toHaveCount(1);
  await page.locator('[data-history-edit]').click();await expect(page.locator('#manualComposer')).toBeVisible();await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#saveEntry').click();

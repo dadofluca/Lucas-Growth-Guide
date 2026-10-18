@@ -19,11 +19,12 @@ export function mountAchievements({getContext,getEntries,host}){
   if(result.newlyUnlocked.length){flair={...flair,unlocked:result.unlocked};changed(c);}
  }
  function paint(){
+  const oldPortrait=host.querySelector('.achievementHero .avatarPortrait');
   host.replaceChildren();const c=context();
   if(!session||key(c)!==session){host.append(element('p','muted','Sign in to Family Sync to collect achievements.'));return;}
   if(!self){host.append(element('p','muted',notice||'Opening your trophy cabinet…'));return;}
   const hero=element('div','achievementHero');
-  hero.append(avatarImage(self.avatar_preset||'bear',64,true));
+  hero.append(oldPortrait?.dataset.avatarKey===(self.avatar_preset||'bear')?oldPortrait:avatarImage(self.avatar_preset||'bear',64,true));
   const identity=element('div','achievementIdentity');identity.append(element('strong','',self.display_name||'You'),element('span','avatarCharacter',avatarLabel(self.avatar_preset)));
   const banner=profileBanner(flair);if(banner)identity.append(banner);else identity.append(element('small','muted','Choose an earned banner below.'));
   hero.append(identity);host.append(hero);
