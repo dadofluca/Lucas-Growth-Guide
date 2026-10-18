@@ -444,6 +444,11 @@ nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){
 .persistentTitle{position:relative!important;top:auto!important;z-index:2!important;width:fit-content!important;max-width:100%!important;min-height:0!important;margin:0 0 9px!important;padding:6px 10px!important;font-size:clamp(13px,3.6vw,16px)!important;line-height:1.2!important;box-sizing:border-box!important}
 .persistentTitle .titleL{width:25px!important;height:25px!important;margin-right:5px!important;border-width:2px!important;font-size:19px!important;flex-shrink:0}
 @media(max-width:390px){.persistentTitle{padding:5px 8px!important;font-size:13px!important}}
+/* P111: remove forced tall quick-entry panel; preserve all controls. */
+#todayView .quickhome{min-height:0!important;height:auto!important;padding-bottom:12px!important}
+#todayView .heroNext{padding-bottom:8px!important}
+#todayView .heroInput textarea{min-height:76px!important}
+#todayView .heroBtn{min-height:64px!important}
 /* P103: iPhone editor contrast, including native date/time controls. */
 #manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
 #manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
