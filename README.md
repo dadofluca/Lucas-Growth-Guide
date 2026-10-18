@@ -1,3 +1,14 @@
+## Current release: P135 — 2026-10-18
+
+Live app: https://dadofluca.github.io/Lucas-Growth-Guide/ · [Release PR #85](https://github.com/dadofluca/Lucas-Growth-Guide/pull/85)
+
+- Anchored Quick Bottle 4–8 oz and compact Quick Poop caregiver/size/wetness picker use the shared care queue.
+- Searchable History journal, compact edit/delete actions, correct diaper metadata through edits/reloads.
+- Original avatar character names in chat/profiles, 13 cosmetic achievements, earned selectable profile/chat banners, optional rare Easter eggs and soft clicks.
+- Prior P134 timed nap/night sleep and readable controls remain. Next pass addresses contextual sleep-note inference and softer light surfaces.
+- **183 Node + 55 Chromium checks passed** on `e0f46083bccc99180bfd0e6ea5f26844c9d43289`; public P135 assets matched tested SHA-256 bytes. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39141679951) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39141679958).
+- Additive cosmetic profile-flair migration uses unchanged membership/self-update RLS. Owner/shape/non-member assertions passed with all test writes rolled back. Real iPhone Safari, a second production device and Muse ingestion remain external checks. Read DEVELOPER_HANDOFF.md before editing; older notes below are historical.
+
 ## P132 care-sync release — 2026-10-18
 - Previous baseline: main P130 (`95526b57c674622965b150564b2b467651eaed7b`). This candidate incorporates the tested P131 Quick Bottle work and P129 form-obstruction rules without merging obsolete conflicting branches.
 - One `care-sync.js` repository now handles manual, Smart Entry, quick/dock bottle and morning sleep writes. Stable UUID primary keys make a retry recover the same row after a lost response. Pending edits remain in local storage and retry against the original shared row.
