@@ -680,7 +680,7 @@ if(previous.filter(e=>e.oz).length>=4&&feeds.length>=2)trends.push("📊 Today's
 const poopRecent=lastThree.filter(e=>(e.tags||[]).includes("poop")).length;
 if(poopRecent)trends.push("💩 "+poopRecent+" poop "+(poopRecent===1?"entry":"entries")+" in the last 3 days. You can now track size and messiness in new manual entries.");
 if(!trends.length)trends.push("We need several days of consistently recorded bottles and diapers before reliable trends appear. No guesses from missing entries.");
-$("#insightTrends").textContent=trends.join("\\n\\n");
+$("#insightTrends").textContent=trends.join("\\n\\n");}
 
 
 $("#emailLogin").onclick=async()=>{if(!sb)return toast("Family Sync unavailable");let email=$("#authEmail").value.trim();if(!email)return toast("Enter your email");localStorage.setItem("luca-sync-email",email);$("#emailLogin").disabled=true;try{let {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:"https://dadofluca.github.io/Lucas-Growth-Guide/"}});toast(error?(error.status===429?"Email limit reached — wait a bit and retry":"Couldn\'t send sign-in email"):"Check your email ✓")}catch(e){console.error(e);toast("Couldn\'t send sign-in email")}finally{setTimeout(()=>$("#emailLogin").disabled=false,1200)}};$("#finishSync").onclick=async()=>{await setupSync();if(syncUser)toast("Family Sync connected ✓");else toast("Not connected yet — tap the email link first")};
