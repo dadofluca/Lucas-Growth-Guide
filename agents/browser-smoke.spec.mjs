@@ -189,3 +189,11 @@ test("P69 shows original-only notes directly and hides unnecessary original drop
  await expect(entry.locator(".note").first()).toContainText("Changed a diaper at 8 PM");
  await expect(entry.locator("details")).toHaveCount(0);
 });
+
+
+test("P69 runtime version agrees with displayed badge",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await expect(page.locator("#patchBadge")).toHaveText("P69");
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P69");
+});
