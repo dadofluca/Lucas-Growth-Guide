@@ -609,6 +609,7 @@ test('P133: original artwork filters, saves, reloads and follows the family memb
  await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('#navMore').click();await page.locator('#menuFamily').click();
  await expect(page.locator('.avatarChoice')).toHaveCount(59);
+ await expect(page.locator('#profileAvatar')).toBeHidden();
  await page.getByRole('button',{name:'Diaper duty',exact:true}).click();
  await expect(page.getByRole('button',{name:'Teddy Trooper',exact:true})).toBeHidden();
  await expect(page.getByRole('button',{name:'Diaper Doom',exact:true})).toBeVisible();
@@ -620,6 +621,7 @@ test('P133: original artwork filters, saves, reloads and follows the family memb
  const portrait=page.locator('.armoryPreview img');await expect(portrait).toHaveAttribute('src',/avatar-armory-original.png/);
  await expect.poll(()=>portrait.evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);
  await page.locator('#profileSave').click();await expect(page.locator('#profileStatus')).toHaveText('Profile saved.');
+ await page.getByRole('searchbox',{name:'Find an avatar'}).fill('');
  await page.locator('.armoryHeader').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/p133-armory-390.png'});
  await page.reload();await page.locator('#navMore').click();await page.locator('#menuFamily').click();
  await expect(page.locator('.armoryPreview')).toContainText('Teddy Trooper');

@@ -40,3 +40,9 @@ button:focus-visible{outline:3px solid #568f79;outline-offset:3px}
 .armorySave #profileSave{margin:0;min-height:46px;width:100%}
 .armorySave #profileStatus:empty{display:none}
 .armorySave #profileStatus{margin-top:6px;font-size:13px}
+/* Respect the profile form's existing layout rules and the dark preview surface. */
+#profileView #profileAvatar,#profileView label[for="profileAvatar"]{display:none!important}
+#profileView .armoryPreview small{color:#dfceb3!important;-webkit-text-fill-color:#dfceb3!important}
+#profileView .armoryFilters button[aria-pressed="true"]{color:#fff6e6!important;-webkit-text-fill-color:#fff6e6!important}
+#profileView #profileName,#profileView #profileBio{border:1px solid #bdae99;border-radius:14px;padding:12px 13px;min-height:46px;box-shadow:none}
+#profileView #profileBio{min-height:86px;line-height:1.4;resize:vertical}
