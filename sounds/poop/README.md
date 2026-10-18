@@ -1,10 +1,10 @@
-# Recorded fart sound sources
+# Recorded poop audio — bundled with the app
 
-P71 uses four real MP3 recordings hosted in the public SoundMonster repository, rather than synthesizing oscillator sounds. Source: https://github.com/jonjonsson/SoundMonster (Public domain folder). Its README lists each of the four sounds under CC0.
+Four genuine CC0 recordings are bundled locally so they do not depend on third-party streaming:
 
-- fart short.mp3 — short
-- fart wet.mp3 — wet
-- fart powerful.mp3 — powerful
-- fart long.mp3 — long
+- short-01.mp3 (fart short.mp3)
+- wet-01.mp3 (fart wet.mp3)
+- nasty-01.mp3 (fart powerful.mp3)
+- long-01.mp3 (fart long.mp3)
 
-The files are loaded directly from raw.githubusercontent.com. This avoids shipping missing local audio assets, but **requires network access**. The source file paths were confirmed through GitHub; actual iPhone playback and sound quality still need device validation. For production reliability, a later release should vendor the licensed binaries into the app. No synthetic fallback is used. The user sound toggle remains effective.
+Source: https://github.com/jonjonsson/SoundMonster — Public domain directory, listed as CC0 by the source project. Original filenames preserved in parentheses for provenance. The P72 player preloads the MP3s and randomly chooses a different clip than the previous one. The existing Luca sound-off setting is respected. Device playback still needs iPhone verification.
