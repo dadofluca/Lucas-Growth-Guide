@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
 const runtime=readFileSync(new URL("../sync-fix.js",import.meta.url),"utf8");
-test("P87 runtime and badge match",()=>{
- assert.match(html,/id="patchBadge"[^>]*>P87<\/div>/);
+test("obsolete P87 overlay is removed without changing compatibility runtime",()=>{
+ assert.doesNotMatch(html,/id="patchBadge"/);
  assert.match(runtime,/version:'P87'/);
 });
 test("P87 right drawer is family chat preview, not redundant timeline",()=>{
