@@ -276,3 +276,20 @@ test("P89 accessibility: magnified phone and larger text keep menu accessible",a
   await expect(page.locator("#profileName")).toBeVisible();
  }finally{await context.close();}
 });
+
+
+test("P91 chat peek retries immediately when Family Sync becomes ready",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await expect(page.locator("#drawerChatPreview")).toContainText("Connecting to Family Chat");
+ const result=await page.evaluate(async()=>{
+  let calls=0;
+  const mock={from:()=>({select:()=>({eq:()=>({order:()=>({limit:async()=>{calls++;return {data:[],error:null}}})})})})};
+  window.addEventListener("luca:chat-session-request",e=>e.detail({client:mock,family:"synthetic-family",user:"synthetic-user"}));
+  window.dispatchEvent(new CustomEvent("luca:family-session-ready"));
+  await new Promise(resolve=>setTimeout(resolve,100));
+  return calls;
+ });
+ expect(result).toBe(1);
+ await expect(page.locator("#drawerChatPreview")).toContainText("No messages yet");
+});
