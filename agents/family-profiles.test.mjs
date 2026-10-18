@@ -37,3 +37,15 @@ test("profile tab remounts on session switch without duplicate save listeners",(
  assert.match(html,/profileDispose\?\.\(\)/);
  assert.match(js,/save\.removeEventListener\("click",onSave\)/);
 });
+
+test("P68 profile exposes backup log and support without floating emergency overlay",()=>{
+ assert.match(html,/href="\.\/emergency\.html"/);
+ assert.match(html,/id="profileReportIssue"/);
+ assert.doesNotMatch(html,/id="lucaEmergencyLink"/);
+ for(const preset of ["lion","panda","koala","penguin","dino","robot","astronaut","sun","star"]){assert.match(js,new RegExp(preset+':'));assert.match(html,new RegExp('value="'+preset+'"'));}
+});
+test("P68 family chat has compact composer and send control",()=>{
+ assert.match(html,/class="chatComposer"/);
+ assert.match(html,/id="familyChatText"/);
+ assert.match(html,/id="familyChatSend"/);
+});
