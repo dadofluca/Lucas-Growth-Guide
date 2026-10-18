@@ -22,7 +22,7 @@ for(const width of [320,390,430]){
     const row=page.locator(selector);await expect(row).toBeVisible();
     const {fg,bg,size}=await row.evaluate(el=>({fg:getComputedStyle(el).color,bg:getComputedStyle(el).backgroundColor,size:parseFloat(getComputedStyle(el).fontSize)}));
     expect(size).toBeGreaterThanOrEqual(16);
-    const rgb=c=>{const v=c.match(/[0-9]+/g);return v?.slice(0,3).map(Number)};
+    const rgb=c=>{const v=c.match(/[0-9]+/g);if(!v||v.length<3)throw new Error(`Unparseable color: ${c}`);return v.slice(0,3).map(Number)};
     const luminance=c=>rgb(c).map(v=>{v/=255;return v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
     const a=luminance(fg),b=luminance(bg);
     expect((Math.max(a,b)+.05)/(Math.min(a,b)+.05)).toBeGreaterThanOrEqual(4.5);
