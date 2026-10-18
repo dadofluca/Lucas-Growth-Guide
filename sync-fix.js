@@ -116,76 +116,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  render();
 })();
 
-/* P39 — edit form contrast/readability */
-(function(){
- const st=document.createElement("style");
- st.textContent=`
- #manualComposer{color:#304038!important}
- #manualComposer label{color:#405048!important;-webkit-text-fill-color:#405048!important;font-weight:800!important}
- #manualComposer textarea,#manualComposer input[type="date"],#manualComposer input[type="time"],#manualComposer input[type="text"]{
-   background:#fffaf2!important;color:#263a33!important;-webkit-text-fill-color:#263a33!important;
-   border:1.5px solid #b6a58e!important;box-shadow:inset 0 1px 0 #fff,0 2px 8px #60452c12!important;
-   opacity:1!important
- }
- #manualComposer textarea::placeholder,#manualComposer input::placeholder{color:#77827c!important;-webkit-text-fill-color:#77827c!important;opacity:1!important}
- #manualComposer input[type="date"],#manualComposer input[type="time"]{color-scheme:light!important}
- #manualComposer #saveEntry{
-   background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;
-   opacity:1!important;border:1px solid #173c58!important;font-weight:900!important
- }
- #manualComposer #cancelEdit{
-   background:#f8f0e5!important;color:#34423b!important;-webkit-text-fill-color:#34423b!important;
-   border:1px solid #c7b69f!important;opacity:1!important
- }
- `;document.head.appendChild(st);
-})();
-
-/* P40 — full-app cosmetic audit / unified warm accessible theme */
-(function(){
- const st=document.createElement("style");
- st.textContent=`
- :root{--ink:#304038;--muted:#5f6b64;--paper:#f8f0e4;--paper2:#efe2d1;--navy:#173c58;--line:#c5b49d;--accent:#a95e3d}
- body,.view{color:var(--ink)!important}
- .view h1,.view h2,.view h3,.card h1,.card h2,.card h3{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- .muted,.why,.note,.kicker{color:var(--muted)!important;-webkit-text-fill-color:var(--muted)!important;opacity:1!important}
- .card,.entry,.smartItem,.inlineClarify{border-color:#fff9!important}
- button{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
- .tiny,.actions button,.lbTabs button,.scheduleToday{
-   background:var(--paper)!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;
-   border:1px solid var(--line)!important;font-weight:800!important;opacity:1!important
- }
- .confirm,.smartSave{
-   background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;
-   border:1px solid var(--navy)!important;font-weight:900!important;opacity:1!important
- }
- textarea,input,select{
-   background:#fffaf2!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;
-   border-color:var(--line)!important;opacity:1!important
- }
- textarea::placeholder,input::placeholder{color:#78817c!important;-webkit-text-fill-color:#78817c!important;opacity:1!important}
- .chip{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;background:#f7eee2!important}
- nav{color:var(--muted)!important}nav button{color:var(--muted)!important;-webkit-text-fill-color:var(--muted)!important}
- nav button.active{color:var(--accent)!important;-webkit-text-fill-color:var(--accent)!important}
- #insightsView .card,#historyView .card,#leaderboardView .card,#scheduleView .card,#suppliesView .card{color:var(--ink)!important}
- #historyView .entry,#timeline .entry,#drawerTimeline .entry{color:var(--ink)!important}
- #historyView .entry .muted,#timeline .entry .muted,#drawerTimeline .entry .muted{color:var(--muted)!important}
- #suppliesView{padding-right:0!important}
- #suppliesView .entry{padding-right:78px!important;position:relative}
- #suppliesView .actions{flex-wrap:wrap!important}
- #suppliesView .chip{background:#f3e7d6!important;color:#35463e!important;-webkit-text-fill-color:#35463e!important}
- #scheduleView .scheduleNav button{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #scheduleView #scheduleList,#scheduleView #scheduleList *{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #leaderboardView .lbRow,#leaderboardView .lbRow *{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer .choice{background:#faf2e7!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important;border-color:#ad9a80!important}
- #manualComposer .choice.on{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #manualComposer .choice.on *{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- #manualComposer label{color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer textarea,#manualComposer input{background:#fffaf2!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
- #manualComposer #saveEntry{background:var(--navy)!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
- .careDock{top:36%!important;right:8px!important}
- @media(max-width:430px){.careDock{right:6px!important}.entry{scroll-margin-top:100px}}
- `;document.head.appendChild(st);
-})();
+/* Form and shared theme styling now live in agents/ui-polish.css. */
 
 /* P42 — Teddy private caregiver chat */
 (function(){
@@ -632,5 +563,5 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  if(document.getElementById("scheduleView")?.classList.contains("active"))window.pullSchedule();
 })();
 /* P66 — final drawer contrast, after all legacy styles */
-(()=>{const st=document.createElement('style');st.textContent='#sideMenu .sidePanel .menuRow,#sideMenu .sidePanel .menuRow *{color:#f4f8fb!important;-webkit-text-fill-color:#f4f8fb!important;opacity:1!important}#sideMenu .sidePanel .menuRow{background:#12283b!important}#sideMenu .sidePanel .kicker{color:#8fcfff!important;-webkit-text-fill-color:#8fcfff!important} .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
+(()=>{const st=document.createElement('style');st.textContent=' .editable60{display:block;width:100%;text-align:left;border:0}.editable60 span{float:right;font-weight:800}.dayRevert60{width:100%;margin-top:8px;border:1px solid #d5c5b2!important;background:#fff8ef!important;color:#7b5144!important;-webkit-text-fill-color:#7b5144!important}';document.head.appendChild(st)})();
 /* P69 — single runtime version source */(()=>{let b=document.getElementById('patchBadge');if(b)b.textContent=LUCA_RUNTIME.version;window.LUCA_PATCH=LUCA_RUNTIME.version})();

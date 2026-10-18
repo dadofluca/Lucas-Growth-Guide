@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P133** (2026-10-18), merged and confirmed on the public app. See the current release note below; older Pxx notes are historical.
+**Current release:** **P134 candidate** (2026-10-18); P133 remains the live baseline until this candidate passes browser QA and merges. See the current release note below; older Pxx notes are historical.
 
 ## Product intent
 
@@ -192,3 +192,17 @@ At the end of every meaningful development session, update this README with:
 - Version source, shell URLs/cache and loaded-version browser assertion agree on P133. Optional artwork is cached after use rather than blocking shell installation. Care persistence remains in `care-sync.js`; no new write path was added.
 - Validation: **168 code checks and 45 Chromium browser checks passed** on the tested source. Code: https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39136804229. Browser: https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39136804228. Phone screenshots at 320/390 widths and the final original-art picker were reviewed. Synthetic flows cover Quick Bottle -> History edit -> offline retry -> reload, avatar selection -> save -> reload -> chat, slow-save draft protection, personality persistence, muted audio and reduced motion. No tests changed real family records.
 - Remaining external validation: actual signed-in iPhone Safari/PWA, a second family device and Muse ingestion. Synthetic Chromium checks do not prove those real account/device paths. Next work should begin with user feedback from P133, preserving care-sync.js and the single profile/chat portrait factory.
+
+
+## P134 candidate — refined controls and timed sleep
+- User screenshots show unreadable dark-on-navy Open family chat and heavy navy drawer/Ideas buttons. Shared soft-sage actions, warm neutral surfaces, refined form/card/navigation styling now live in `agents/ui-polish.css`, scoped to `body#lucaApp`. Removed the P39/P40 injected form/theme paint and final menu repaint. Layout/behavior compatibility remains in sync-fix.js.
+- Family Ideas submit uses the same semantic `confirm` action. Do not create another one-off submit/button palette.
+- Sleep quick action opens a dedicated Nap / Night sleep editor with explicit start/end datetimes, live duration, caregiver, optional note, and optional night wake-ups/awake minutes. Save uses `saveCareEvent`, and History/Today editing routes pure sleep entries to the same editor with Undo.
+- `agents/sleep-data.js`: pure structured/legacy sleep normalization, bounded intervals, timezone-offset elapsed time, unknown-data handling, overlap union and 24h/7/30-day summaries. `details.sleep` round-trips through the existing care queue; no schema or access changes. Read-only metadata query verified baby_events.details is jsonb; current Supabase JSON docs and changelog reviewed.
+- Stats in Insights show logged last 24h, nap count, longest period, a small weekly chart, average nap/overnight windows, adjusted nights only when awake time is known, and wake counts only when recorded. Missing/vague records remain duration-unknown. Legacy timed naps and morning check-ins remain supported. Overnight narrative text is recognized as sleep without guessing its start.
+- Source IDs, script/cache versions and loaded-version checks advance together to P134. New local sleep scripts are in the shell and safe-preview dependency graph. The preview builder preserves body attributes when adding its isolation banner.
+- Local validation: 175 code checks, inline script parsing and safe preview packaging passed. Added synthetic browser flows for nap -> History edit -> offline retry -> reload -> stats, overnight dates/awake minutes, invalid interval rejection, narrow phone layout, and effective button text contrast for Today/menu/chat peek/Ideas. Await CI screenshots and full regressions. No tests use real family records.
+
+- Initial P134 browser gate: care/version passed; 44 other checks passed. Browser testing caught numeric nap counts being passed to the old string-only `esc` helper, preventing populated sleep summaries from rendering. The canonical esc now uses String(value ?? "") and retains numeric zero. Removed obsolete Today-only nav selector specificity so the shared nav surface matches every tab. Mixed sleep+other-event history labels keep all event types. Screenshot capture uses reduced motion to inspect settled drawers and editor positions. Await rerun.
+
+- Candidate `dc2d89eec072edb6b4a10fcdc7e6b0c65aaeb585` passed all 175 code checks and 48 browser checks (code run `39139206187`, browser `39139206340`). Reviewed settled 320/390 screenshots: timed nap/night editor, adjusted stats, Ideas, menu and chat peek. Final visual refinements darken low-contrast kicker labels, shorten the Today entry heading to one line, and hide floating utilities while the Ideas form is active. No care write or stats logic changed in that final visual refinement; await final CI.

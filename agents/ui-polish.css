@@ -46,3 +46,97 @@ button:focus-visible{outline:3px solid #568f79;outline-offset:3px}
 #profileView .armoryFilters button[aria-pressed="true"]{color:#fff6e6!important;-webkit-text-fill-color:#fff6e6!important}
 #profileView #profileName,#profileView #profileBio{border:1px solid #bdae99;border-radius:14px;padding:12px 13px;min-height:46px;box-shadow:none}
 #profileView #profileBio{min-height:86px;line-height:1.4;resize:vertical}
+
+/* Shared control and surface system. Keep paint here, outside compatibility JS. */
+:root{--luca-ink:#263d36;--luca-muted:#5b6b62;--luca-surface:#fffdf8;--luca-page:#f2f2eb;--luca-line:#d4ddd3;--luca-action:#dceae2;--luca-action-ink:#23483b;--luca-selected:#cfdfd3;--luca-radius:17px;--ink:var(--luca-ink);--muted:var(--luca-muted);--paper:var(--luca-surface);--paper2:#edf1e9;--line:var(--luca-line);--accent:#8b6146}
+body#lucaApp{background:linear-gradient(180deg,#f5f4ed,#eef1e9)!important;color:var(--luca-ink);letter-spacing:-.012em}
+body#lucaApp .card,body#lucaApp .quickhome{background:#fffdf8ed!important;border:1px solid var(--luca-line)!important;border-radius:22px;box-shadow:0 4px 18px #273c2d06!important}
+body#lucaApp .entry{background:#fffdf8e8!important;border:1px solid var(--luca-line)!important;border-radius:18px;box-shadow:0 2px 10px #273c2d04!important;padding:15px 16px}
+body#lucaApp .view h1,body#lucaApp .view h2,body#lucaApp .view h3{color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;letter-spacing:-.035em}
+body#lucaApp .view h1{font-size:29px;font-weight:750}
+body#lucaApp .view .muted,body#lucaApp .view .why,body#lucaApp .view .note,body#lucaApp .view small{color:var(--luca-muted)!important;-webkit-text-fill-color:var(--luca-muted)!important;line-height:1.45}
+body#lucaApp button{background:var(--luca-surface)!important;color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;border:1px solid var(--luca-line)!important;border-radius:14px;box-shadow:none!important;font-weight:650;min-height:44px;touch-action:manipulation;transition:background-color .14s ease,transform .14s ease,border-color .14s ease}
+body#lucaApp button:disabled{opacity:.5!important}
+body#lucaApp :is(.confirm,.smartSave,#drawerOpenChat,#saveEntry,#profileSave,#sleepSave,#saveSleepCheckin,#familyChatSend,#teddySend,#quickUnderstand),body#lucaApp #familyIdeasRoot button[type="submit"]{background:var(--luca-action)!important;color:var(--luca-action-ink)!important;-webkit-text-fill-color:var(--luca-action-ink)!important;border:1px solid #bdd2c4!important;border-radius:14px!important;box-shadow:0 1px 2px #1d3e2810!important;font-weight:750!important;min-height:48px;padding:12px 16px}
+body#lucaApp :is(.confirm,.smartSave) *,body#lucaApp #drawerOpenChat *,body#lucaApp #familyIdeasRoot button[type="submit"] *{color:var(--luca-action-ink)!important;-webkit-text-fill-color:var(--luca-action-ink)!important}
+body#lucaApp :is(input:not([type="range"]):not([type="checkbox"]):not([type="hidden"]),textarea,select){border:1px solid var(--luca-line)!important;border-radius:13px;background:#fcfdf8!important;color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;box-shadow:none!important;opacity:1!important;font-size:16px!important;min-width:0;max-width:100%;padding:11px 12px}
+body#lucaApp input:focus-visible,body#lucaApp textarea:focus-visible,body#lucaApp select:focus-visible{outline:3px solid #adc8b778;outline-offset:1px;border-color:#70937c!important}
+body#lucaApp #sideMenu .sidePanel,body#lucaApp #timelineDrawer .drawerPanel{background:#f9faf4!important;color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;box-shadow:0 0 40px #23312614}
+body#lucaApp #sideMenu .sidePanel :is(h1,h2,.kicker,.muted,.why,.lastFeed),body#lucaApp #timelineDrawer .drawerPanel :is(h1,h2,.kicker,.muted,.why){color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important}
+body#lucaApp #sideMenu .sidePanel .menuRow,body#lucaApp #sideMenu .sidePanel .menuRow *{background:#fffdf8!important;color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;border-color:var(--luca-line)!important;font-weight:650;letter-spacing:-.015em}
+body#lucaApp #sideMenu .menuRow{border-radius:14px!important;padding:13px 12px!important;margin-top:8px!important}
+body#lucaApp .sideShade,body#lucaApp .drawerShade{background:#24352a3d!important;backdrop-filter:blur(5px)}
+body#lucaApp nav{background:#f9fbf4f5!important;border:1px solid #d3ddd2;border-bottom:0;box-shadow:0 -4px 20px #23312607!important;border-radius:22px 22px 0 0!important}
+body#lucaApp nav button{background:transparent!important;border-color:transparent!important;color:var(--luca-muted)!important;-webkit-text-fill-color:var(--luca-muted)!important;border-radius:13px!important;font-weight:600!important;min-height:48px}
+body#lucaApp nav button.active,body#lucaApp nav .navHome.active{background:#e1eadb!important;color:var(--luca-action-ink)!important;-webkit-text-fill-color:var(--luca-action-ink)!important;box-shadow:none!important}
+body#lucaApp .heroBtn{border-radius:16px!important;background:#f2f5ed!important;min-height:74px;font-size:14px!important;font-weight:700!important}
+body#lucaApp .heroBtn span{font-size:24px}
+body#lucaApp .heroNext{padding:17px 18px 11px}
+body#lucaApp .heroInput{padding:14px!important}
+body#lucaApp .heroInput h2{font-size:21px!important;font-weight:740;margin-bottom:12px!important}
+body#lucaApp #heroNext{font-size:38px;letter-spacing:-.06em}
+body#lucaApp .compactTodayStats{border-radius:18px!important;padding:9px!important}
+body#lucaApp .stat{background:#eef2e8!important;border-radius:12px!important}
+body#lucaApp .chip{background:#edf2e7!important;color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important;border:1px solid #d8e1d3!important;font-size:12px}
+body#lucaApp #syncDot{background:#f1f5ec!important;border-color:#cfddc9!important;color:#42604a!important;-webkit-text-fill-color:#42604a!important;font-size:13px}
+body#lucaApp #scheduleView #scheduleList button,body#lucaApp #scheduleView #scheduleList button *,body#lucaApp #scheduleView .teddyLaunch66,body#lucaApp #scheduleView .teddyLaunch66 span{background:var(--luca-action)!important;color:var(--luca-action-ink)!important;-webkit-text-fill-color:var(--luca-action-ink)!important;border-color:#bdd2c4!important}
+body#lucaApp #manualComposer .choice.on,body#lucaApp #manualComposer .choice.on *,body#lucaApp #sleepComposer [aria-pressed="true"],body#lucaApp #insightsView :is(#sleep7,#sleep30)[aria-pressed="true"]{background:var(--luca-selected)!important;color:#214535!important;-webkit-text-fill-color:#214535!important;border-color:#85a68e!important;box-shadow:0 0 0 1px #85a68e66!important}
+body#lucaApp #ideasView>.card{background:#fffdf8!important;border:1px solid var(--luca-line)!important;box-shadow:0 4px 18px #273c2d06!important;border-radius:22px;padding:20px 18px}
+body#lucaApp #familyIdeasRoot form{gap:16px}
+body#lucaApp #familyIdeasRoot label{font-size:13px;font-weight:700;letter-spacing:0;color:var(--luca-ink)!important}
+body#lucaApp #familyIdeasRoot :is(input,textarea,select){border-radius:13px!important;border-color:var(--luca-line)!important;background:#fcfdf8!important}
+body#lucaApp #familyIdeasRoot article{background:#f8faf3!important;border-radius:17px;border-color:var(--luca-line)!important;padding:16px;box-shadow:none!important}
+body#lucaApp .armoryPreview{background:linear-gradient(135deg,#344c3d,#263e39);box-shadow:none}
+body#lucaApp #profileView .armoryPreview strong{color:#fff8e8!important;-webkit-text-fill-color:#fff8e8!important}
+body#lucaApp #profileView .armoryPreview small{color:#e0e5d4!important;-webkit-text-fill-color:#e0e5d4!important}
+body#lucaApp #profileView .armoryFilters button[aria-pressed="true"],body#lucaApp #profileView .avatarChoice[aria-pressed="true"]{background:#dbe9da!important;color:#284934!important;-webkit-text-fill-color:#284934!important;border-color:#94b59a!important}
+body#lucaApp #profileView .avatarChoice{background:#fffdf8!important}
+body#lucaApp .armorySave{background:#fffdf8f5}
+body#lucaApp .actions button,body#lucaApp .historyEventActions button{min-height:40px;padding:8px 13px!important;font-size:13px!important;border-radius:11px!important;background:#f4f7ef!important}
+body#lucaApp .historyDay,body#lucaApp .historyEvent{border-color:var(--luca-line)!important}
+body#lucaApp #suppliesView{padding-right:0!important}
+body#lucaApp .sleepRange{font-size:13px!important;color:#516b59!important;-webkit-text-fill-color:#516b59!important;margin-top:8px}
+body#lucaApp .persistentTitle{background:#fffdf8b3;border-color:var(--luca-line);box-shadow:none}
+body#lucaApp .buildVersion{background:#e8eede;border-color:#d2ddc7}
+/* Sleep editor and compact recorded-data summaries. */
+#sleepComposer[hidden],#sleepNightFields[hidden]{display:none!important}
+#sleepComposer{scroll-margin-top:14px;overflow:hidden}
+.sleepEditorHeader{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}
+.sleepEditorHeader h2{margin:3px 0 0;font-size:24px}
+.sleepEditorHeader .kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+#sleepForm{display:grid;gap:8px;min-width:0}
+#sleepForm>label{font-size:13px;font-weight:700;margin-top:7px}
+#sleepForm input:not([type="hidden"]),#sleepForm textarea{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:48px;color-scheme:light}
+.sleepSegment{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px}
+.sleepDurationPreview{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:15px 0;margin:2px 0;border-bottom:1px solid var(--luca-line)}
+.sleepDurationPreview>span{font-size:13px;color:var(--luca-muted)}
+.sleepDurationPreview strong{font-size:22px;letter-spacing:-.04em;text-align:right;font-variant-numeric:tabular-nums;color:#315a3e}
+.sleepDurationPreview strong[data-valid="false"]{font-size:13px;font-weight:600;color:var(--luca-muted)}
+.sleepOptionalGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:5px 0 10px}
+.sleepOptionalGrid label{display:block;min-height:33px;font-size:12px;line-height:1.35;margin-bottom:6px;font-weight:650}
+.sleepExtra{margin:8px 0;font-size:13px}.sleepExtra summary{min-height:32px;cursor:pointer;font-weight:650}.sleepExtra textarea{margin-top:8px}
+#sleepValidation{color:#973f37;font-size:13px;margin:0}#sleepValidation:empty{display:none}
+.sleepEditorFoot{margin:3px 0 0;font-size:12px!important}
+body#lucaApp:has(#sleepComposer:not([hidden])) :is(#careDock,#chatPeekTab){display:none!important}
+.sleepMetrics{display:grid;grid-template-columns:1.25fr .85fr 1fr;gap:8px;margin:18px 0}
+.sleepMetric{min-width:0;background:#f0f4e9;border-radius:14px;padding:14px 9px}
+.sleepMetric strong{display:block;font-size:23px;font-weight:730;letter-spacing:-.05em;white-space:nowrap;line-height:1.1;font-variant-numeric:tabular-nums}
+.sleepMetric span{display:block;margin-top:7px;font-size:10px;line-height:1.35;color:var(--luca-muted)}
+.sleepChart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px;margin:15px 0 22px}
+.sleepBarDay{text-align:center;font-size:11px;color:var(--luca-muted)}
+.sleepBarTrack{height:62px;border-radius:7px;background:#f0f2eb;display:flex;align-items:flex-end;overflow:hidden;margin-bottom:8px}
+.sleepBarTrack i{display:block;background:#9bb59c;width:100%;border-radius:7px 7px 0 0;min-height:0}
+#sleepTrends .sleepStat{padding:12px 0;gap:14px;align-items:center}
+#sleepTrends .sleepStat b{font-size:13px;font-weight:650}
+#sleepTrends .sleepStat small{display:block;font-size:11px;margin-top:4px}
+#sleepTrends .sleepStat span{flex-shrink:0;font-size:14px;color:#31533b;font-variant-numeric:tabular-nums}
+.sleepMissing{font-size:12px;line-height:1.5;background:#f6f0df;border-radius:12px;padding:11px}
+.sleepStatsFoot{font-size:11px!important;margin-top:16px}
+@media(max-width:350px){.sleepMetric strong{font-size:20px}.sleepMetric{padding:12px 7px}.sleepMetrics{gap:6px}.sleepChart{gap:7px}}
+@media(prefers-reduced-motion:reduce){body#lucaApp button{transition:none!important}}
+
+body#lucaApp #sleepTrends .sleepMetric strong{color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important}
+@media(prefers-reduced-motion:reduce){.sidePanel,.drawerPanel,.sideMenu,.drawer{transition:none!important;animation:none!important}}
+
+body#lucaApp .kicker{color:#607367!important;-webkit-text-fill-color:#607367!important;font-weight:700}
+body#lucaApp:has(#ideasView.active) :is(#careDock,#chatPeekTab){display:none!important}
