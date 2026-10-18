@@ -21,6 +21,7 @@ let emergency=readFileSync(join(root,"emergency.html"),"utf8");
 emergency=emergency.replace("<head>","<head>"+csp).replace(/<body[^>]*>/,match=>match+banner);
 writeFileSync(join(out,"emergency.html"),emergency);
 for(const name of ["manifest.webmanifest","family-pin.js","sync-fix.js","care-sync.js"])cpSync(join(root,name),join(out,name));
+if(existsSync(join(root,'demo.html')))cpSync(join(root,'demo.html'),join(out,'demo.html'));
 cpSync(join(root,"agents"),join(out,"agents"),{recursive:true});
 for(const name of readdirSync(root)){
  if(/\.(?:png|jpe?g|svg|ico|webp|mov|mp3|mp4)$/i.test(name)&&existsSync(join(root,name)))cpSync(join(root,name),join(out,name));

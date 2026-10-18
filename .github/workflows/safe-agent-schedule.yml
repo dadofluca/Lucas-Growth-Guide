@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '22'
       - name: Run agent unit tests
-        run: node --test agents/*.test.mjs
+        run: node agents/doctor.mjs --run
       - name: Exercise synthetic Watchdog and Builder handoff
         run: node agents/synthetic-handoff.mjs
       - name: Run Spark UX audit
@@ -31,6 +31,8 @@ jobs:
         with:
           name: safe-agent-evidence
           path: |
+            artifacts/doctor/
+            artifacts/unit-results.tap
             artifacts/spark-design-audit.json
             artifacts/synthetic-agent-qa.json
             artifacts/release-readiness.json

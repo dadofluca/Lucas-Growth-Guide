@@ -4,7 +4,7 @@ import {avatarImage,avatarLabel} from './family-profiles.js';
 
 export function mountAchievements({getContext,getEntries,host}){
  let session='',generation=0,profiles=[],self=null,flair=normalizeFlair({}),chatCount=null,result=null;
- let loading=false,saving=false,dirty=false,revision=0,debounce=null,notice='',pendingBanner;
+ let category='all';let loading=false,saving=false,dirty=false,revision=0,debounce=null,notice='',pendingBanner;
  const context=()=>{const c=getContext();return {...c,family:typeof c.family==='object'?c.family?.id:c.family};};
  const key=c=>c.family&&c.user?.id?c.family+':'+c.user.id:'';
  const current=(c,g=generation)=>generation===g&&key(context())===key(c);
@@ -20,7 +20,7 @@ export function mountAchievements({getContext,getEntries,host}){
  }
  function paint(){
   const oldPortrait=host.querySelector('.achievementHero .avatarPortrait');
-  host.replaceChildren();const c=context();
+  host.replaceChildren();const c=context();const teaser=document.getElementById('starterCardTeaser');if(teaser){teaser.hidden=!self||!!flair.banner||!result?.unlocked.length;teaser.textContent='✦ '+(result?.unlocked.length||1)+' calling card(s) ready · choose yours ↗';}
   if(!session||key(c)!==session){host.append(element('p','muted','Sign in to Family Sync to collect achievements.'));return;}
   if(!self){host.append(element('p','muted',notice||'Opening your trophy cabinet…'));return;}
   const hero=element('div','achievementHero');
@@ -34,19 +34,22 @@ export function mountAchievements({getContext,getEntries,host}){
   const leaders=result?.weekly.leaders||[],names=leaders.map(id=>profiles.find(p=>p.user_id===id)?.display_name||'Family member');
   week.append(element('strong','',names.length?names.join(' + '):'A fresh page'));
   week.append(element('small','',names.length?result.weekly.count+' entries logged'+(names.length>1?' · shared lead':''):'The first care log starts the week.'));host.append(week);
-  const tools=element('div','achievementTools');tools.append(element('h2','','Your banner collection'));
+  const tools=element('div','achievementTools');tools.append(element('h2','','Calling cards'));
   if(flair.banner){const clear=element('button','tiny','No banner');clear.type='button';clear.dataset.equipBanner='';tools.append(clear);}
   host.append(tools,element('p','achievementFoot','Earned from entries you logged. Caregiver credit stays on the Leaderboard. Hidden finds reveal themselves along the way.'));
   const grid=element('div','achievementGrid');
-  for(const badge of achievements){
+  const filters=element('div','callingCardFilters');for(const [value,label] of [['all','All cards'],['starter','Easy starters'],['ready','Unlocked'],['hidden','Classified']]){const button=element('button','',label);button.type='button';button.dataset.cardCategory=value;button.setAttribute('aria-pressed',String(category===value));filters.append(button);}host.append(filters);
+  const ordered=[...achievements].sort((a,b)=>(a.tier==='starter'?0:a.hidden?2:1)-(b.tier==='starter'?0:b.hidden?2:1));
+  for(const badge of ordered){
    const unlocked=flair.unlocked.includes(badge.id),equipped=unlocked&&flair.banner===badge.id;
+   if(category==='starter'&&badge.tier!=='starter'||category==='ready'&&!unlocked||category==='hidden'&&!badge.hidden)continue;
    const card=element('article','achievementCard'+(unlocked?' unlocked':' locked')+(equipped?' equipped':''));card.dataset.achievement=badge.id;
    card.append(element('span','achievementIcon flair-'+(unlocked?badge.tone:'locked'),unlocked||!badge.hidden?badge.icon:'?'));
    card.append(element('h3','',badge.hidden&&!unlocked?'Classified nonsense':badge.name));
    card.append(element('p','',unlocked?badge.description:badge.hint));
    if(unlocked){
     const preview=profileBanner({unlocked:flair.unlocked,banner:badge.id});if(preview)card.append(preview);
-    const button=element('button','tiny',equipped?'✓ Wearing this':'Wear banner');button.type='button';button.dataset.equipBanner=badge.id;button.setAttribute('aria-pressed',String(equipped));button.disabled=equipped;card.append(button);
+    const button=element('button','tiny',equipped?'✓ Equipped':'Equip card');button.type='button';button.dataset.equipBanner=badge.id;button.setAttribute('aria-pressed',String(equipped));button.disabled=equipped;card.append(button);
    }else if(!badge.hidden){
     const count=Math.min(badge.target,result?.metrics[badge.metric]||0),label=element('small','achievementProgress',count+' / '+badge.target);card.append(label);
    }else card.append(element('small','achievementProgress','Hidden achievement'));
@@ -101,6 +104,7 @@ export function mountAchievements({getContext,getEntries,host}){
   calculate(c);paint();void flush();
  }
  host.addEventListener('click',e=>{
+  const filter=e.target.closest('[data-card-category]');if(filter){category=filter.dataset.cardCategory;paint();return;}
   const equip=e.target.closest('[data-equip-banner]');
   if(equip){const id=equip.dataset.equipBanner;if(id&&!flair.unlocked.includes(id))return;pendingBanner=id;flair={...flair,banner:id};changed(context());notice='';paint();void flush();return;}
   if(e.target.closest('[data-refresh-achievements]'))void refresh();

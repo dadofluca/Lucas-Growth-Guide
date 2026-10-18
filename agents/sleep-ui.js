@@ -11,12 +11,12 @@
   function setKind(kind){$("sleepKind").value=kind;$("sleepNightFields").hidden=kind!=="night";for(const button of host.querySelectorAll("[data-sleep-kind]"))button.setAttribute("aria-pressed",String(button.dataset.sleepKind===kind));preview();}
   function close(){host.hidden=true;editing=null;}
   function open({entry=null,kind="nap"}={}){
-   if(busy)return;editing=entry?.id||null;showToday();const s=entry?root.LucaSleep.session(entry):null,now=new Date();
+   if(busy)return;editing=entry?.id||null;showToday();const s=entry?root.LucaSleep.session(entry,getEntries()):null,now=new Date();
    $("sleepForm").reset();$("sleepStart").value=s&&Number.isFinite(s.start)?localValue(s.start):"";$("sleepEnd").value=localValue(s&&Number.isFinite(s.end)?s.end:now);
    $("sleepCaregiver").value=(entry?.people||[deviceCaregiver()]).join(", ");$("sleepEntryNotes").value=entry?.notes||"";
    $("sleepEntryWakeups").value=s?.wakeups??"";$("sleepEntryAwake").value=s?.awake??"";
    $("sleepEditorTitle").textContent=entry?"Edit sleep":"Log sleep";$("sleepSave").textContent=entry?"Save changes":"Save sleep";
-   setKind(s?.kind||kind);host.hidden=false;host.dataset.editing=String(!!entry);host.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});
+   setKind(s?.kind||kind);host.querySelector(".sleepEditorFoot").textContent=s?.inferred?"Times inferred from your notes. Saving confirms this window; adjust either time if needed.":"Start and wake-up times are saved together. You can edit them later.";host.hidden=false;host.dataset.editing=String(!!entry);host.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});
   }
   for(const field of fields)field.addEventListener("input",preview);
   for(const button of host.querySelectorAll("[data-sleep-kind]"))button.addEventListener("click",()=>setKind(button.dataset.sleepKind));

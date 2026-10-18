@@ -11,5 +11,5 @@ export default defineConfig({
   reuseExistingServer:false,
   timeout:15000
  },
- reporter:[["list"],["html",{outputFolder:"artifacts/playwright-report",open:"never"}]]
+ reporter:[["list"],["json",{outputFile:process.env.LUCA_BROWSER_REPORT||"artifacts/browser-results.json"}],["html",{outputFolder:"artifacts/playwright-report",open:"never"}]]
 });

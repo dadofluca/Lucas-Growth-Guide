@@ -20,12 +20,20 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run full synthetic browser regression suite
         run: npx playwright test --config=playwright.config.mjs
-      - name: Upload Spark screenshots (synthetic UI only)
+      - name: Diagnose browser evidence and code
+        if: always()
+        run: node agents/doctor.mjs --run artifacts/browser-results.json
+      - name: Upload Spark screenshots and next-assistant evidence (synthetic UI only)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: spark-mobile-screenshots
-          path: artifacts/spark/
+          path: |
+            artifacts/spark/
+            test-results/**/*.png
+            artifacts/browser-results.json
+            artifacts/unit-results.tap
+            artifacts/doctor/
           retention-days: 7
       - name: Upload failure evidence
         if: failure()

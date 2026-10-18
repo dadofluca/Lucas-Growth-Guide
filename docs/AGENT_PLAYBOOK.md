@@ -1,0 +1,38 @@
+# Reliable checks for the next assistant
+
+Run from the repository root:
+
+```sh
+node agents/doctor.mjs --run
+```
+
+This runs the Node checks, validates linked local assets and build/cache versions, compares the generated practice page to the app, and exercises the exact contextual sleep examples. Read `artifacts/doctor/health.json` for machine-readable evidence and `artifacts/doctor/NEXT_AGENT.md` for symptoms, likely owning files and reproduction commands. Nothing reads production records or deploys repairs.
+
+Pass Playwright JSON reports to combine browser evidence:
+
+```sh
+node agents/doctor.mjs --run artifacts/browser-core.json artifacts/browser-rest.json
+```
+
+The existing PR browser workflow supplies both reports. The existing daily mobile audit supplies `artifacts/browser-results.json`. The existing six-hour synthetic workflow supplies unit/static evidence. Each uploads a handoff artifact and puts a short result in its GitHub job summary. No new timer or paid model service was added.
+
+| Symptom | Owning implementation | Focused reproduction |
+| --- | --- | --- |
+| Care missing, duplicate, edit lost, delete wrong | `care-sync.js`, `agents/quick-actions.js` | `node --test agents/care-sync.test.mjs agents/delete-integrity.test.mjs` |
+| Sleep note missing or double-counted | `agents/sleep-inference.js`, `agents/sleep-data.js` | `node --test agents/p136-sleep-inference.test.mjs agents/p134-sleep-data.test.mjs` |
+| Friend mode leaks storage or uses real service | `agents/demo-mode.js`, `agents/build-friend-demo.mjs`, `sw.js` | `node --test agents/p136-friend-demo.test.mjs` |
+| Banner missing, stale or overwritten | `agents/achievements.js`, `agents/achievements-ui.js` | `node --test agents/p135-achievements.test.mjs` |
+| Avatar/profile/chat stale or blank | `agents/family-profiles.js`, `agents/family-chat.js` | `node --test agents/family-chat.test.mjs agents/family-profiles.test.mjs` |
+| Layout/contrast/phone hit targets | `agents/ui-polish.css`, canonical markup | Existing Browser smoke checks workflow and phone screenshots |
+
+## Important contracts
+
+Sleep inference is a read-only derived view. It links explicit prior bedtime + next morning wake notes within 18 hours for the same baby, uses entry time to resolve clear nap ranges, labels inferred windows and preserves original notes. A confirmed structured window wins. Never turn an unknown bedtime into invented sleep. Wake counts such as “maybe 3” or “6+” remain unknown; windows are not a claim of uninterrupted sleep.
+
+The practice URL is `demo.html`. A synthetic identity, sample tables and prefixed local/session storage provide functional editing. CSP forbids backend requests, the real client/CDN/key and PWA manifest are removed, and reset clears only practice keys. Production service-worker navigation must not serve cached index.html for an offline practice visit. Regenerate with `node agents/build-friend-demo.mjs` after every app markup change.
+
+Calling cards are cosmetic. Earn ordinary starter cards, classify hidden discoveries, and unlock mastery for the four starter cards. Flair uses a narrow compare-and-swap and merges concurrent discoveries. Profile name/avatar saves must not erase flair. Caregiver credit and original logger achievements are separate.
+
+## Evidence before release
+
+A complete result needs the exact source commit, Node pass count, browser report without hidden failures/flakes, reviewed phone screenshots, and byte/version verification after publication. Treat missing evidence as missing; inspect failures instead of softening assertions. Reproduce only with synthetic fixtures. Retest affected behavior after a correction and finish the authorized release. Keep real phone/family-device checks explicitly separate.
