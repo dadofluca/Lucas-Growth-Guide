@@ -3,7 +3,7 @@ import {join,resolve,relative} from "node:path";
 
 export function inspectBundle(root,{preview=false}={}){
  const problems=[];
- const pages=["index.html","emergency.html"];
+ const pages=["index.html","emergency.html",...(existsSync(join(root,'demo.html'))?['demo.html']:[])];
  for(const name of [...pages,...(preview?[]:["sw.js"]),"family-pin.js","sync-fix.js","manifest.webmanifest"]){
   if(!existsSync(join(root,name)))problems.push("Missing required file: "+name);
  }

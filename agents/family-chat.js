@@ -2,15 +2,16 @@ import {avatarImage,avatarLabel} from "./family-profiles.js";
 import {profileBanner} from "./flair-ui.js";
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status,mediaInput,attachButton,mediaPreview}){
- let busy=false,requestId=0,disposed=false,selectedFile=null;
+ let busy=false,requestId=0,disposed=false,selectedFile=null,profileCache=new Map(),cacheSession='';
  function say(message){status.textContent=message;}
  function show(rows,profiles=new Map()){
+  const portraits=new Map([...feed.querySelectorAll("[data-message-id]")].map(el=>[el.dataset.messageId,el.querySelector(".avatarPortrait")]));
   feed.replaceChildren();
   for(const m of rows){
    const line=document.createElement("div");
-   line.className="familyChatMessage";
+   line.className="familyChatMessage";line.dataset.messageId=m.id;
    const profile=profiles.get(m.sender_id)||{};
-   const avatar=avatarImage(profile.avatar_preset||"bear",40);
+   const preset=profile.avatar_preset||"bear",previous=portraits.get(m.id);const avatar=previous?.dataset.avatarKey===preset?previous:avatarImage(preset,40);
    avatar.setAttribute("aria-label",(profile.display_name||"Family member")+" avatar");
    avatar.style.borderRadius="50%";avatar.style.border="2px solid #fff6e7";
    const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profile.display_name||"Family member");
@@ -35,6 +36,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  async function load(){
   const request=++requestId;
   const sb=getClient(),family=getFamilyId(),user=getUser();
+  const session=family&&user?family+':'+user.id:'';if(session!==cacheSession){cacheSession=session;profileCache=new Map();}
   if(!sb||!family||!user){feed.replaceChildren();say("Sign in to Family Sync to use chat.");return;}
   let data,error;
   try{({data,error}=await sb.from("family_chat_messages").select("id,sender_id,body,created_at,media_path,media_type").eq("family_id",family).order("created_at",{ascending:false}).limit(100));}catch{error=true;}
@@ -43,13 +45,13 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   if(error){feed.replaceChildren();say("Chat is unavailable right now. Please try again.");return;}
   // Display confirmed messages immediately; profile/avatar enrichment must never block chat history.
   const messages=(data||[]).slice().reverse();
-  show(messages);say("");
+  show(messages,profileCache);say("");
   let people=[];
   try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset,flair").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p]));
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
-  show(messages,names);say("");
+  profileCache=names;show(messages,names);say("");
  }
  const onChoose=()=>{
   const file=mediaInput?.files?.[0]||null;

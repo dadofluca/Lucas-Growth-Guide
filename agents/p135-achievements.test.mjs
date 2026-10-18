@@ -50,3 +50,14 @@ test('flair merge retains discoveries across devices and bounds visits without e
  const malformed=normalizeFlair({unlocked:['bad'],eggs:'oops',visits:Array.from({length:70},(_,i)=>'2026-'+(i<30?'08':'09')+'-'+String(i%30+1).padStart(2,'0'))});
  assert.ok(malformed.visits.length<=31);assert.deepEqual(malformed.unlocked,[]);assert.deepEqual(malformed.eggs,[]);
 });
+
+test('easy starter cards lead to mastery from ordinary care, with one card immediately discoverable',()=>{
+ const flair={visits:['2026-10-18']};assert.ok(run([],{flair}).unlocked.includes('first-checkin'));
+ const rows=[event('b','2026-10-18T10:00:00Z'),event('d','2026-10-18T11:00:00Z',{oz:null,tags:['poop']}),event('s','2026-10-18T12:00:00Z',{oz:null,tags:['sleep']})];
+ const result=run(rows,{flair});assert.equal(result.metrics.starterSet,4);assert.equal(result.metrics.careTypes,3);assert.ok(result.unlocked.includes('crew-master'));assert.ok(result.unlocked.includes('care-cadet'));
+ assert.equal(run(rows.filter(e=>e.id!=='s'),{flair}).unlocked.includes('crew-master'),false);
+});
+test('correction card and new secret cards use durable edit provenance and known discoveries',()=>{
+ assert.ok(run([event('e','2026-10-18T12:00:00Z',{details:{edited_at:'2026-10-18T12:15:00Z'}})]).unlocked.includes('quality-control'));
+ const result=run([],{flair:{eggs:['silent-operator','label-maker']}});assert.deepEqual(result.newlyUnlocked,['silent-operator','label-maker']);
+});

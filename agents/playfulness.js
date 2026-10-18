@@ -46,6 +46,8 @@
     atMax=value===5;
    });
   }
+  const quiet=document.getElementById('profileSound');quiet?.addEventListener('change',()=>{if(quiet.value==='off'&&enabled())unlock('silent-operator');});
+  let inspections=0,lastInspection=0;document.getElementById('bottleInspector')?.addEventListener('click',e=>{if(!enabled())return;const now=Date.now();inspections=now-lastInspection<700?inspections+1:1;lastInspection=now;if(inspections>=2){inspections=0;unlock('label-maker');decorate('🍼 ✧',e.currentTarget,'blockParty');}});
   let taps=[];
   document.querySelector('.persistentTitle .titleL')?.addEventListener('click',e=>{
    if(!enabled())return;const now=Date.now();taps=taps.filter(t=>now-t<4000);taps.push(now);

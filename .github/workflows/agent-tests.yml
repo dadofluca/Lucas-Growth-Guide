@@ -14,6 +14,7 @@ on:
       - '*.mp3'
       - '*.mp4'
       - 'index.html'
+      - 'demo.html'
       - 'sw.js'
       - 'sync-fix.js'
       - 'care-sync.js'
@@ -37,6 +38,7 @@ on:
       - '*.mp3'
       - '*.mp4'
       - 'index.html'
+      - 'demo.html'
       - 'sw.js'
       - 'sync-fix.js'
       - 'care-sync.js'
@@ -53,7 +55,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test agents/*.test.mjs
+      - name: Unit checks and diagnostic evidence
+        run: node agents/doctor.mjs --run
       - name: Verify synthetic Watchdog-to-Builder handoff
         run: node agents/synthetic-handoff.mjs
       - name: Upload synthetic QA artifact
@@ -66,7 +69,7 @@ jobs:
         run: |
           node agents/release-readiness.mjs
           mkdir -p artifacts/luca-release
-          cp index.html emergency.html sw.js family-pin.js sync-fix.js care-sync.js manifest.webmanifest artifacts/luca-release/
+          cp index.html demo.html emergency.html sw.js family-pin.js sync-fix.js care-sync.js manifest.webmanifest artifacts/luca-release/
           cp -r agents artifacts/luca-release/
           find . -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" -o -iname "*.ico" -o -iname "*.webp" -o -iname "*.mov" -o -iname "*.mp3" -o -iname "*.mp4" \) -exec cp {} artifacts/luca-release/ \;
           cp artifacts/release-readiness.json artifacts/luca-release/
@@ -88,4 +91,13 @@ jobs:
         with:
           name: luca-release-candidate
           path: artifacts/luca-release/
+          retention-days: 14
+      - name: Upload next-assistant diagnostic handoff
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-assistant-handoff
+          path: |
+            artifacts/doctor/
+            artifacts/unit-results.tap
           retention-days: 14

@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P135');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P136');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P135');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P136');
 });
 
 
@@ -757,7 +757,7 @@ test('P135: hidden click discovery equips a banner that survives reload and appe
  await page.evaluate(()=>scrollTo(0,0));await expect.poll(()=>page.locator('.achievementHero img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.screenshot({animations:'disabled',fullPage:true,path:'test-results/p135-achievements-390.png'});
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="chat"]').click();
  await expect(page.locator('#familyChatFeed .avatarCharacter')).toHaveText("Dada's Dude");await expect(page.locator('#familyChatFeed .profileBanner')).toContainText('Block Party');
- await expect(page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img')).toHaveAttribute('src',/avatar-armory-original.png/);await expect.poll(()=>page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.screenshot({animations:'disabled',path:'test-results/p135-chat-banner-390.png'});
+ await expect(page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img')).toHaveAttribute('src',/avatar-armory-original.png/);await expect.poll(()=>page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img').evaluate(async img=>{await img.decode();await new Promise(requestAnimationFrame);});const frame=await page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img').evaluate(img=>{const a=img.getBoundingClientRect(),b=img.parentElement.getBoundingClientRect();return {image:{x:a.x,y:a.y,width:a.width,height:a.height},portrait:{x:b.x,y:b.y,width:b.width,height:b.height},opacity:getComputedStyle(img).opacity};});console.log('CHAT PORTRAIT FRAME',JSON.stringify(frame));expect(frame.image.width).toBeGreaterThan(300);expect(frame.image.x).toBeLessThan(frame.portrait.x);expect(frame.image.y).toBeLessThan(frame.portrait.y);expect(frame.opacity).toBe('1');await page.screenshot({animations:'disabled',path:'test-results/p135-chat-banner-390.png'});
  await page.locator('#navMore').click();await page.locator('#menuFamily').click();await expect(page.locator('#familyProfileList .profileBanner')).toContainText('Block Party');
 });
 
@@ -809,4 +809,71 @@ test('P135: simultaneous discoveries from another device merge before a banner i
  await page.evaluate(()=>window.syntheticFlairConflictOnce=true);await page.locator('[data-achievement="first-watch"] [data-equip-banner]').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('first-watch');
  const flair=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair);expect(flair.unlocked).toEqual(expect.arrayContaining(['first-watch','block-party']));expect(flair.eggs).toContain('block-party');
+});
+
+// P136 fixtures are synthetic: no production account or records are used.
+test('P136: clear bedtime, wake and abbreviated nap notes count once, and inferred editing confirms a correction',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.clock.setFixedTime(new Date('2026-10-18T16:00:00Z'));
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-remote-events'))localStorage.setItem('qa-remote-events',JSON.stringify([
+  {id:'context-bed',baby_id:'qa-baby',created_by:'qa-user',event_time:'2026-10-17T22:15:00Z',event_type:'sleep',tags:['sleep'],caregivers:['Nona'],note:'Down for the night at 10:15',details:{}},
+  {id:'context-wake',baby_id:'qa-baby',created_by:'qa-user',event_time:'2026-10-18T07:18:00Z',event_type:'other',tags:['other'],caregivers:['Sam'],note:'Slept last night until 7 am, maybe 3 wakeups, little cranky in the night with stomach and farting issues',details:{}},
+  {id:'context-nap',baby_id:'qa-baby',created_by:'qa-user',event_time:'2026-10-18T08:00:00Z',event_type:'sleep',tags:['sleep'],caregivers:['Nona'],note:'Napped 8–9',details:{}}
+ ]));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect(page.locator('.entry').filter({hasText:'Napped 8–9'})).toContainText('Nap · 1h · inferred');await expect(page.locator('.entry').filter({hasText:'Slept last night until 7 am'})).toContainText('Night sleep · 8h 45m · inferred');
+ await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('8h 45m');await expect(page.locator('#sleepTrends')).toContainText('1h');await expect(page.locator('.sleepStatsFoot')).toContainText('2 sleep windows inferred');await expect(page.locator('.sleepMissing')).toHaveCount(0);
+ await page.locator('#sleepTrends').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p136-contextual-sleep-390.png'});
+ await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await page.locator('[data-history-edit="context-wake"]').click();
+ await expect(page.locator('#sleepStart')).toHaveValue('2026-10-17T22:15');await expect(page.locator('#sleepEnd')).toHaveValue('2026-10-18T07:00');await expect(page.locator('#sleepEntryWakeups')).toHaveValue('');await expect(page.locator('.sleepEditorFoot')).toContainText('inferred from your notes');
+ await page.locator('#sleepStart').fill('2026-10-17T22:30');await page.locator('#sleepSave').click();await expect(page.locator('#sleepComposer')).toBeHidden();
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('8h 30m');
+ const data=await page.evaluate(()=>({stats:sleepStats(a),rows:JSON.parse(localStorage.getItem('qa-remote-events'))}));expect(data.stats.nightCount).toBe(1);expect(data.stats.partialCount).toBe(0);expect(data.rows).toHaveLength(3);expect(data.rows.find(r=>r.id==='context-bed').note).toBe('Down for the night at 10:15');expect(data.rows.find(r=>r.id==='context-wake').note).toContain('maybe 3 wakeups');
+});
+
+test('P136: an immediate starter card and classified click discoveries are discoverable on phones',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-profiles'))localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Synthetic caregiver',bio:'',avatar_preset:'dadasDude',flair:{}}]));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect(page.locator('#starterCardTeaser')).toBeVisible();await page.locator('#starterCardTeaser').click();await expect(page.locator('[data-achievement="first-checkin"]')).toHaveClass(/unlocked/);
+ await page.locator('[data-card-category="starter"]').click();await expect(page.locator('.achievementCard')).toHaveCount(4);await page.locator('[data-achievement="first-checkin"] [data-equip-banner]').click();
+ await expect(page.locator('.achievementHero .callingCard')).toContainText('Fresh Recruit');await expect(page.locator('.achievementHero .callingCard')).toContainText('STARTER');await expect(page.locator('[data-achievement="first-checkin"] button')).toHaveText('✓ Equipped');
+ await expect.poll(()=>page.locator('.achievementHero img').evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);await page.evaluate(()=>scrollTo(0,0));await page.screenshot({animations:'disabled',path:'test-results/p136-starter-cards-390.png'});
+ await page.locator('nav [data-tab="today"]').click();await expect(page.locator('#starterCardTeaser')).toBeHidden();await page.locator('#topQuickBottle').click();await page.locator('#bottleInspector').dblclick();await page.keyboard.press('Escape');
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();await page.locator('#profileSound').selectOption('off');
+ await page.locator('#profileAchievements').click();await page.locator('[data-card-category="hidden"]').click();await expect(page.locator('[data-achievement="silent-operator"]')).toHaveClass(/unlocked/);await expect(page.locator('[data-achievement="label-maker"]')).toHaveClass(/unlocked/);await expect(page.locator('.achievementCard.locked').first()).toContainText('Classified nonsense');
+ await page.locator('[data-achievement="label-maker"] [data-equip-banner]').click();await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('label-maker');
+});
+
+test('P136: friend playground edits, deletes, chats, profiles and resets without touching native history or backend',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});const errors=[],remote=[];page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>{if(new URL(request.url()).origin!=='http://127.0.0.1:8765')remote.push(request.url());});
+ await page.route('https://**/*',route=>route.abort());
+ await page.addInitScript(()=>{window.qaNativeStorage=localStorage;window.qaNativeSession=sessionStorage;if(!localStorage.getItem('qa-native-seeded')){localStorage.setItem('luca-log-v2','REAL FAMILY HISTORY SENTINEL');localStorage.setItem('qa-real-session','REAL AUTH SENTINEL');sessionStorage.setItem('qa-real','REAL SESSION SENTINEL');localStorage.setItem('qa-native-seeded','1');}});
+ await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#demoNotice')).toContainText('Practice mode');await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect(page.locator('#timeline')).not.toContainText('REAL FAMILY');await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="7"]').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:baby_events')).length)).toBe(5);
+ await page.locator('nav [data-tab="history"]').click();await page.locator('#historyKind').selectOption('bottle');for(const day of await page.locator('.historyDay:not([open]) summary').all())await day.click();
+ await page.locator('[data-history-edit="practice-bottle"]').click();await page.locator('#notes').fill('Friend edited this sample');await page.locator('#manualComposer [data-oz="8"]').click();await page.locator('#saveEntry').click();
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="history"]').click();await page.locator('#historySearch').fill('Friend edited');await page.locator('.historyDay summary').click();await expect(page.locator('.historyEvent')).toContainText('8 oz bottle');
+ page.once('dialog',dialog=>dialog.accept());await page.locator('[data-history-delete="practice-bottle"]').click();await expect(page.locator('.historyEvent')).toHaveCount(0);
+ await page.locator('nav [data-tab="chat"]').click();await page.locator('#familyChatText').fill('Practice message');await page.locator('#familyChatSend').click();await expect(page.locator('#familyChatFeed')).toContainText('Practice message');await expect(page.locator('#familyChatFeed .familyChatMessage').filter({hasText:'Practice message'})).toContainText("Dada's Dude");
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();await page.locator('#profileName').fill('Friend Test Pilot');await page.locator('#profileSave').click();await expect(page.locator('#profileStatus')).toHaveText('Profile saved.');
+ const state=await page.evaluate(()=>({real:qaNativeStorage.getItem('luca-log-v2'),auth:qaNativeStorage.getItem('qa-real-session'),session:qaNativeSession.getItem('qa-real'),demo:localStorage.getItem('luca-log-v2')}));expect(state.real).toBe('REAL FAMILY HISTORY SENTINEL');expect(state.auth).toBe('REAL AUTH SENTINEL');expect(state.session).toBe('REAL SESSION SENTINEL');expect(state.demo).toContain('practice');
+ await page.locator('nav [data-tab="today"]').click();await page.evaluate(()=>scrollTo(0,0));await page.screenshot({animations:'disabled',path:'test-results/p136-friend-playground-390.png'});
+ page.once('dialog',dialog=>dialog.accept());await page.locator('#demoReset').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:baby_events')).length)).toBe(4);
+ expect(await page.evaluate(()=>qaNativeStorage.getItem('luca-log-v2'))).toBe('REAL FAMILY HISTORY SENTINEL');expect(remote).toEqual([]);expect(errors).toEqual([]);
+});
+
+test('P136: practice schedule changes persist locally and revert removes only sample coverage',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);await page.locator('.scheduleDay48').filter({hasText:'Sam'}).first().click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
+ await page.locator('.scheduleDay48').filter({hasText:'Nona'}).first().click();page.once('dialog',dialog=>dialog.accept());await page.locator('.revertMgr63').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).length)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).every(r=>r.kind==='work'))).toBe(true);
+});
+
+test('P136: offline practice navigation never falls back to real family data cached by the service worker',async({browser})=>{
+ const context=await browser.newContext({serviceWorkers:'allow'}),page=await context.newPage();try{
+  await page.route('https://**/*',route=>route.abort());await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(async()=>{await navigator.serviceWorker.register('./sw.js');await navigator.serviceWorker.ready;});await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller!==null)).toBe(true);
+  await context.serviceWorkers()[0].evaluate(()=>{self.fetch=()=>Promise.reject(new TypeError('Synthetic network unavailable'));});await context.setOffline(true);await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('h1')).toHaveText('Practice mode is offline');await expect(page.locator('#timeline')).toHaveCount(0);await expect(page.locator('#syncDot')).toHaveCount(0);
+ }finally{await context.close();}
 });

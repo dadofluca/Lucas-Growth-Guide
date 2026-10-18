@@ -9,5 +9,5 @@ test("History has accessible expandable date summaries and event rows",()=>{
  assert.match(html,/class="historyEvent"/);
  assert.match(html,/Caregiver:/);
  assert.match(html,/historyNote/);
- assert.match(html,/function render\(\)\{renderHistory\(\)/);
+ assert.match(html,/function render\(\)\{[\s\S]*?renderHistory\(\)/);
 });

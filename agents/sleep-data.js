@@ -15,7 +15,7 @@
   const optional=(value,label,max)=>{if(value===""||value==null)return null;const n=Number(value);if(!Number.isInteger(n)||n<0||n>max)throw Error("Check "+label+".");return n;};
   return {version:1,kind:kind==="night"?"night":"nap",start_at:new Date(a).toISOString(),end_at:new Date(b).toISOString(),awake_minutes:optional(awake,"minutes awake",Math.floor(mins)),wakeups:optional(wakeups,"wake-ups",100)};
  }
- function session(event){
+ function baseSession(event){
   const data=event.details?.sleep,note=String(event.notes||event.sourceText||""),at=stamp(event.at);
   let start=NaN,end=NaN,kind="nap",awake=null,wakeups=null,legacy=false;
   if(data&&typeof data==="object"){
@@ -37,9 +37,11 @@
   if(complete&&awake!=null&&awake>mins)awake=null;
   return {id:event.syncId||event.id,kind,start,end,minutes:complete?mins:null,awake,wakeups,complete,legacy};
  }
+ function resolve(entries,now=Date.now()){return root.LucaSleepInference?root.LucaSleepInference.resolve(entries,{baseSession,now}):new Map(entries.map(e=>[String(e.syncId||e.id),baseSession(e)]).filter(([,s])=>s));}
+ function session(event,entries=null,now=Date.now()){return resolve(entries||[event],now).get(String(event.syncId||event.id))||null;}
  function uniqueSessions(entries,now){
   const result=new Map();
-  for(const event of entries){const s=session(event);if(!s)continue;if(s.complete&&s.end>now+minute)continue;
+  for(const s of resolve(entries,now).values()){if(!s)continue;if(s.complete&&s.end>now+minute)continue;
    const key=s.complete?s.kind+":"+s.start+":"+s.end:String(s.id),old=result.get(key);
    const score=x=>(x.awake!=null?2:0)+(x.wakeups!=null?1:0)+(!x.legacy?1:0);
    if(!old||score(s)>=score(old))result.set(key,s);
@@ -70,7 +72,7 @@
   }
   const nights=rows.filter(r=>r.night!=null),naps=rows.filter(r=>r.napCount),known=rows.filter(r=>r.actual!=null),wakes=rows.filter(r=>r.wakes!=null),logged=rows.filter(r=>r.total!=null);
   const recent=sessions.filter(s=>s.complete&&s.end>end-dayMs&&s.start<end),period=sessions.filter(s=>s.complete&&s.end>=start&&s.start<=end);
-  return {days,rows,night:mean(nights.map(r=>r.night)),nightCount:nights.length,nap:mean(naps.map(r=>r.nap)),napCount:naps.length,napSessions:naps.reduce((n,r)=>n+r.napCount,0),wakes:wakes.length?Math.round(wakes.reduce((n,r)=>n+r.wakes,0)/wakes.length*10)/10:null,wakeCount:wakes.length,actualNight:mean(known.map(r=>r.actual)),actualCount:known.length,daily:mean(logged.map(r=>r.total)),loggedDays:logged.length,last24:recent.length?recordedMinutes(recent,end-dayMs,end,true):null,naps24:recent.filter(s=>s.kind==="nap").length,longest:period.length?Math.round(Math.max(...period.map(s=>s.minutes))):null,partialCount:sessions.filter(s=>!s.complete&&Math.max(s.start||0,s.end||0)>=start).length};
+  return {days,rows,night:mean(nights.map(r=>r.night)),nightCount:nights.length,nap:mean(naps.map(r=>r.nap)),napCount:naps.length,napSessions:naps.reduce((n,r)=>n+r.napCount,0),wakes:wakes.length?Math.round(wakes.reduce((n,r)=>n+r.wakes,0)/wakes.length*10)/10:null,wakeCount:wakes.length,actualNight:mean(known.map(r=>r.actual)),actualCount:known.length,daily:mean(logged.map(r=>r.total)),loggedDays:logged.length,last24:recent.length?recordedMinutes(recent,end-dayMs,end,true):null,naps24:recent.filter(s=>s.kind==="nap").length,longest:period.length?Math.round(Math.max(...period.map(s=>s.minutes))):null,inferredCount:period.filter(s=>s.inferred).length,partialCount:sessions.filter(s=>!s.complete&&Math.max(s.start||0,s.end||0)>=start).length};
  }
- const api={build,session,summarize,duration,dateKey,recordedMinutes};root.LucaSleep=api;if(typeof module==="object"&&module.exports)module.exports=api;
+ const api={build,session,resolve,baseSession,summarize,duration,dateKey,recordedMinutes};root.LucaSleep=api;if(typeof module==="object"&&module.exports)module.exports=api;
 })(typeof window!=="undefined"?window:globalThis);

@@ -1,0 +1,1095 @@
+<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:"><script src="./agents/demo-mode.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09131f"><style>html,body{overscroll-behavior-y:auto}textarea,input{touch-action:manipulation}\n/* P56 menu contrast: keep drawer controls readable on the dark panel */\n.sidePanel,.sidePanel h1,.sidePanel .kicker,.sidePanel .muted,.sidePanel .lastFeed,.sidePanel .why{color:#f5fbff!important;-webkit-text-fill-color:#f5fbff!important}.sidePanel .kicker{color:#82b5dc!important;-webkit-text-fill-color:#82b5dc!important}.sidePanel .muted,.sidePanel .why{color:#b7c9d8!important;-webkit-text-fill-color:#b7c9d8!important}.sidePanel .menuRow,.sidePanel .menuRow *,.sidePanel .tiny{color:#eef8ff!important;-webkit-text-fill-color:#eef8ff!important}.sidePanel .menuRow{background:#122536!important}\n\n/* P58 drawer label contrast */\n#quickDrawer button,#quickDrawer button *,#quickMenu button,#quickMenu button *,#drawer button,#drawer button *,[class*=\"drawer\"] button,[class*=\"drawer\"] button *{color:#f2f8fb!important;-webkit-text-fill-color:#f2f8fb!important}\n
+/* P68 mobile chat and utility cleanup */
+.chatComposer{display:flex;align-items:flex-end;gap:9px;margin-top:8px}.chatComposer textarea{flex:1;min-width:0;min-height:46px;max-height:140px;resize:vertical;margin:0!important;border-radius:18px!important;padding:12px 14px!important;background:#fffaf2!important;color:#273b35!important}.chatComposer button{width:auto!important;min-width:64px;flex:0 0 auto;border-radius:18px!important;padding:12px!important;margin:0!important}.chatComposer button span{font-size:13px}.utilityMenu{margin:18px 0;border:1px solid #8e8172;border-radius:16px;padding:12px 14px;background:#fff9ef8c;color:#263b34}.utilityMenu summary{cursor:pointer;font-weight:750}.utilityLinks{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.utilityLinks a,.utilityLinks button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #a7a096;border-radius:12px;background:#fffaf2;color:#173b4c;padding:10px 12px;text-decoration:none;font:700 14px system-ui}.utilityLinks button{cursor:pointer}@media(max-width:480px){#familyChatFeed{max-height:40vh!important}.chatComposer textarea{font-size:16px!important}.chatComposer button span{display:none}.chatComposer button{min-width:50px}}
+\n/* P69: timeline drawer contrast, including light chips on dark surface */\n#timelineDrawer .drawerPanel{background:#112636;color:#f6f2e9;-webkit-text-fill-color:initial}#timelineDrawer .entry{color:#f6f2e9;border-color:#8a9caa66}#timelineDrawer .chip{background:#fff6e9;color:#263c40!important;-webkit-text-fill-color:#263c40!important;border:1px solid #d5c4a8;font-weight:700}#timelineDrawer .note,#timelineDrawer details,#timelineDrawer summary{color:#f4efe5!important;-webkit-text-fill-color:#f4efe5!important}#timelineDrawer .entry>b{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}\n
+/* P71: airy suggestion board, single-button care launcher, readable iPhone forms */
+#ideasView .top{margin-bottom:18px}
+#ideasView>.card{padding:22px 18px;border-radius:27px;background:linear-gradient(160deg,#fff8ef,#f2e6d8);box-shadow:0 12px 35px #3d2e2412}
+#ideasView>.card>p{font-size:14px;line-height:1.5;color:#526157;margin:0 0 20px}
+#familyIdeasRoot form{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+#familyIdeasRoot form label{display:grid;gap:7px;min-width:0;font-size:13px;font-weight:800;color:#405449;letter-spacing:.02em}
+#familyIdeasRoot input:not([type=checkbox]),#familyIdeasRoot textarea,#familyIdeasRoot select{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;border:1.5px solid #cdbba9;border-radius:15px;background:#fffdfa;color:#293d33;padding:13px 14px;font:inherit;font-size:16px;line-height:1.35;box-shadow:none}
+#familyIdeasRoot textarea{min-height:116px;resize:vertical}
+#familyIdeasRoot input:focus,#familyIdeasRoot textarea:focus,#familyIdeasRoot select:focus{outline:3px solid #d8a47d80;outline-offset:1px}
+#familyIdeasRoot button[type=submit]{width:100%;min-height:49px;border:0;border-radius:16px;background:#344c40;color:#fff;font-weight:800;font-size:16px}
+#familyIdeasRoot #ideaStatus{font-size:13px;color:#53645b}
+#familyIdeasRoot #ideaList{display:grid;gap:12px}
+#familyIdeasRoot #ideaList article{margin:0;padding:17px;border-radius:18px;overflow-wrap:anywhere;background:#fffaf4}
+#familyIdeasRoot #ideaList h3{margin:7px 0;font-size:17px}
+#familyIdeasRoot [data-agent-review]{width:18px;height:18px;vertical-align:middle}
+.careDock:not(.open){width:54px!important;height:54px!important;top:auto!important;bottom:calc(98px + env(safe-area-inset-bottom))!important;right:13px!important;border-radius:50%!important;overflow:visible!important}
+.careDock:not(.open) .careHead{height:54px;font-size:27px;padding:0;border-radius:50%}
+.careDock:not(.open) .careItems{display:none!important}
+.careDock.open{top:auto!important;bottom:calc(98px + env(safe-area-inset-bottom))!important;right:13px!important;width:min(235px,calc(100vw - 26px))!important;max-height:65dvh;overflow:auto;border-radius:24px}
+.careDock.open .careItems{display:grid}
+@media(prefers-reduced-motion:reduce){.careDock{transition:none!important}.poopBurst.go{animation:none!important}}
+/* P75: scrolling content should never sit behind the pinned brand banner */
+.persistentTitle{position:relative;top:auto;z-index:3;max-width:100%;box-sizing:border-box}
+#insightsView{scroll-margin-top:12px}
+/* P79 illustrated avatar gallery */
+.avatarGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px;margin:12px 0 20px}
+.avatarChoice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:91px;padding:10px 5px;border-radius:18px;border:2px solid #b5a79766;background:linear-gradient(145deg,#fffaf2,#e8dfd2);color:#30443e;font:700 12px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer}
+.avatarChoice[aria-pressed="true"]{border-color:#367c7b;box-shadow:0 0 0 3px #63a8a633;background:#edf7f1}
+.avatarChoice:focus-visible{outline:3px solid #367c7b;outline-offset:3px}
+/* P82: narrower, accessible dismissible drawers, generous outside tap zone. */
+#sleepCheckinCard[hidden]{display:none!important}
+#sleepCheckinCard .field{margin:10px 0}
+#sleepCheckinCard select,#sleepCheckinCard input{width:100%;min-height:46px;font-size:16px}
+@media(max-width:600px){
+ .sidePanel{width:min(74vw,320px)!important;box-sizing:border-box;padding:calc(16px + env(safe-area-inset-top)) 14px 65px!important}
+ .drawerPanel{width:min(74vw,320px)!important;box-sizing:border-box;padding:calc(16px + env(safe-area-inset-top)) 14px 65px!important}
+ .sidePanel h1,.drawerPanel h1{font-size:clamp(24px,7vw,34px);margin:10px 0 16px}
+ .sidePanel .card{padding:14px!important}.sidePanel .lastFeed{font-size:clamp(20px,6vw,26px)}
+ .sidePanel .menuRow{padding:13px 11px!important;min-height:48px;margin-top:8px}
+ .drawerPanel .entry{padding:12px 0!important}.drawerPanel .chip{font-size:12px;padding:5px 8px}
+}
+#timelineDrawer .drawerPanel{background:#f7efe3!important;color:#263a39!important;box-shadow:-8px 0 35px #0003}
+#timelineDrawer .entry{color:#283e3d!important;border-color:#b7afa3!important}
+#timelineDrawer .entry>b,#timelineDrawer .note,#timelineDrawer details,#timelineDrawer summary{color:#314641!important;-webkit-text-fill-color:#314641!important}
+#timelineDrawer .chip{background:#fffdfa!important;color:#2b4340!important;-webkit-text-fill-color:#2b4340!important;border-color:#d1bfa4!important}
+#timelineDrawer #closeDrawer{background:#fffdfa;color:#263d35!important;border:2px solid #cdbda5;min-height:46px}
+.sideShade,.drawerShade{touch-action:manipulation;cursor:pointer}
+#sleepTrends .sleepStat{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #b2a89955;align-items:baseline}#sleepTrends .sleepStat span{text-align:right;font-weight:700}#sleep7[aria-pressed="true"],#sleep30[aria-pressed="true"]{background:#d4ece2;color:#203f39}
+/* P83: five simple destinations; Today is the center anchor. */
+nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:1px;padding:7px 6px calc(7px + env(safe-area-inset-bottom))!important}
+nav button{min-width:0;min-height:49px;border-radius:14px;font-size:11px!important;line-height:1.25;touch-action:manipulation}
+nav button b{font-size:20px;line-height:1.2;margin-bottom:3px}
+nav .navHome{background:#e5c88b!important;color:#233a35!important;font-weight:900;box-shadow:0 3px 12px #0003}
+nav .navHome b{font-size:25px}
+nav .navHidden{display:none!important}
+nav #navMore[aria-expanded="true"]{background:#213a4a;color:#fff}
+/* P96: highlight the selected tab, not the home button on every screen. */
+nav .navHome:not(.active){background:transparent!important;color:inherit!important;box-shadow:none!important}
+nav button.active:not(.navHome){background:#e5c88b!important;color:#233a35!important;font-weight:900;box-shadow:0 3px 12px #0003}
+/* P86: family chat preview and reachable edge indicator */
+#timelineDrawer .drawerPanel,#timelineDrawer .drawerPanel *{color:#2a413c!important;-webkit-text-fill-color:#2a413c!important}
+#timelineDrawer .drawerPanel{background:#f8f0e5!important}
+#drawerChatPreview{display:grid;gap:10px;margin:16px 0;max-height:55vh;overflow-y:auto}
+.chatPeekMessage{background:#fffaf2;border:1px solid #dccbb7;border-radius:14px;padding:12px;overflow-wrap:anywhere}
+.chatPeekMessage strong{display:block;font-size:13px}
+.chatPeekMessage p{margin:5px 0 0;font-size:14px;line-height:1.35}
+#chatPeekTab{position:fixed;right:0;top:45%;z-index:29;min-width:44px;min-height:60px;border:1px solid #c6b49d;border-right:0;border-radius:16px 0 0 16px;background:#fff1d9;box-shadow:-3px 3px 12px #0002;color:#30443e;font-size:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+#chatUnreadBadge:not([hidden]){display:block;background:#bd4b32;color:white!important;-webkit-text-fill-color:white!important;font:bold 12px system-ui;border-radius:20px;padding:1px 6px}
+#chatPeekTab[hidden]{display:none!important}
+/* P87: one feed prediction, compact stats, immediate entry and timeline. */
+#todayView>.top{margin-bottom:6px!important}
+#todayView .compactTodayStats{padding:8px 12px!important;margin:4px 0 8px!important}
+#todayView .compactTodayStats .stats{margin:0!important;gap:6px}
+#todayView .compactTodayStats .stat{padding:6px!important;min-height:0}
+#todayView .quickhome{margin-top:0!important}
+#todayView .heroInput{padding-top:10px!important;padding-bottom:10px!important}
+#todayView .heroInput h2{margin:0 0 8px!important;font-size:clamp(18px,5vw,23px)}
+#todayView .heroBtns{gap:7px!important;margin-top:8px!important}
+#todayView .heroBtn{min-height:72px!important;padding:9px 5px!important}
+#chatView .chatAttach{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 8px}#chatView .chatAttach button{min-height:44px}#chatView .chatAttach span{overflow-wrap:anywhere}
+</style><title>Practice · Luca's Growth Guide</title><style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#21496d,#0b1828 38%,#07101c 75%);color:#f5fbff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;min-height:100vh}button,input,textarea{font:inherit;color:#f5fbff;-webkit-text-fill-color:#f5fbff}button.confirm,.smartSave{color:#082137;-webkit-text-fill-color:#082137}.tiny,.clarifyBtns button,.scheduleNav button,.scheduleToday{color:#eaf7ff;-webkit-text-fill-color:#eaf7ff}.app{max-width:520px;margin:auto;padding:calc(20px + env(safe-area-inset-top)) 17px calc(105px + env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;align-items:center}.kicker{font-size:12px;letter-spacing:.11em;color:#82b5dc;text-transform:uppercase;font-weight:800}h1{margin:4px 0;font-size:29px}.icon{width:50px;height:50px;border-radius:18px;background:linear-gradient(145deg,#61c5ff,#75dec0);display:grid;place-items:center;font-size:24px}.card{background:#ffffff0b;border:1px solid #ffffff14;border-radius:25px;padding:17px;margin-top:14px;box-shadow:0 18px 50px #0004}h2{font-size:17px;margin:0 0 13px}.muted{color:#91a7bc}.next{font-size:44px;font-weight:850;margin:2px 0}.why{font-size:13px;line-height:1.4;color:#b1c3d3}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}.stat{background:#ffffff0a;border-radius:17px;text-align:center;padding:12px 3px}.stat b{display:block;font-size:21px}.stat small{font-size:11px;color:#91a7bc}.choices{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.choice{border:1px solid transparent;border-radius:17px;background:#14283d;color:#e8f5ff;padding:14px 3px;font-weight:750}.choice span{display:block;font-size:20px;margin-bottom:3px}.choice small{font-size:10px;color:#a7b9ca}.choice.on{background:linear-gradient(145deg,#61c4ff,#71dec1);color:#062238;border-color:#a6f5e4}.choice.on small{color:#17384c}.field{margin-top:12px}.field label{display:block;color:#9eb2c5;font-size:12px;margin:0 0 6px 3px}.field input,.field textarea{width:100%;border:1px solid #ffffff18;background:#081522;color:#f7fbff;border-radius:15px;padding:12px;outline:none}.field textarea{min-height:78px;resize:vertical}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.confirm{width:100%;border:0;border-radius:17px;padding:14px;margin-top:13px;background:#e8f7ff;color:#082137;font-weight:850}.confirm:disabled{opacity:.35}.entry{padding:13px 0;border-top:1px solid #ffffff0d}.entry:first-child{border:0}.entrytop{display:flex;justify-content:space-between;gap:8px}.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.chip{font-size:12px;background:#173047;padding:5px 8px;border-radius:99px}.note{color:#c6d5e2;font-size:13px;line-height:1.4;margin-top:8px}.actions{display:flex;gap:7px;margin-top:8px}.tiny{border:0;border-radius:10px;padding:7px 10px;background:#ffffff0b;color:#bcd0e0;font-size:12px}.tiny.del{color:#ff9f9f}.view{display:none}.view.active{display:block}.historyDay{padding:14px 0;border-top:1px solid #ffffff0d}.historyDay:first-child{border:0}nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#091522ee;backdrop-filter:blur(20px);border-top:1px solid #ffffff12;padding:8px 12px calc(8px + env(safe-area-inset-bottom));z-index:4}nav button{border:0;background:none;color:#8299af;padding:7px;font-size:11px}nav b{display:block;font-size:18px}nav .active{color:#72d4d0}.toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,15px);opacity:0;background:#e8f7ff;color:#092137;padding:10px 15px;border-radius:99px;font-weight:800;transition:.18s;z-index:5}.toast.on{opacity:1;transform:translate(-50%,0)}.smartbox{background:#0d2133;border:1px solid #ffffff18;border-radius:18px;padding:13px}.smartActions{display:flex;gap:8px;margin-top:10px}.smartActions button{flex:1}.smartPreview{margin-top:12px;display:none}.smartPreview.on{display:block}.smartItem{background:#ffffff08;border:1px solid #ffffff12;border-radius:15px;padding:11px;margin-top:8px}.smartItemTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.smartItem .label{font-weight:800}.smartItem .sub{font-size:12px;color:#9eb2c5;margin-top:3px}.clarify{margin-top:9px}.clarify .q{font-size:12px;color:#b9ccdc;margin-bottom:6px}.clarifyBtns{display:flex;flex-wrap:wrap;gap:6px}.clarifyBtns button{border:0;border-radius:12px;padding:8px 10px;background:#173047;color:#eaf7ff}.clarifyBtns button.on{background:#72d4d0;color:#082137}.smartSave{width:100%;border:0;border-radius:17px;padding:14px;margin-top:12px;background:#72d4d0;color:#082137;font-weight:850}.smartSave:disabled{opacity:.35}
+ .pullrefresh{position:fixed;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-70px);z-index:20;background:#e8f7ff;color:#082137;padding:8px 14px;border-radius:99px;font-size:12px;font-weight:800;transition:.18s;box-shadow:0 6px 24px #0006}.pullrefresh.on{transform:translate(-50%,0)}
+.quickhome{min-height:70vh}.heroNext{text-align:center;padding:8px 0}.heroInput{margin-top:14px;padding:0}.heroInput>h2{margin-left:2px}.heroInput .microw{background:#ffffff0b;border:1px solid #ffffff18;border-radius:22px;padding:8px}.heroInput .microw textarea{border:0;background:transparent}.heroInput #quickUnderstand{margin-top:8px}.heroInput textarea{min-height:125px;font-size:18px}.heroBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.heroBtn{border:0;border-radius:18px;background:#14283d;color:#eef8ff;padding:14px 5px;font-weight:750}.heroBtn span{display:block;font-size:25px}.microw{display:flex;gap:8px}.microw textarea{flex:1}.mic{width:58px;border:0;border-radius:17px;background:#173047;color:#eaf7ff;font-size:24px}.drawer{position:fixed;inset:0;z-index:30;pointer-events:none}.drawerShade{position:absolute;inset:0;background:#0008;opacity:0}.drawerPanel{position:absolute;top:0;right:0;width:min(92vw,480px);height:100%;background:#091522;transform:translateX(102%);transition:.22s;padding:30px 17px 90px;overflow:auto}.drawer.open{pointer-events:auto}.drawer.open .drawerShade{opacity:1}.drawer.open .drawerPanel{transform:none}.hiddenOldComposer{display:none!important}.syncDot{text-align:center;font-size:11px;color:#72d4d0;margin-top:7px}.syncClose{position:absolute;right:12px;top:10px;border:0;background:none;color:#a9bfd0;font-size:24px}.sideMenu{position:fixed;inset:0;z-index:31;pointer-events:none}.sideShade{position:absolute;inset:0;background:#0008;opacity:0}.sidePanel{position:absolute;left:0;top:0;width:min(86vw,390px);height:100%;padding:calc(28px + env(safe-area-inset-top)) 17px 80px;background:#091522;transform:translateX(-102%);transition:.22s;overflow:auto}.sideMenu.open{pointer-events:auto}.sideMenu.open .sideShade{opacity:1}.sideMenu.open .sidePanel{transform:none}.menuRow{width:100%;text-align:left;border:0;border-radius:17px;background:#ffffff0a;color:#eef8ff;padding:15px;margin-top:9px}.lastFeed{font-size:27px;font-weight:850;margin-top:4px}.lbTabs{display:flex;gap:7px;margin:10px 0}.lbTabs button{flex:1}.lbRow{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;padding:12px 0;border-top:1px solid #ffffff0d}.lbRow:first-child{border:0}.lbRank{font-size:21px;text-align:center}.lbScore{font-weight:850}.lbCats{font-size:11px;color:#9eb2c5;margin-top:3px}.scheduleNav{display:grid;grid-template-columns:46px 1fr 46px;gap:8px;align-items:center;margin:10px 0 4px}.scheduleNav button{border:0;border-radius:14px;background:#173047;color:#eef8ff;padding:10px;font-weight:850}.scheduleMonth{text-align:center;font-size:19px;font-weight:850}.scheduleToday{display:block;margin:8px auto 2px;border:0;border-radius:12px;background:#ffffff0b;color:#bcd0e0;padding:8px 12px;font-size:12px;font-weight:750}
+/* Fresh autumn home — warm, baby-friendly, clean */
+body{background:linear-gradient(180deg,#f6efe5 0%,#fbf8f2 42%,#f2e7da 100%);color:#3d443f}
+#todayView .quickhome{position:relative;background:linear-gradient(180deg,#fffaf2,#fffdf9);border:1px solid #eadbca;border-radius:30px;padding:22px 16px 24px;margin-top:10px;box-shadow:0 16px 42px #765d3a18;overflow:hidden}
+#todayView .quickhome:before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#dce9d7;right:-75px;top:-75px;opacity:.55;pointer-events:none}
+#todayView .heroNext{position:relative;padding:2px 4px 18px}
+#todayView .heroNext .muted{color:#8d765e;font-weight:700}
+#todayView .heroNext .next{color:#3e5547;text-shadow:none;font-size:43px}
+#todayView .heroNext .why{color:#82766c}
+#todayView .heroInput{position:relative;margin-top:2px;width:100%;padding:0}
+#todayView .heroInput>h2{font-size:21px;color:#3f4c43;margin:0 2px 12px}
+#todayView .heroInput .microw{display:grid;grid-template-columns:minmax(0,1fr) 58px;width:100%;background:#fff;border:1.5px solid #e3d2bf;border-radius:22px;padding:7px;box-shadow:0 7px 20px #70533010}
+#todayView .heroInput .microw textarea{width:100%;min-width:0;min-height:116px;background:#fff!important;color:#3f443f!important;-webkit-text-fill-color:#3f443f!important;border:0;border-radius:16px;padding:14px;font-size:18px;line-height:1.35;resize:none}
+#todayView .heroInput .microw textarea::placeholder{color:#aa9b8d;-webkit-text-fill-color:#aa9b8d}
+#todayView .mic{align-self:stretch;width:58px;background:#eef4e9;color:#526a59!important;-webkit-text-fill-color:#526a59!important;border-radius:16px}
+#todayView #quickUnderstand{background:#d97745;color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:18px;box-shadow:0 7px 18px #b9613530}
+#todayView .heroBtns{gap:8px}
+#todayView .heroBtn{background:#f1e6d8;color:#514a43!important;-webkit-text-fill-color:#514a43!important;border:1px solid #e6d5c2}
+#todayView .heroBtn:nth-child(2){background:#f2dfd4}
+#todayView .heroBtn:nth-child(3){background:#e7eee1}
+#todayView .heroBtn:nth-child(4){background:#f4ead7}
+#todayView .heroBtn:nth-child(5){background:#e9e4ef}
+#todayView .heroBtn:nth-child(6){background:#eee7df}
+#todayView+section{}
+nav{background:#fffaf4ee;border-top:1px solid #e6d7c7}
+nav button{color:#84776a!important;-webkit-text-fill-color:#84776a!important}
+nav .active{color:#b86138!important;-webkit-text-fill-color:#b86138!important}
+
+/* Autumn dusk + iOS-inspired floating glass */
+body{background:
+ radial-gradient(circle at 18% -5%,#76523e55,transparent 34%),
+ radial-gradient(circle at 90% 20%,#50634d44,transparent 30%),
+ linear-gradient(180deg,#252a29 0%,#1c2220 52%,#171b1a 100%);color:#f5f1ea}
+#todayView .quickhome{background:linear-gradient(145deg,#ffffff10,#ffffff07);border:1px solid #ffffff18;box-shadow:0 18px 55px #0005,inset 0 1px #ffffff18;backdrop-filter:blur(24px) saturate(125%);-webkit-backdrop-filter:blur(24px) saturate(125%)}
+#todayView .quickhome:before{background:#bd7b4c;opacity:.12;filter:blur(6px)}
+#todayView .heroNext .muted{color:#c9b9aa}
+#todayView .heroNext .next{color:#fff7ed;text-shadow:0 2px 18px #0005}
+#todayView .heroNext .why{color:#bfb7ae}
+#todayView .heroInput>h2{color:#f8f2e9}
+#todayView .heroInput .microw{background:#101615a8;border:1px solid #ffffff1f;box-shadow:inset 0 1px #ffffff10,0 10px 28px #0003;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#todayView .heroInput .microw textarea{background:transparent!important;color:#f8f4ee!important;-webkit-text-fill-color:#f8f4ee!important}
+#todayView .heroInput .microw textarea::placeholder{color:#918c84;-webkit-text-fill-color:#918c84}
+#todayView .mic{background:#ffffff12;color:#f3e9dd!important;-webkit-text-fill-color:#f3e9dd!important;border:1px solid #ffffff12}
+#todayView #quickUnderstand{background:linear-gradient(180deg,#d98a57,#c96f3f);color:#fff!important;-webkit-text-fill-color:#fff!important;box-shadow:inset 0 1px #ffffff45,0 8px 22px #0003}
+#todayView .heroBtn{background:#ffffff0d!important;color:#f5eee6!important;-webkit-text-fill-color:#f5eee6!important;border:1px solid #ffffff14;box-shadow:inset 0 1px #ffffff0d;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+#todayView .heroBtn:nth-child(2){background:#8c554122!important}
+#todayView .heroBtn:nth-child(3){background:#71816c20!important}
+#todayView .heroBtn:nth-child(4){background:#a87d4920!important}
+#todayView .heroBtn:nth-child(5){background:#796f8622!important}
+nav{left:50%;bottom:calc(8px + env(safe-area-inset-bottom));width:min(490px,calc(100% - 24px));border:1px solid #ffffff18;border-radius:26px;padding:6px 8px;background:#252a28cc;box-shadow:0 12px 38px #0006,inset 0 1px #ffffff18;backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)}
+nav button{color:#aaa49d!important;-webkit-text-fill-color:#aaa49d!important;border-radius:18px}
+nav .active{color:#ffd4b6!important;-webkit-text-fill-color:#ffd4b6!important;background:#ffffff0d}
+
+/* Warm mid-tone theme: softer than cream, brighter than dusk */
+html{background:#d9cbbb}
+body{background:
+ radial-gradient(circle at 12% 0%,#e7c9ad88,transparent 34%),
+ radial-gradient(circle at 92% 20%,#c8d4c188,transparent 31%),
+ linear-gradient(180deg,#d8cabb 0%,#d2c7b8 48%,#c9bbaa 100%);color:#3d423e}
+.app{background:transparent}
+#todayView .top .kicker{color:#80654f}#todayView .top h1{color:#343b36}
+#todayView .icon{background:linear-gradient(145deg,#d99060,#d6aa75);box-shadow:inset 0 1px #ffffff70,0 8px 22px #76533325}
+#todayView>.card{background:#eee5d9b8;border:1px solid #ffffff72;box-shadow:0 14px 35px #604a3420,inset 0 1px #fff8}
+#todayView>.card .muted,#todayView>.card .why{color:#766e66}
+#todayView>.card .next{color:#39483e}
+#todayView>.card .stat{background:#d8ccbd99}.stat small{color:#786f67}
+#todayView .quickhome{background:linear-gradient(145deg,#e9dfd1d9,#ddd7cbd9);border:1px solid #ffffff80;box-shadow:0 18px 45px #5d493226,inset 0 1px #ffffffa0}
+#todayView .quickhome:before{background:#c98250;opacity:.14}
+#todayView .heroNext .muted{color:#7f674f}#todayView .heroNext .next{color:#38493d;text-shadow:none}#todayView .heroNext .why{color:#746d65}
+#todayView .heroInput>h2{color:#394039}
+#todayView .heroInput .microw{background:#f1e9deb8;border:1px solid #ffffff9c;box-shadow:inset 0 1px #fff9,0 8px 22px #66503a18}
+#todayView .heroInput .microw textarea{background:transparent!important;color:#343b36!important;-webkit-text-fill-color:#343b36!important}
+#todayView .heroInput .microw textarea::placeholder{color:#8b8177;-webkit-text-fill-color:#8b8177}
+#todayView .mic{background:#d6d1c8aa;color:#4d5d52!important;-webkit-text-fill-color:#4d5d52!important;border:1px solid #ffffff7a}
+#todayView #quickUnderstand{background:linear-gradient(180deg,#cf7e4e,#bc663b)}
+#todayView .heroBtn{color:#464842!important;-webkit-text-fill-color:#464842!important;border:1px solid #ffffff70;box-shadow:inset 0 1px #ffffff70}
+#todayView .heroBtn:nth-child(1){background:#ddc8adcc!important}#todayView .heroBtn:nth-child(2){background:#dfb9a7cc!important}#todayView .heroBtn:nth-child(3){background:#bdcbb6cc!important}#todayView .heroBtn:nth-child(4){background:#dfcf9fcc!important}#todayView .heroBtn:nth-child(5){background:#c9bfd1cc!important}#todayView .heroBtn:nth-child(6){background:#d1c8bdcc!important}
+nav{background:#d9d1c5e8;border:1px solid #ffffff80;box-shadow:0 12px 34px #54433230,inset 0 1px #ffffffa0}
+nav button{color:#6d6963!important;-webkit-text-fill-color:#6d6963!important}nav .active{color:#9d5737!important;-webkit-text-fill-color:#9d5737!important;background:#eee3d6aa}
+/* Timeline gets visual rhythm instead of one continuous dark list */
+#todayView>section.card:last-child{background:transparent;border:0;box-shadow:none;padding:4px;margin-top:18px}
+#todayView #timeline .entry{margin:9px 0;padding:14px;border:1px solid #ffffff72;border-radius:20px;background:#e5dacdbd;box-shadow:0 7px 18px #5f49331a}
+#todayView #timeline .entry:nth-child(4n+1){background:#e1d0b9c9}
+#todayView #timeline .entry:nth-child(4n+2){background:#cbd7c5c9}
+#todayView #timeline .entry:nth-child(4n+3){background:#dfc3b5c9}
+#todayView #timeline .entry:nth-child(4n){background:#d6cdddcc}
+#todayView #timeline .entrytop,#todayView #timeline .note{color:#424741}
+#todayView #timeline .chip{background:#ffffff70;color:#4c514b}
+#todayView #timeline .tiny{background:#ffffff62;color:#514e49!important;-webkit-text-fill-color:#514e49!important}
+.pullrefresh{background:#d8cbbb;color:#4d4b45;box-shadow:0 6px 24px #55402f35}
+
+/* legible sync + subtle autumn leaves + playful block-drop entrance */
+#authGate{background:#e3d1bcf2!important;border:1px solid #fff9!important;color:#343a35!important;box-shadow:0 16px 38px #60482e25!important}
+#authGate h2,#authGate .note,#authGate .why,#authGate label,#authStatus{color:#4f514b!important;-webkit-text-fill-color:#4f514b!important}
+#authGate .why,#authStatus{opacity:.88}
+#authGate input{background:#f2e9dd!important;color:#303832!important;-webkit-text-fill-color:#303832!important;border:1px solid #bda991!important}
+#authGate input::placeholder{color:#80776d!important;-webkit-text-fill-color:#80776d!important}
+#authGate .confirm{background:#b9653e!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+#dismissSync{color:#615b53!important;-webkit-text-fill-color:#615b53!important}
+body:before,body:after{position:fixed;z-index:-1;pointer-events:none;opacity:.13;filter:blur(.15px);font-size:27px;line-height:2.8;letter-spacing:34px;transform:rotate(-13deg)}
+body:before{content:"🍂  🍁   🍃";left:-8px;top:17%;width:170px}
+body:after{content:"🍁   🍂  🍃";right:-22px;top:55%;width:165px;transform:rotate(16deg)}
+@keyframes blockDrop{0%{opacity:0;transform:translateY(-65px) rotate(var(--drop-r)) scale(.97)}62%{opacity:1;transform:translateY(7px) rotate(calc(var(--drop-r) * 1.3)) scale(1.01)}82%{transform:translateY(-3px) rotate(calc(var(--drop-r) * .75))}100%{opacity:1;transform:translateY(0) rotate(var(--rest-r))}}
+#todayView.active .top{--drop-r:-3deg;--rest-r:-.35deg;animation:blockDrop .58s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active>.card{--drop-r:3deg;--rest-r:.28deg;animation:blockDrop .64s .07s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active .quickhome{--drop-r:-2.5deg;--rest-r:-.22deg;animation:blockDrop .7s .14s cubic-bezier(.2,.8,.25,1.18) both}
+#todayView.active .heroBtns .heroBtn:nth-child(1){transform:rotate(-.7deg)}#todayView.active .heroBtns .heroBtn:nth-child(2){transform:rotate(.8deg)}#todayView.active .heroBtns .heroBtn:nth-child(3){transform:rotate(-.45deg)}#todayView.active .heroBtns .heroBtn:nth-child(4){transform:rotate(.55deg)}#todayView.active .heroBtns .heroBtn:nth-child(5){transform:rotate(-.6deg)}#todayView.active .heroBtns .heroBtn:nth-child(6){transform:rotate(.4deg)}
+@media (prefers-reduced-motion:reduce){#todayView.active .top,#todayView.active>.card,#todayView.active .quickhome{animation:none}}
+
+/* Make seasonal background + entrance motion actually visible on iPhone */
+body:before,body:after{z-index:0!important;opacity:.24!important;font-size:30px!important}
+main.app{position:relative;z-index:1}
+#todayView{position:relative}
+#todayView:before,#todayView:after{content:"🍂";position:absolute;z-index:-1;pointer-events:none;font-size:34px;opacity:.22}
+#todayView:before{top:115px;left:-8px;transform:rotate(-24deg)}
+#todayView:after{top:520px;right:-5px;content:"🍁";transform:rotate(18deg)}
+@keyframes lucaDropA{0%{opacity:0;transform:translate3d(-12px,-95px,0) rotate(-5deg)}55%{opacity:1;transform:translate3d(5px,10px,0) rotate(1.8deg)}76%{transform:translate3d(-2px,-5px,0) rotate(-.8deg)}100%{opacity:1;transform:translate3d(0,0,0) rotate(-.35deg)}}
+@keyframes lucaDropB{0%{opacity:0;transform:translate3d(15px,-120px,0) rotate(5deg)}58%{opacity:1;transform:translate3d(-5px,12px,0) rotate(-1.5deg)}78%{transform:translate3d(2px,-4px,0) rotate(.7deg)}100%{opacity:1;transform:translate3d(0,0,0) rotate(.3deg)}}
+#todayView.active .top{animation:lucaDropA .72s .05s cubic-bezier(.18,.82,.24,1.12) both!important}
+#todayView.active>.card{animation:lucaDropB .78s .20s cubic-bezier(.18,.82,.24,1.12) both!important}
+#todayView.active .quickhome{animation:lucaDropA .84s .38s cubic-bezier(.18,.82,.24,1.12) both!important}
+#todayView.active .heroBtns .heroBtn{animation:lucaDropB .52s cubic-bezier(.18,.82,.24,1.12) both}
+#todayView.active .heroBtns .heroBtn:nth-child(1){animation-delay:.56s}#todayView.active .heroBtns .heroBtn:nth-child(2){animation-delay:.61s}#todayView.active .heroBtns .heroBtn:nth-child(3){animation-delay:.66s}#todayView.active .heroBtns .heroBtn:nth-child(4){animation-delay:.71s}#todayView.active .heroBtns .heroBtn:nth-child(5){animation-delay:.76s}#todayView.active .heroBtns .heroBtn:nth-child(6){animation-delay:.81s}
+
+/* Luca toy-block intro */
+.introToy{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#d8cabb,#cbbba8);display:grid;place-items:center;overflow:hidden;animation:introGone .45s 3.05s forwards}
+.introBlocks{position:absolute;inset:0}
+.toy{position:absolute;width:62px;height:62px;border-radius:14px;display:grid;place-items:center;font-size:34px;font-weight:900;color:#fff9ef;box-shadow:inset 0 3px #ffffff65,0 12px 24px #5b422d35;border:1px solid #ffffff70}
+.toy.a{left:17%;background:#b66a43;animation:toyFall 1.15s .08s both}.toy.b{right:17%;background:#71866d;animation:toyFallB 1.3s .18s both}.toy.c{left:39%;background:#c49a55;animation:toyFall 1.4s .3s both}
+.toyL{position:absolute;left:50%;top:50%;width:78px;height:78px;margin:-39px;background:#c86f42;transform:translateZ(0);animation:lucaL 1.25s 1.02s cubic-bezier(.16,.78,.2,1) both}
+.introCrack{position:absolute;left:50%;top:50%;width:210px;height:210px;transform:translate(-50%,-50%) scale(.2);opacity:0;background:conic-gradient(from 12deg,transparent 0 7%,#ffffff8c 7.3% 7.8%,transparent 8% 18%,#ffffff75 18.3% 18.8%,transparent 19% 33%,#ffffff8c 33.3% 33.8%,transparent 34% 51%,#ffffff75 51.3% 51.8%,transparent 52% 70%,#ffffff8c 70.3% 70.8%,transparent 71%);clip-path:polygon(50% 0,56% 40%,100% 18%,63% 47%,96% 70%,59% 55%,70% 100%,52% 60%,28% 96%,45% 57%,0 73%,40% 50%,4% 25%,44% 44%);animation:crack .7s 1.7s both}
+.introName{position:absolute;top:61%;font-size:28px;font-weight:900;letter-spacing:.01em;color:#3d473f;opacity:0;animation:nameIn .65s 2.08s both}.introName .lmark{color:#b75f38}
+@keyframes toyFall{0%{transform:translateY(-180px) rotate(-18deg)}58%{transform:translateY(72vh) rotate(20deg)}72%{transform:translateY(63vh) rotate(-8deg)}84%{transform:translateY(70vh) rotate(5deg)}100%{transform:translateY(67vh) rotate(-3deg)}}@keyframes toyFallB{0%{transform:translateY(-220px) rotate(22deg)}60%{transform:translateY(58vh) rotate(-20deg)}76%{transform:translateY(49vh) rotate(9deg)}100%{transform:translateY(54vh) rotate(4deg)}}@keyframes lucaL{0%{opacity:0;transform:scale(.12) rotate(-24deg)}55%{opacity:1;transform:scale(3.8) rotate(8deg)}68%{transform:scale(3.25) rotate(-3deg)}82%{transform:scale(1.05) rotate(0)}100%{transform:translate(-112px,92px) scale(.46);opacity:0}}@keyframes crack{0%,25%{opacity:0;transform:translate(-50%,-50%) scale(.2)}45%{opacity:.9;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}@keyframes nameIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}@keyframes introGone{to{opacity:0;visibility:hidden;pointer-events:none}}
+@keyframes lucaDropA{0%{opacity:0;transform:translate3d(-12px,-125px,0) rotate(-6deg)}48%{opacity:1;transform:translate3d(7px,16px,0) rotate(2.5deg)}64%{transform:translate3d(-4px,-9px,0) rotate(-1.5deg)}78%{transform:translate3d(3px,6px,0) rotate(.8deg)}89%{transform:translate3d(-1px,-2px,0) rotate(-.55deg)}100%{transform:translate3d(0,0,0) rotate(-.3deg)}}@keyframes lucaDropB{0%{opacity:0;transform:translate3d(16px,-145px,0) rotate(6deg)}48%{opacity:1;transform:translate3d(-7px,18px,0) rotate(-2.4deg)}65%{transform:translate3d(4px,-10px,0) rotate(1.3deg)}80%{transform:translate3d(-2px,6px,0) rotate(-.7deg)}100%{transform:translate3d(0,0,0) rotate(.28deg)}}
+#todayView.active .top{animation:lucaDropA 1.05s 3.05s cubic-bezier(.16,.78,.2,1) both!important}#todayView.active>.card{animation:lucaDropB 1.12s 3.28s cubic-bezier(.16,.78,.2,1) both!important}#todayView.active .quickhome{animation:lucaDropA 1.2s 3.55s cubic-bezier(.16,.78,.2,1) both!important}
+@media(prefers-reduced-motion:reduce){.introToy{display:none!important}}
+
+/* Intro must sit above iOS/PWA page and decorative layers */
+html,body{min-height:100%;background:#d8cabb}
+.introToy{position:fixed!important;inset:0!important;z-index:2147483647!important;isolation:isolate!important;display:grid!important;place-items:center!important;background:linear-gradient(180deg,#d8cabb 0%,#cfbea9 100%)!important}
+.introToy .introBlocks,.introToy .introCrack,.introToy .toyL,.introToy .introName{z-index:2}
+body:has(.introToy) main.app{z-index:1}
+body:before,body:after{z-index:0!important}
+
+/* Dimensional nursery blocks: white inset faces, colorful raised letters */
+.toy{width:68px;height:68px;border-radius:16px;background:linear-gradient(145deg,#d99a5f 0%,#b7653e 58%,#8f472f 100%)!important;border:1px solid #fff8;box-shadow:inset 4px 4px 8px #ffffff70,inset -7px -8px 12px #6d351f55,0 16px 24px #51392342;perspective:500px;color:transparent!important}
+.toy:before{content:"";position:absolute;inset:9px;border-radius:10px;background:linear-gradient(145deg,#fffdf7,#e9e3d9);border:2px solid #fff;box-shadow:inset 2px 2px 3px #fff,inset -3px -3px 5px #b8aea260,0 3px 5px #5a392f35}
+.toy:after{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;font-weight:950;font-family:Georgia,serif;text-shadow:0 2px 0 #fff,0 4px 5px #5b392a35}
+.toy.a:after{content:"A";color:#d85d48}.toy.b:after{content:"B";color:#4f8a72}.toy.c:after{content:"C";color:#d59a37}.toyL:after{content:"L";color:#d75d43}
+.toy.a{background:linear-gradient(145deg,#e9a96a,#bf6841 60%,#91452f)!important}.toy.b{background:linear-gradient(145deg,#88aa8b,#5e7f68 60%,#405b49)!important}.toy.c{background:linear-gradient(145deg,#e2bd69,#b98b3e 60%,#876328)!important}
+.toyL{width:86px;height:86px;margin:-43px;border-radius:19px;background:linear-gradient(145deg,#eea16c,#c45f3d 60%,#8d402d)!important;box-shadow:inset 5px 5px 9px #ffffff75,inset -9px -10px 15px #6b301e66,0 20px 35px #4f342a55!important}
+.toyL:before{inset:10px;border-radius:12px}.toyL:after{font-size:44px}
+.introToy:before{content:"";position:absolute;width:75%;height:22%;left:12%;bottom:8%;border-radius:50%;background:#806b5630;filter:blur(22px);z-index:1}
+
+/* Natural toy pile: staggered gravity, collisions, imperfect resting angles */
+.introBlocks{position:absolute;inset:0;perspective:700px;transform-style:preserve-3d}
+.toy.a{left:calc(50% - 100px);top:-90px;animation:pileA 1.55s .06s cubic-bezier(.22,.72,.24,1) both!important}
+.toy.b{right:auto;left:calc(50% + 20px);top:-115px;animation:pileB 1.7s .18s cubic-bezier(.22,.72,.24,1) both!important}
+.toy.c{left:calc(50% - 32px);top:-140px;animation:pileC 1.8s .34s cubic-bezier(.22,.72,.24,1) both!important}
+@keyframes pileA{0%{transform:translate3d(-25px,-40px,50px) rotateX(18deg) rotateY(-22deg) rotateZ(-17deg)}53%{transform:translate3d(0,70vh,0) rotateX(4deg) rotateY(-5deg) rotateZ(13deg)}65%{transform:translate3d(-10px,61vh,0) rotateZ(-7deg)}77%{transform:translate3d(-5px,68vh,0) rotateZ(7deg)}88%{transform:translate3d(-8px,65vh,0) rotateZ(-5deg)}100%{transform:translate3d(-8px,66vh,0) rotateZ(-7deg)}}
+@keyframes pileB{0%{transform:translate3d(34px,-70px,70px) rotateX(-16deg) rotateY(25deg) rotateZ(23deg)}51%{transform:translate3d(-8px,72vh,0) rotateX(3deg) rotateY(5deg) rotateZ(-16deg)}64%{transform:translate3d(5px,62vh,0) rotateZ(10deg)}78%{transform:translate3d(0,68vh,0) rotateZ(-7deg)}90%{transform:translate3d(2px,65vh,0) rotateZ(4deg)}100%{transform:translate3d(2px,66vh,0) rotateZ(6deg)}}
+@keyframes pileC{0%{transform:translate3d(-5px,-100px,90px) rotateX(24deg) rotateY(15deg) rotateZ(-29deg)}49%{transform:translate3d(7px,66vh,0) rotateX(2deg) rotateY(-4deg) rotateZ(19deg)}61%{transform:translate3d(18px,56vh,0) rotateZ(-12deg)}73%{transform:translate3d(12px,62vh,0) rotateZ(9deg)}84%{transform:translate3d(15px,59vh,0) rotateZ(-5deg)}100%{transform:translate3d(14px,60vh,0) rotateZ(4deg)}}
+.toyL{animation:lucaL 1.35s 1.72s cubic-bezier(.16,.78,.2,1) both!important}
+.introCrack{animation:crack .72s 2.34s both!important}.introName{animation:nameIn .7s 2.68s both!important}.introToy{animation:introGone .5s 3.7s forwards!important}
+#todayView.active .top{animation-delay:3.7s!important}#todayView.active>.card{animation-delay:3.95s!important}#todayView.active .quickhome{animation-delay:4.25s!important}
+
+/* More gravity-like pile + persistent Luca title */
+.persistentTitle{position:sticky;top:calc(6px + env(safe-area-inset-top));z-index:24;margin:0 0 10px;padding:9px 14px;border-radius:18px;background:#d9cbbbd9;border:1px solid #ffffff85;box-shadow:0 8px 24px #5e483024;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-weight:900;font-size:17px;color:#3e463f;letter-spacing:-.01em}
+.persistentTitle .titleL{color:#b65f3b}
+@keyframes pileA2{0%{transform:translate3d(-38px,-80px,70px) rotateX(28deg) rotateY(-34deg) rotateZ(-24deg)}46%{transform:translate3d(-5px,68vh,0) rotateX(5deg) rotateY(-7deg) rotateZ(18deg)}55%{transform:translate3d(-16px,57vh,0) rotateZ(-10deg)}65%{transform:translate3d(-10px,65vh,0) rotateZ(8deg)}76%{transform:translate3d(-13px,61.5vh,0) rotateZ(-5deg)}87%{transform:translate3d(-12px,63.5vh,0) rotateZ(-7deg)}100%{transform:translate3d(-12px,63vh,0) rotateZ(-8deg)}}
+@keyframes pileB2{0%{transform:translate3d(42px,-125px,90px) rotateX(-30deg) rotateY(38deg) rotateZ(31deg)}49%{transform:translate3d(5px,70vh,0) rotateX(-3deg) rotateY(6deg) rotateZ(-21deg)}58%{transform:translate3d(18px,59vh,0) rotateZ(13deg)}69%{transform:translate3d(11px,65vh,0) rotateZ(-9deg)}80%{transform:translate3d(14px,62vh,0) rotateZ(7deg)}91%{transform:translate3d(13px,63.5vh,0) rotateZ(5deg)}100%{transform:translate3d(13px,63vh,0) rotateZ(6deg)}}
+@keyframes pileC2{0%{transform:translate3d(5px,-175px,120px) rotateX(40deg) rotateY(24deg) rotateZ(-38deg)}48%{transform:translate3d(10px,60vh,0) rotateX(4deg) rotateY(-5deg) rotateZ(25deg)}57%{transform:translate3d(28px,51vh,0) rotateZ(-17deg)}68%{transform:translate3d(19px,57vh,0) rotateZ(12deg)}80%{transform:translate3d(23px,54vh,0) rotateZ(-7deg)}91%{transform:translate3d(22px,55.5vh,0) rotateZ(4deg)}100%{transform:translate3d(22px,55vh,0) rotateZ(5deg)}}
+.toy.a{animation:pileA2 1.9s .04s cubic-bezier(.2,.7,.22,1) both!important}.toy.b{animation:pileB2 2.05s .16s cubic-bezier(.2,.7,.22,1) both!important}.toy.c{animation:pileC2 2.18s .3s cubic-bezier(.2,.7,.22,1) both!important}
+.persistentTitle{position:sticky!important;top:calc(8px + env(safe-area-inset-top))!important;display:flex;align-items:center;width:max-content;max-width:calc(100% - 20px);margin:0 0 14px!important;padding:10px 15px!important;font-size:19px!important;background:linear-gradient(145deg,#eadbc9e8,#d7c7b4e8)!important;border:1px solid #ffffffa0!important;border-radius:19px!important;box-shadow:inset 0 1px #fff,0 9px 24px #5b432c25!important;color:#3e463f!important;z-index:25!important}.persistentTitle .titleL{display:inline-grid;place-items:center;width:31px;height:31px;margin-right:7px;border-radius:8px;background:linear-gradient(145deg,#fffdf7,#e8e0d5);border:3px solid #c76d43;color:#c45e3c!important;font-family:Georgia,serif;font-size:23px;line-height:1;box-shadow:inset 1px 1px #fff,2px 3px 6px #64432e25;transform:rotate(-4deg)}#todayView>.top{margin-top:0}.introName{top:17%!important;font-size:30px!important;z-index:6!important;background:#dfcfbddd;padding:9px 16px;border-radius:18px;box-shadow:0 8px 22px #5b422d24;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.introName .lmark{display:inline-grid;place-items:center;width:38px;height:38px;margin-right:5px;border-radius:9px;background:#fffaf2;border:3px solid #c96c43;color:#c45e3c!important;font-family:Georgia,serif;transform:rotate(-5deg);box-shadow:inset 1px 1px #fff,2px 4px 7px #5d3c2b28}
+/* Readability across secondary tabs */
+#insightsView .muted,#suppliesView .muted,#historyView .muted,#leaderboardView .muted,#scheduleView .muted{color:#625f59!important}
+#insightsView .card,#suppliesView .card,#historyView .card,#leaderboardView .card,#scheduleView .card{color:#36413b!important}
+#insightsView .why,#suppliesView .why,#historyView .why,#leaderboardView .why,#scheduleView .why{color:#69645e!important}
+#insight{color:#4e5b54!important;font-weight:600}
+.milkMeter{position:fixed;right:12px;top:34%;z-index:18;width:58px;padding:7px 6px 8px;border-radius:22px;background:#f1e7d8dd;border:1px solid #fff9;box-shadow:0 8px 24px #6a4a2b26;backdrop-filter:blur(10px);text-align:center;color:#465047;transition:.25s}
+.milkBottle{height:88px;width:34px;margin:0 auto 4px;border:3px solid #716e68;border-radius:8px 8px 13px 13px;position:relative;overflow:hidden;background:#fff9}
+.milkBottle:before{content:"";position:absolute;top:-8px;left:8px;width:12px;height:9px;border:3px solid #716e68;border-bottom:0;border-radius:4px 4px 0 0}
+.milkFill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#f7df9a,#e7bd62);transition:height .7s cubic-bezier(.2,.8,.2,1)}
+.milkAmt{font-size:11px;font-weight:850}.milkGoal{font-size:9px;color:#766f65}.milkMeter.pop{animation:milkPop .75s ease}@keyframes milkPop{0%{transform:scale(.88) rotate(0)}35%{transform:scale(1.12) rotate(5deg)}65%{transform:scale(.98) rotate(-3deg)}100%{transform:none}}
+
+/* Luca Today expandable care dock */
+.milkMeter{display:none!important}
+.careDock{position:fixed;right:10px;top:32%;z-index:19;width:54px;border-radius:24px;background:#efe3d4e8;border:1px solid #fff9;box-shadow:0 9px 26px #60452c28;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow:hidden;transition:.25s}
+.careDock.open{width:190px}.careHead{border:0;background:transparent;color:#465047;width:100%;padding:9px 7px;font-weight:900;white-space:nowrap}.careHead .dockLabel{display:none}.careDock.open .dockLabel{display:inline;margin-left:5px}
+.careItems{display:grid;gap:3px;padding:0 5px 7px}.careItem{display:flex;align-items:center;gap:7px;min-height:40px;border-radius:15px;padding:5px;background:#fff5;color:#465047}.careEmoji{font-size:22px;width:31px;text-align:center}.careInfo{display:none;min-width:0}.careDock.open .careInfo{display:block}.careInfo b{font-size:12px;display:block}.careInfo small{font-size:9px;color:#746d64}.miniTrack{width:88px;height:5px;background:#aa9d8d40;border-radius:9px;overflow:hidden;margin-top:3px}.miniFill{height:100%;background:#c57a4b;border-radius:9px;transition:width .65s}.careItem.pop .careEmoji{animation:carePop .75s ease}@keyframes carePop{0%{transform:scale(.75) rotate(-12deg)}40%{transform:scale(1.35) rotate(10deg)}70%{transform:scale(.95) rotate(-4deg)}100%{transform:none}}
+.poopBurst{position:fixed;right:72px;top:42%;z-index:40;pointer-events:none;font-size:50px;opacity:0}.poopBurst.go{animation:poopBurst 1.35s ease both}@keyframes poopBurst{0%{opacity:0;transform:translate(30px,30px) scale(.3) rotate(-20deg)}25%{opacity:1;transform:translate(0,0) scale(1.25) rotate(8deg)}65%{opacity:1;transform:translate(-18px,-25px) scale(1) rotate(-8deg)}100%{opacity:0;transform:translate(-40px,-70px) scale(.7) rotate(12deg)}}
+
+/* Functional interactions stay calm and anchored */
+#todayView.active .top,#todayView.active>.card,#todayView.active .quickhome,#todayView.active .heroBtns .heroBtn{animation:none!important}
+#smartCard{scroll-margin-top:110px;transition:opacity .18s ease,transform .18s ease}
+#smartCard:not(.hiddenOldComposer){animation:smartReveal .18s ease both}@keyframes smartReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#manualComposer{scroll-margin-top:105px}
+/* BABY LUCA intro pile */
+.introBlocks .toy{width:60px;height:60px}
+.toy.d,.toy.e,.toy.f,.toy.g,.toy.h{position:absolute}
+.toy.d:after{content:"Y";color:#7d72a2}.toy.e:after{content:"L";color:#d75d43}.toy.f:after{content:"U";color:#4f8a72}.toy.g:after{content:"C";color:#d59a37}.toy.h:after{content:"A";color:#cc6f65}
+.toy.d{left:25%;background:linear-gradient(145deg,#b4a6c7,#80749c 60%,#5d5474)!important;animation:pileD 1.9s .2s both!important}.toy.e{left:44%;background:linear-gradient(145deg,#eea16c,#c45f3d 60%,#8d402d)!important;animation:pileE 2s .28s both!important}.toy.f{left:59%;background:linear-gradient(145deg,#88aa8b,#5e7f68 60%,#405b49)!important;animation:pileF 2.05s .34s both!important}.toy.g{left:34%;background:linear-gradient(145deg,#e2bd69,#b98b3e 60%,#876328)!important;animation:pileG 2.1s .4s both!important}.toy.h{left:68%;background:linear-gradient(145deg,#dc9488,#b8665d 60%,#874b46)!important;animation:pileH 2.15s .46s both!important}
+@keyframes pileD{0%{transform:translateY(-150px) rotate(24deg)}55%{transform:translateY(65vh) rotate(-18deg)}72%{transform:translateY(57vh) rotate(10deg)}100%{transform:translateY(61vh) rotate(7deg)}}@keyframes pileE{0%{transform:translateY(-210px) rotate(-28deg)}56%{transform:translateY(69vh) rotate(22deg)}73%{transform:translateY(58vh) rotate(-10deg)}100%{transform:translateY(63vh) rotate(-6deg)}}@keyframes pileF{0%{transform:translateY(-175px) rotate(32deg)}54%{transform:translateY(62vh) rotate(-21deg)}72%{transform:translateY(54vh) rotate(11deg)}100%{transform:translateY(58vh) rotate(5deg)}}@keyframes pileG{0%{transform:translateY(-240px) rotate(-34deg)}57%{transform:translateY(60vh) rotate(26deg)}75%{transform:translateY(51vh) rotate(-12deg)}100%{transform:translateY(55vh) rotate(-4deg)}}@keyframes pileH{0%{transform:translateY(-190px) rotate(29deg)}55%{transform:translateY(67vh) rotate(-24deg)}74%{transform:translateY(56vh) rotate(13deg)}100%{transform:translateY(60vh) rotate(8deg)}}
+
+/* Luca Today: every icon opens dock; bottle celebration */
+.careItem{cursor:pointer}.careDock.open .careItem{cursor:default}
+.bottleCelebrate{position:fixed;right:18px;top:25%;z-index:60;width:128px;height:250px;opacity:0;pointer-events:none;transform:translateX(150px) scale(.8);transition:transform .42s cubic-bezier(.22,.85,.28,1),opacity .25s}
+.bottleCelebrate.show{opacity:1;transform:translateX(0) scale(1)}
+.bigBottle{height:205px;width:92px;margin:auto;border:6px solid #716e68;border-radius:18px 18px 30px 30px;position:relative;overflow:hidden;background:#fffdf4e8;box-shadow:0 14px 35px #59422d38}
+.bigBottle:before{content:"";position:absolute;top:-18px;left:26px;width:30px;height:20px;border:6px solid #716e68;border-bottom:0;border-radius:8px 8px 0 0;z-index:3}
+.bigMilk{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#fff0ba,#e6bd66);transition:height .85s cubic-bezier(.2,.85,.2,1)}
+.bigOz{text-align:center;margin-top:8px;font-weight:900;color:#435048;font-size:18px}
+#smartCard{display:none!important}.inlineClarify{display:none;margin-top:10px;padding:12px;border-radius:18px;background:#f2e7d9;border:1px solid #fff9;box-shadow:inset 0 1px #fff;transition:opacity .16s ease,transform .16s ease}.inlineClarify.show{display:block;animation:inlineOpen .16s ease both}@keyframes inlineOpen{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}#inlineItems .smartItem{margin-bottom:8px}#inlineSave{margin-top:8px}#inlineCancel{width:100%;margin-top:6px}
+/* Exact BABY LUCA intro: eight unique blocks settle into two loose readable rows */
+.introBlocks .word{position:absolute!important;top:-90px!important;width:58px!important;height:58px!important;animation-duration:1.75s!important;animation-timing-function:cubic-bezier(.18,.72,.24,1)!important;animation-fill-mode:both!important}
+.introBlocks .word:after{font-size:29px!important}
+.word.b1{left:18%;background:linear-gradient(145deg,#88aa8b,#5e7f68 60%,#405b49)!important;animation-name:wb1!important;animation-delay:.02s!important}.word.b1:after{content:"B";color:#4f8a72}
+.word.a1{left:35%;background:linear-gradient(145deg,#e9a96a,#bf6841 60%,#91452f)!important;animation-name:wa1!important;animation-delay:.09s!important}.word.a1:after{content:"A";color:#d85d48}
+.word.b2{left:52%;background:linear-gradient(145deg,#9eb0cf,#6e82a8 60%,#4c5f80)!important;animation-name:wb2!important;animation-delay:.16s!important}.word.b2:after{content:"B";color:#5876a2}
+.word.y1{left:69%;background:linear-gradient(145deg,#b4a6c7,#80749c 60%,#5d5474)!important;animation-name:wy1!important;animation-delay:.23s!important}.word.y1:after{content:"Y";color:#7d72a2}
+.word.l1{left:20%;background:linear-gradient(145deg,#eea16c,#c45f3d 60%,#8d402d)!important;animation-name:wl1!important;animation-delay:.30s!important}.word.l1:after{content:"L";color:#d75d43}
+.word.u1{left:37%;background:linear-gradient(145deg,#88aa8b,#5e7f68 60%,#405b49)!important;animation-name:wu1!important;animation-delay:.37s!important}.word.u1:after{content:"U";color:#4f8a72}
+.word.c1{left:54%;background:linear-gradient(145deg,#e2bd69,#b98b3e 60%,#876328)!important;animation-name:wc1!important;animation-delay:.44s!important}.word.c1:after{content:"C";color:#d59a37}
+.word.a2{left:71%;background:linear-gradient(145deg,#dc9488,#b8665d 60%,#874b46)!important;animation-name:wa2!important;animation-delay:.51s!important}.word.a2:after{content:"A";color:#cc6f65}
+@keyframes wb1{0%{transform:translate(-25px,-120px) rotate(-28deg)}70%{transform:translate(0,44vh) rotate(8deg)}84%{transform:translate(0,40vh) rotate(-4deg)}100%{transform:translate(0,42vh) rotate(-5deg)}}
+@keyframes wa1{0%{transform:translate(18px,-160px) rotate(31deg)}70%{transform:translate(0,44vh) rotate(-7deg)}84%{transform:translate(0,40vh) rotate(4deg)}100%{transform:translate(0,42vh) rotate(3deg)}}
+@keyframes wb2{0%{transform:translate(-12px,-205px) rotate(-35deg)}70%{transform:translate(0,44vh) rotate(10deg)}84%{transform:translate(0,40vh) rotate(-5deg)}100%{transform:translate(0,42vh) rotate(-3deg)}}
+@keyframes wy1{0%{transform:translate(25px,-145px) rotate(26deg)}70%{transform:translate(0,44vh) rotate(-9deg)}84%{transform:translate(0,40vh) rotate(5deg)}100%{transform:translate(0,42vh) rotate(6deg)}}
+@keyframes wl1{0%{transform:translate(-18px,-220px) rotate(-32deg)}70%{transform:translate(0,52vh) rotate(7deg)}84%{transform:translate(0,48vh) rotate(-4deg)}100%{transform:translate(0,50vh) rotate(-4deg)}}
+@keyframes wu1{0%{transform:translate(15px,-170px) rotate(29deg)}70%{transform:translate(0,52vh) rotate(-8deg)}84%{transform:translate(0,48vh) rotate(4deg)}100%{transform:translate(0,50vh) rotate(3deg)}}
+@keyframes wc1{0%{transform:translate(-22px,-195px) rotate(-25deg)}70%{transform:translate(0,52vh) rotate(9deg)}84%{transform:translate(0,48vh) rotate(-5deg)}100%{transform:translate(0,50vh) rotate(-2deg)}}
+@keyframes wa2{0%{transform:translate(20px,-235px) rotate(34deg)}70%{transform:translate(0,52vh) rotate(-7deg)}84%{transform:translate(0,48vh) rotate(4deg)}100%{transform:translate(0,50vh) rotate(5deg)}}
+</style><script src="./care-sync.js?v=136"></script><script src="./agents/sleep-inference.js?v=136"></script><script src="./agents/sleep-data.js?v=136"></script><script src="./agents/sleep-ui.js?v=136"></script><script src="./agents/quick-actions.js?v=136"></script><script src="./agents/playfulness.js?v=136"></script><style>html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}button,.tiny,.heroBtn,.choice,.menuRow,nav button{transition:transform .16s cubic-bezier(.2,.8,.2,1),opacity .16s ease,background-color .2s ease,box-shadow .2s ease}button:active,.tiny:active,.heroBtn:active,.choice:active,.menuRow:active,nav button:active{transform:scale(.97)}input,textarea{font-size:16px!important;transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease}input:focus,textarea:focus{scroll-margin-bottom:180px}.view{transition:opacity .22s ease}.inlineClarify,.smartPreview{transition:opacity .2s ease,transform .22s cubic-bezier(.2,.8,.2,1)}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.tiny,.heroBtn,.choice,.menuRow,nav button,input,textarea,.view,.inlineClarify,.smartPreview{transition:none!important}}</style><style>#suppliesView .tiny{background:#fff8ed!important;color:#3f4943!important;border:1px solid #b9a994!important;font-weight:800!important;font-size:13px!important}#suppliesView .supplyEdit{display:flex;gap:8px;margin-top:12px}#suppliesView .supplyEdit input{flex:1;min-width:0;border:1px solid #cbbda9;background:#fffaf2;color:#354039;border-radius:13px;padding:11px;font-size:16px}#suppliesView .supplyEdit button{border:0;border-radius:13px;padding:10px 13px;background:#c96f43;color:white;font-weight:850}</style><style>/* P19 emergency hit-test hardening */#bootCinematic[style*="display: none"],#bootCinematic[style*="display:none"],#cinematicIntro[style*="display: none"],#cinematicIntro[style*="display:none"]{pointer-events:none!important;visibility:hidden!important}.drawer:not(.open),.sideMenu:not(.open){pointer-events:none!important}.drawer:not(.open) .drawerShade,.sideMenu:not(.open) .sideShade{pointer-events:none!important}.bottleCelebrate:not(.show),#poopBurst:not(.go){pointer-events:none!important}button,nav button,.heroBtn,.careItem{touch-action:manipulation}/* P15 readability */#insightsView .muted,#insightsView .why,#suppliesView .muted,#suppliesView .why,#historyView .muted,#historyView .why{color:#575d58!important}#insightsView .card,#suppliesView .card,#historyView .card{color:#34423b!important}#insightsView .card p,#insightsView .card div:not(.chip),#suppliesView .card p,#historyView .card p{opacity:1}#drawer{transition:transform .3s cubic-bezier(.22,.8,.22,1),visibility .3s}#drawerShade{transition:opacity .25s ease}</style><style>
+/* P27 readability pass */
+#insightsView .note,#insightsView .muted,#insightsView p,#insightsView .why{color:#46544d!important;opacity:1!important}
+#suppliesView .note,#suppliesView .muted,#suppliesView p,#suppliesView .why{color:#53605a!important;opacity:1!important}
+#suppliesView .tiny{color:#34463f!important;background:#f6efe5!important;border-color:#b9a88f!important;opacity:1!important}
+#suppliesView .chip{color:#f4eadb!important;background:#173c58!important;opacity:1!important}
+</style><style>
+/* P28 supplies hard contrast fix */
+#suppliesView button.tiny,
+#suppliesView .actions button,
+#suppliesView button[data-supply-edit],
+#suppliesView button[data-supply-remove]{
+ color:#263b34!important;
+ -webkit-text-fill-color:#263b34!important;
+ background:#f7efe4!important;
+ border:1.5px solid #aa987e!important;
+ opacity:1!important;
+ text-shadow:none!important;
+ font-weight:800!important
+}
+#suppliesView button[data-supply]{
+ color:#263b34!important;
+ -webkit-text-fill-color:#263b34!important
+}
+</style><style>
+#bootCinematic{position:fixed;inset:0;z-index:2147483600;background:#1d1814;overflow:hidden;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .55s ease}
+#bootCinematic.done{opacity:0;pointer-events:none}
+#bootCinematic .introBlur{position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);object-fit:cover;filter:blur(22px) brightness(.52);transform:scale(1.08)}
+#bootCinematic .introMain{position:relative;width:100%;height:100%;object-fit:contain;z-index:1}
+#bootCinematic .introSkip{position:absolute;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:3;border:1px solid #ffffff66;background:#211a15aa;color:white;-webkit-text-fill-color:white;border-radius:999px;padding:10px 16px;font:700 15px -apple-system,BlinkMacSystemFont,sans-serif;backdrop-filter:blur(12px)}
+</style><style>
+/* P30 global warm-theme contrast audit. Keep intentional dark/nav/intro controls light. */
+body{color:#34423b}
+.view,.card,.entry,.note,.why,.muted,.smartItem,.clarify,.historyDay,.lbRow,.scheduleMonth{color:#34423b}
+.card h1,.card h2,.card h3,.entry b,.smartItem .label,.clarify .q,.historyDay b,.lbRow b{color:#304038!important;-webkit-text-fill-color:#304038!important}
+.view .muted,.view .why,.view .note,.view .sub,.view small{color:#56625c!important;-webkit-text-fill-color:#56625c!important;opacity:1!important}
+.view button:not(.confirm):not(.smartSave):not(.careHead):not(.introSkip),
+.drawer button:not(.confirm),.sideMenu button:not(.confirm){
+ color:#304038!important;-webkit-text-fill-color:#304038!important
+}
+.view .tiny,.view .choice,.view .clarifyBtns button,.view .scheduleNav button,.view .scheduleToday,.view .lbTabs button{
+ color:#304038!important;-webkit-text-fill-color:#304038!important;background:#f7efe4!important;border-color:#aa987e!important;opacity:1!important
+}
+.view input,.view textarea{color:#304038!important;-webkit-text-fill-color:#304038!important}
+.view input::placeholder,.view textarea::placeholder{color:#6c746f!important;-webkit-text-fill-color:#6c746f!important;opacity:1}
+.view .chip{color:#34423b!important;-webkit-text-fill-color:#34423b!important}
+.view .confirm,.view .smartSave{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
+nav,nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
+.sideMenu,.sideMenu *,.drawer,.drawer *{--menuText:#f7f1e8}
+.sideMenu .sidePanel,.drawer .drawerPanel{color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
+.sideMenu .sidePanel *,.drawer .drawerPanel *{color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
+#patchBadge,#bootCinematic .introSkip{color:#fff8ee!important;-webkit-text-fill-color:#fff8ee!important}
+</style><style>
+/* P31 schedule contrast */
+#scheduleView #scheduleList,#scheduleView #scheduleList *{color:#34423b!important;-webkit-text-fill-color:#34423b!important;opacity:1!important}
+#scheduleView #scheduleList .note,#scheduleView #scheduleList .muted{color:#56625c!important;-webkit-text-fill-color:#56625c!important}
+#scheduleView .scheduleNav button{background:#173c58!important;color:#f7f1e8!important;-webkit-text-fill-color:#f7f1e8!important}
+</style><style id="luca-family-mobile-fix">
+#chatView .card,#profileView .card{min-width:0}
+body:has(#chatView.active) #careDock,body:has(#profileView.active) #careDock{display:none!important}
+#chatView .card label,#profileView .card label{display:block!important;width:100%!important;margin:14px 0 6px!important;position:static!important;float:none!important;transform:none!important}
+#chatView textarea,#profileView input,#profileView textarea,#profileView select{display:block!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0 0 12px!important;position:static!important;float:none!important;transform:none!important;font-size:16px!important}
+#chatView #familyChatFeed{min-height:72px!important;max-height:32vh!important;overflow-y:auto}
+#profileView #familyProfileList{overflow-wrap:anywhere;word-break:break-word}
+#profileView #familyProfileList strong{overflow-wrap:anywhere;word-break:break-word}
+#chatView .card,#profileView .card{padding-bottom:20px}
+#chatView .confirm,#profileView .confirm{width:100%;max-width:100%}
+@media(max-width:600px){
+nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:none;gap:4px!important}
+nav button{flex:0 0 auto!important;min-width:66px!important;padding:8px 10px!important}
+#chatView,#profileView{padding-bottom:110px}
+}
+
+/* P89: final-cascade mobile legibility repair, based on iPhone screenshots. */
+#sideMenu .sidePanel{background:#f8f0e5!important;color:#29423d!important;-webkit-text-fill-color:#29423d!important;box-shadow:8px 0 30px #0003}
+#sideMenu .sidePanel .kicker,#sideMenu .sidePanel h1,#sideMenu .sidePanel .muted,#sideMenu .sidePanel .why,#sideMenu .sidePanel .lastFeed{color:#29423d!important;-webkit-text-fill-color:#29423d!important}
+#sideMenu .sidePanel .card{background:#fffaf3!important;border:1px solid #dfcbb6!important;box-shadow:none!important}
+#sideMenu .sidePanel .menuRow{background:#e9ded0!important;border:1px solid #d6c5b2!important;color:#29423d!important;-webkit-text-fill-color:#29423d!important;font-weight:700!important;line-height:1.3;min-height:48px}
+#sideMenu .sidePanel .menuRow:focus-visible,#sideMenu .sidePanel .menuRow:active{background:#dfcdb7!important}
+#sideMenu #closeMenu{background:#fffaf3!important;border:1px solid #d6c5b2!important;color:#29423d!important;-webkit-text-fill-color:#29423d!important}
+#timelineDrawer #closeDrawer{background:#fffaf3!important;border:1px solid #d6c5b2!important;color:#29423d!important;-webkit-text-fill-color:#29423d!important}
+#timelineDrawer #drawerOpenChat{color:#29423d!important;-webkit-text-fill-color:#29423d!important}
+nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;overflow:visible!important;gap:2px!important;align-items:center!important;padding:6px 6px calc(6px + env(safe-area-inset-bottom))!important;min-height:0!important}
+nav button,nav #navMore{flex:initial!important;min-width:0!important;width:100%!important;min-height:52px!important;padding:6px 1px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:clamp(10px,2.8vw,12px)!important;line-height:1.1!important;white-space:nowrap}
+nav button b{font-size:19px!important;line-height:1!important;margin:0!important}
+nav .navHome{min-height:62px!important;padding:8px 1px!important}
+nav .navHome b{font-size:23px!important}
+nav .navHidden{display:none!important}
+/* Large iOS text and Display Zoom: avoid clipping and preserve tap targets. */
+@media(max-width:390px){nav{width:calc(100% - 14px)!important;gap:0!important;padding-left:4px!important;padding-right:4px!important}nav button{font-size:clamp(11px,2.9vw,14px)!important}}
+@media (prefers-reduced-motion:reduce){.sidePanel,.drawerPanel,nav button{transition:none!important}}
+nav button{overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;min-height:56px!important;line-height:1.2!important}
+nav .navHome{min-height:64px!important}
+#sideMenu .sidePanel .menuRow{font-size:max(1rem,16px)!important;white-space:normal!important;overflow-wrap:anywhere!important;min-height:52px!important}
+#sideMenu .sidePanel{overflow-y:auto!important;overscroll-behavior:contain}
+@media(max-width:350px){nav button{font-size:11px!important;letter-spacing:-.15px!important}nav button b{font-size:18px!important}nav{gap:0!important}}
+
+
+/* P97: one navigation surface across every tab, including Today. */
+nav,nav{background:#17232c!important;border:1px solid #34454d!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;left:50%!important;bottom:0!important;width:min(520px,100%)!important;box-shadow:0 -5px 24px #0002!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+nav button,nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
+nav button.active,nav button.active{background:#e5c88b!important;color:#233a35!important;-webkit-text-fill-color:#233a35!important;box-shadow:0 3px 12px #0003!important}
+nav .navHome:not(.active),nav .navHome:not(.active){background:transparent!important;color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important;box-shadow:none!important}
+@media(max-width:390px){nav,nav{width:100%!important}}
+
+/* P99: accessible expandable daily event details. */
+#history details.historyDay{border-top:1px solid #8c7c6b28;padding:0}
+#history details.historyDay:first-child{border-top:0}
+#history .historyDay summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;padding:16px 0;min-height:72px}
+#history .historyDay summary::-webkit-details-marker{display:none}
+#history .historyDay summary>span:first-child{display:grid;gap:3px;min-width:0}
+#history .historyDay summary .muted{display:block;line-height:1.4}
+#history .historyChevron{font-size:24px;flex-shrink:0;transition:transform .15s}
+#history details[open] .historyChevron{transform:rotate(180deg)}
+#history .historyEvents{list-style:none;margin:0 0 14px;padding:0 0 0 12px;border-left:2px solid #b89a70}
+#history .historyEvent{padding:11px 10px;border-bottom:1px solid #8c7c6b22;line-height:1.45;overflow-wrap:anywhere}
+#history .historyEvent:last-child{border-bottom:0}
+#history .historyNote{margin-top:4px;white-space:pre-wrap}
+
+#history .historyEventActions{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap}
+#history .historyEventActions button{min-height:44px;min-width:84px;padding:8px 14px;border-radius:12px;background:#e9dfd1;border:1px solid #a68b70;color:#263c36;-webkit-text-fill-color:#263c36;font:700 15px/1.2 system-ui}
+#history .historyEventActions button[data-history-delete]{background:#f3dfd7;border-color:#c99b8a;color:#783b2c;-webkit-text-fill-color:#783b2c}
+
+/* P107: compact title remains in normal flow; never overlays care controls. */
+.persistentTitle{position:relative!important;top:auto!important;z-index:2!important;width:fit-content!important;max-width:100%!important;min-height:0!important;margin:0 0 9px!important;padding:6px 10px!important;font-size:clamp(13px,3.6vw,16px)!important;line-height:1.2!important;box-sizing:border-box!important}
+.persistentTitle .titleL{width:25px!important;height:25px!important;margin-right:5px!important;border-width:2px!important;font-size:19px!important;flex-shrink:0}
+@media(max-width:390px){.persistentTitle{padding:5px 8px!important;font-size:13px!important}}
+/* P110: lighter, compact navigation; remove permanent navy slab. */
+nav,nav{background:#f9f5eefa!important;border:1px solid #d8cdbd!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;box-shadow:0 -3px 16px #342d241a!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;align-items:center!important}
+nav button,nav button{min-height:48px!important;padding:5px 2px!important;border-radius:12px!important;color:#52615b!important;-webkit-text-fill-color:#52615b!important;font-size:11px!important;line-height:1.15!important}
+nav button b,nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
+nav button.active,nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
+nav .navHome:not(.active),nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
+/* P112: compact Today quick entry; remove forced 70vh height. */
+#todayView .quickhome{min-height:0!important;height:auto!important;padding-bottom:12px!important}
+#todayView .heroNext{padding-bottom:8px!important}
+#todayView .heroInput textarea{min-height:76px!important}
+#todayView .heroBtn{min-height:64px!important}
+/* P119: restore top Bottle and Poop shortcuts on current main. */
+#todayView .todayTopQuick{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#todayView .todayTopQuick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:56px;min-height:56px;padding:6px 8px;border-radius:16px;border:1px solid #d6b99e;background:#f0dfce;color:#37453d!important;-webkit-text-fill-color:#37453d!important;font-size:23px;box-shadow:0 3px 10px #6b4c2920}
+#todayView .todayTopQuick button small{font-size:11px;font-weight:750}
+@media(max-width:350px){#todayView .todayTopQuick{gap:5px}#todayView .todayTopQuick button{min-width:49px;padding:5px}}
+/* P126: compact one-tap bottle picker, hidden until explicitly opened. */
+#quickBottlePicker[hidden]{display:none!important}
+#quickBottlePicker{margin:8px 0 12px;padding:14px!important}
+#quickBottlePicker .quickBottleHeading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#quickBottlePicker .quickBottleAmounts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:10px}
+#quickBottlePicker .quickBottleAmounts button{min-height:56px;padding:8px 2px;border:1px solid #c9a88a;border-radius:12px;background:#f3dfc6;color:#30473d;font-weight:800;font-size:15px}
+#quickBottlePicker .quickBottleAmounts button:disabled{opacity:.5}
+.buildVersion{display:inline-block;vertical-align:middle;margin-left:5px;padding:3px 7px;border:1px solid #c8b69a;border-radius:9px;background:#f5e7d1;color:#34483f;font-size:11px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+/* Care forms remain unobstructed on phones. */
+.toast{pointer-events:none}.toast.on:has(button){pointer-events:auto}
+.syncDot{display:block;width:100%;min-height:44px;border:1px solid #c8b69a;border-radius:12px;background:#f5e7d1;color:#34483f;font:inherit;font-size:12px;padding:8px}
+.syncDot[data-state="pending"]{background:#f6dfbe}
+#chatPeekTab{top:auto!important;bottom:calc(180px + env(safe-area-inset-bottom))!important;right:0!important;min-height:46px!important;min-width:42px!important;border-radius:14px 0 0 14px!important}
+body:has(#careDock.open) #chatPeekTab,body:has(#chatView.active) #chatPeekTab,body:has(#manualComposer:not(.hiddenOldComposer)) #chatPeekTab,body:has(#manualComposer:not(.hiddenOldComposer)) #careDock{display:none!important}
+#manualComposer[data-editing="true"]{border:2px solid #a56739;box-shadow:0 0 0 4px #a5673920}
+/* P103: iPhone editor contrast, including native date/time controls. */
+#manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
+#manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
+#manualComposer #date::-webkit-date-and-time-value,#manualComposer #time::-webkit-date-and-time-value{color:#243b35!important;-webkit-text-fill-color:#243b35!important}
+#manualComposer .field>label{color:#31473f!important;-webkit-text-fill-color:#31473f!important}
+#manualComposer #saveEntry{color:#183b35!important;-webkit-text-fill-color:#183b35!important;font-weight:850!important}
+</style><link rel="stylesheet" href="./agents/ui-polish.css?v=136"></head><body id="lucaApp"><aside id="demoNotice" class="demoNotice"><div><strong>Practice mode · sample data</strong><small>Edits stay in this playground. Your family history is untouched.</small></div><button type="button" id="demoReset">Reset demo</button></aside><div id="bootCinematic" aria-label="Luca's Growth Guide intro">
+<video class="introBlur" muted playsinline preload="auto"><source src="./E9DA13A0-0FD4-4A73-8E0C-793CC4ECAE70.mov" type="video/mp4"></video>
+<video class="introMain" muted playsinline preload="auto"><source src="./E9DA13A0-0FD4-4A73-8E0C-793CC4ECAE70.mov" type="video/mp4"></video>
+<button class="introSkip" type="button">Skip</button>
+</div><div class="milkMeter" id="milkMeter" title="Today’s bottles"><div class="milkBottle"><div class="milkFill" id="milkFill"></div></div><div class="milkAmt" id="milkAmt">0 oz</div><div class="milkGoal" id="milkGoal">today</div></div><aside class="careDock" id="careDock"><button class="careHead" id="careHead">🧸<span class="dockLabel"> Luca Today</span></button><div class="careItems"><div class="careItem" id="careMilk"><div class="careEmoji">🍼</div><div class="careInfo"><b id="dockMilk">0 oz</b><small id="dockMilkSub">today</small><div class="miniTrack"><div class="miniFill" id="dockMilkFill"></div></div><small id="dockMilkScale">0 · 8 · 16 · 24 · 32 oz</small></div></div><div class="careItem" id="careSolids"><div class="careEmoji">🥣</div><div class="careInfo"><b id="dockSolids">0 meals</b><small>solids today</small><div class="miniTrack"><div class="miniFill" id="dockSolidsFill"></div></div></div></div><div class="careItem" id="careWater"><div class="careEmoji">💧</div><div class="careInfo"><b id="dockWater">0 logged</b><small>water today</small></div></div><div class="careItem" id="carePoop"><div class="careEmoji">💩</div><div class="careInfo"><b id="dockPoop">0 poops</b><small>today · tap for fun</small></div></div></div></aside><div class="bottleCelebrate" id="bottleCelebrate"><div class="bigBottle"><div class="bigMilk" id="bigMilk"></div></div><div class="bigOz" id="bigOz"></div></div><div class="poopBurst" id="poopBurst">💨💩</div><main class="app"><div class="persistentTitle"><button type="button" class="titleL" aria-label="Luca block">L</button>uca’s Growth Guide <span id="buildVersion" class="buildVersion" title="Version included in this loaded app">P136</span></div>
+<section id="authGate" class="card" style="display:none;margin-top:10px;position:relative"><button id="dismissSync" class="syncClose" aria-label="Close">×</button><h2>Family sync</h2><div id="authStatus" class="note">Checking sign-in…</div><div id="authForm" style="display:none"><div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"></div><button id="emailLogin" class="confirm">Email me a sign-in link</button><div class="why" style="margin-top:8px">Tap the email link, let it finish signing in in Safari, then return here and tap “Finish family sync.”</div><button id="finishSync" class="tiny" style="margin-top:10px;width:100%">Finish family sync</button></div><div id="joinForm" style="display:none"><div class="field"><label>Family code</label><input id="joinCode" autocapitalize="characters" placeholder="Enter family code"></div><button id="joinFamily" class="confirm">Join Luca's family</button></div><div id="syncReady" style="display:none"><div class="chips"><span class="chip">☁️ Shared family timeline</span></div><button id="signOut" class="tiny" style="margin-top:9px">Sign out</button></div></section><section id="todayView" class="view active"><header class="top"><div><h1>Today</h1></div><div class="todayTopQuick" aria-label="Quick care logging"><button type="button" id="topQuickBottle" aria-label="Quick Bottle" aria-haspopup="dialog" aria-expanded="false" aria-controls="quickBottlePicker">🍼<small>Bottle</small></button><button type="button" id="topQuickPoop" aria-label="Quick Poop" aria-haspopup="dialog" aria-expanded="false" aria-controls="quickPoopPicker">💩<small>Poop</small></button></div></header>
+<section class="card compactTodayStats" aria-label="Today at a glance"><div class="stats"><div class="stat"><b id="oz">0</b><small>oz today</small></div><div class="stat"><b id="feeds">0</b><small>feeds</small></div><div class="stat"><b id="poops">0</b><small>poops</small></div></div><div class="hiddenOldComposer" aria-hidden="true"><span id="next">—</span><span id="why">Log feeds and Luca's personal rhythm will appear here.</span></div></section>
+
+<button type="button" id="starterCardTeaser" class="starterCardTeaser" hidden>✦ Your first calling card is ready</button><div class="quickhome"><div class="heroNext"><div class="muted">Estimated next bottle</div><div class="next" id="heroNext">—</div><div class="why" id="heroWhy">Luca's rhythm will appear here.</div></div><div class="heroInput"><h2>What happened?</h2><div class="microw"><textarea id="quickText" placeholder="9:15, 7oz, big poop, low on formula…"></textarea><button id="voiceBtn" class="mic">🎙️</button></div><button id="quickUnderstand" class="confirm">Enter</button><div id="inlineClarify" class="inlineClarify"><div id="inlineItems"></div><button id="inlineSave" class="smartSave">✓ Save</button><button id="inlineCancel" class="tiny">Cancel</button></div><div class="heroBtns"><button class="heroBtn" data-quick="8 oz"><span>🍼</span>Bottle</button><button class="heroBtn" data-quick="poop"><span>💩</span>Poop</button><button class="heroBtn" data-quick="nap"><span>😴</span>Sleep</button><button class="heroBtn" data-quick="solids"><span>🥣</span>Food</button><button class="heroBtn" data-quick="medicine"><span>💊</span>Medicine</button><button class="heroBtn" id="moreBtn"><span>•••</span>More</button></div><button id="syncDot" type="button" class="syncDot" aria-label="Refresh family timeline" aria-live="polite">Checking family sync…</button></div></div><section class="card hiddenOldComposer" id="smartCard"><h2>Smart entry</h2><div class="smartbox"><div class="field" style="margin-top:0"><label>Type it the way you'd text it</label><textarea id="smartText" placeholder="9:45, 4oz (had earlier yogurt). Walk, play, big poop, nap @10:30-12:40…"></textarea></div><div class="smartActions"><button id="smartParse" class="confirm" style="margin-top:0">Understand this</button><button id="smartClear" class="tiny">Clear</button></div><div id="smartPreview" class="smartPreview"><div class="muted" style="font-size:12px">I understood:</div><div id="smartItems"></div><button id="smartSave" class="smartSave">✓ Looks right — save all</button><button id="smartFix" class="tiny" style="width:100%;margin-top:8px">✏️ Something is wrong</button><div id="smartHint" class="why" style="margin-top:8px">No chat required. Tap the choices shown on anything uncertain.</div></div></div></section>
+<section id="sleepComposer" class="card" hidden aria-label="Sleep entry"></section>
+<section class="card hiddenOldComposer" id="manualComposer"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 id="composerTitle">Add entry</h2><button type="button" id="closeComposer" class="tiny" aria-label="Close entry form" style="min-width:76px">✕ Close</button></div><div class="choices"><button class="choice" data-oz="4">4 oz</button><button class="choice" data-oz="5">5 oz</button><button class="choice" data-oz="6">6 oz</button><button class="choice" data-oz="7">7 oz</button><button class="choice" data-oz="8">8 oz</button></div><div class="choices" style="margin-top:8px"><button class="choice multi" data-tag="poop"><span>💩</span><small>Poop</small></button><button class="choice multi" data-tag="happy"><span>😊</span><small>Happy</small></button><button class="choice multi" data-tag="cranky"><span>😣</span><small>Cranky</small></button><button class="choice multi" data-tag="sleep"><span>🌙</span><small>Sleep</small></button></div><div class="choices" style="margin-top:8px"><button class="choice multi" data-tag="solids"><span>🥣</span><small>Solids</small></button><button class="choice multi" data-tag="medicine"><span>💊</span><small>Medicine</small></button><button class="choice multi" data-tag="activity"><span>🧸</span><small>Activity</small></button><button class="choice multi" data-tag="other"><span>＋</span><small>Other</small></button></div>
+<div class="field"><label>Who was with Luca?</label><div class="choices caregiver"><button class="choice person" data-person="Maddie">Maddie</button><button class="choice person" data-person="Sam">Sam</button><button class="choice person" data-person="Nona">Nona</button><button class="choice person" data-person="Jay">Jay</button></div><div class="choices caregiver" style="margin-top:8px"><button class="choice person" data-person="Boppa">Boppa</button><button class="choice person" data-person="Other">Other</button></div><input id="otherPerson" type="text" placeholder="Type another name…" style="display:none;margin-top:8px"></div><div class="field"><label>Notes / details</label><textarea id="notes" placeholder="e.g. huge poop, ate peas, playful afterward…"></textarea></div><div id="poopDetails" class="field" style="display:none"><label for="poopSize">💩 Poop size: <strong id="poopSizeLabel">Medium</strong></label><input id="poopSize" type="range" min="1" max="5" value="3" step="1" style="width:100%;accent-color:#ad6b40"><div class="muted" style="display:flex;justify-content:space-between"><small>Smear</small><small>Diaper disaster</small></div><label style="display:flex;align-items:center;gap:9px;margin-top:10px"><input type="checkbox" id="poopWet" style="width:20px;height:20px"> Wet / messy</label></div><div class="field" id="eventTimePicker"><label for="time">When did this happen? <strong>(tap to change)</strong></label><div class="timegrid"><input id="date" type="date" aria-label="Event date"><input id="time" type="time" aria-label="Event time"></div><div class="why" style="margin-top:6px">Defaults to now. Choose an earlier date or time before confirming.</div></div><button id="saveEntry" class="confirm">Confirm entry</button><button id="discardComposer" type="button" class="tiny" style="width:100%;margin-top:8px">Cancel / discard entry</button><button id="cancelEdit" class="tiny" style="display:none;width:100%;margin-top:8px">Cancel editing</button></section>
+<section class="card" id="sleepCheckinCard" hidden><h2>🌅 How did Luca sleep?</h2><p class="why" id="sleepCheckinIntro"></p><div class="field"><label for="sleepWakeTime">When did he wake up?</label><input type="time" id="sleepWakeTime"></div><div class="field"><label for="sleepWakeups">Wake-ups overnight (if known)</label><select id="sleepWakeups"><option value="">Not sure</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6+</option></select></div><div class="field"><label for="sleepAwakeMinutes">Minutes awake overnight (optional)</label><input id="sleepAwakeMinutes" type="number" min="0" max="480" inputmode="numeric" placeholder="Leave blank if unsure"></div><div class="field"><label for="sleepQuality">How was his sleep?</label><select id="sleepQuality"><option value="unknown">Not sure</option><option value="restful">Pretty good</option><option value="mixed">Up and down</option><option value="rough">Rough night</option></select></div><button class="confirm" id="saveSleepCheckin" type="button">Save morning sleep check-in</button><button class="tiny" id="dismissSleepCheckin" type="button">Not now</button><p class="why">Sleep duration is estimated from bedtime to wake time, not uninterrupted sleep. No leaderboard points.</p></section>
+<section class="card" id="sleepCheckinCard" hidden><h2>🌅 How did Luca sleep?</h2><p class="why" id="sleepCheckinIntro"></p><div class="field"><label for="sleepWakeTime">When did he wake up?</label><input type="time" id="sleepWakeTime"></div><div class="field"><label for="sleepWakeups">Wake-ups overnight (if known)</label><select id="sleepWakeups"><option value="">Not sure</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6+</option></select></div><div class="field"><label for="sleepAwakeMinutes">Minutes awake overnight (optional)</label><input id="sleepAwakeMinutes" type="number" min="0" max="480" inputmode="numeric" placeholder="Leave blank if unsure"></div><div class="field"><label for="sleepQuality">How was his sleep?</label><select id="sleepQuality"><option value="unknown">Not sure</option><option value="restful">Pretty good</option><option value="mixed">Up and down</option><option value="rough">Rough night</option></select></div><button class="confirm" id="saveSleepCheckin" type="button">Save morning sleep check-in</button><button class="tiny" id="dismissSleepCheckin" type="button">Not now</button><p class="why">Sleep duration is estimated from bedtime to wake time, not uninterrupted sleep. No leaderboard points.</p></section><section class="card"><h2>Today's timeline</h2><div id="timeline" class="muted">Nothing logged yet.</div></section></section>
+<section id="insightsView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Insights</h1></div><div class="icon">✦</div></header><section class="card"><h2>Today's pattern</h2><div id="insight" class="note"></div></section><section class="card"><h2>🌙 Luca's sleep patterns</h2><div class="why">Based only on logged sleep. Missing nights are not counted as zero. Nighttime totals are time in bed unless awake time is supplied.</div><div class="row" style="gap:8px;margin:12px 0"><button class="tiny" id="sleep7" type="button" aria-pressed="true">7 days</button><button class="tiny" id="sleep30" type="button" aria-pressed="false">30 days</button></div><div id="sleepTrends" class="note" aria-live="polite">Waiting for sleep entries…</div></section><section class="card"><h2>Patterns worth noticing</h2><div id="insightTrends" class="note" aria-live="polite">Checking recent entries…</div></section></section>
+<section id="suppliesView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Supplies</h1></div><div class="icon">🛒</div></header><section class="card"><h2>Baby supplies</h2><div class="why">Tap Running low so everyone knows what Luca needs.</div><div id="supplyList" style="margin-top:10px"></div></section></section>
+<section id="scheduleView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>📅 Luca Schedule</h1></div><div class="icon">📅</div></header><section class="card"><div class="scheduleNav"><button id="schedulePrev" aria-label="Previous week">‹</button><div id="scheduleMonth" class="scheduleMonth">—</div><button id="scheduleNext" aria-label="Next week">›</button></div><button id="scheduleToday" class="scheduleToday">Jump to this week</button><div class="why">Plan this week together. Tap a day to edit work hours or childcare coverage.</div><div id="scheduleList" style="margin-top:10px"></div></section></section><section id="leaderboardView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>🏆 Leaderboard</h1></div><div class="icon">🏆</div></header><section class="card"><div class="lbTabs"><button id="lbWeek" class="tiny">This week</button><button id="lbAll" class="tiny">All time</button></div><div class="why">Care credit is based on who actually handled the event. Bottles, food and medicine: 1 point each. Poop diapers: 3 points. Naps and nighttime sleep: 0 points.</div><div id="leaderboard" style="margin-top:10px"></div></section></section><section id="chatView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Family Chat</h1></div><div class="icon">💬</div></header><section class="card"><div class="muted" style="margin-bottom:12px">Private messages for your family. Messages do not automatically create baby logs.</div><div id="familyChatFeed" aria-live="polite" style="min-height:180px;max-height:48vh;overflow-y:auto"></div><div class="chatAttach"><button id="familyChatAttach" type="button" class="tiny">📎 Add photo, GIF or video</button><input id="familyChatMedia" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" hidden aria-label="Select family chat photo, GIF or video"><span id="familyChatMediaPreview" class="why" role="status"></span></div><label for="familyChatText" class="muted">Message</label><div class="chatComposer"><textarea id="familyChatText" maxlength="2000" rows="2" placeholder="Message your family…" aria-label="Message your family"></textarea><button id="familyChatSend" class="confirm" type="button" aria-label="Send message">➤ <span>Send</span></button></div><div id="familyChatStatus" class="muted" role="status"></div></section></section><section id="ideasView" class="view"><header class="top"><div><div class="kicker">Make Luca better together</div><h1>Family Ideas 💡</h1></div></header><section class="card"><p>Share improvements, bugs, and design ideas. Family posts are visible to signed-in family members; private posts are visible only to you. Agents do not have access to private posts.</p><div id="familyIdeasRoot"></div></section></section><section id="profileView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>Family Profiles</h1></div><div class="icon">🧸</div></header><section class="card"><h2>Family members</h2><div id="familyProfileList"></div></section><section class="card"><h2>My profile</h2><button type="button" id="profileAchievements" class="profileAchievementLink">✦ Achievements &amp; banners <span aria-hidden="true">↗</span></button><label for="profileName">Display name</label><input id="profileName" maxlength="40" placeholder="Your name"><label for="profileBio">About me</label><textarea id="profileBio" maxlength="160" rows="2" placeholder="Optional short bio"></textarea><label for="profileAvatar">Choose an avatar</label><select id="profileAvatar"><option value="bear">🧸 Teddy bear</option><option value="fox">🦊 Fox</option><option value="bunny">🐰 Bunny</option><option value="duck">🐥 Duck</option><option value="owl">🦉 Owl</option><option value="lion">🦁 Lion</option><option value="panda">🐼 Panda</option><option value="koala">🐨 Koala</option><option value="penguin">🐧 Penguin</option><option value="dino">🦕 Dinosaur</option><option value="robot">🤖 Robot</option><option value="astronaut">👨‍🚀 Astronaut</option><option value="sun">☀️ Sunshine</option><option value="star">⭐ Star</option></select><button class="confirm" id="profileSave" type="button">Save profile</button><div id="profileStatus" class="muted" role="status"></div><details class="utilityMenu"><summary>Tools & support</summary><div class="utilityLinks"><a href="#practice-backup" data-practice-backup>🆘 Backup text log</a><button type="button" id="profileReportIssue">⚑ Report a problem</button><button type="button" id="profileShareDemo">↗ Friend test link</button><input id="friendTestLink" readonly aria-label="Friend practice link" hidden></div></details><label for="profilePersonality">App personality</label><select id="profilePersonality"><option value="dark">After dark · diaper warfare</option><option value="gentle">Gentle · lighthearted</option><option value="off">Off · just the facts</option></select><div id="personalityPreview" role="status"></div><label for="profileSurprises">Little surprises</label><select id="profileSurprises"><option value="on">On · occasional Easter eggs</option><option value="off">Off · keep it calm</option></select><label for="profileClicks">Interface clicks</label><select id="profileClicks"><option value="on">Soft clicks</option><option value="off">Off</option></select><label for="profileSound">Sound effects</label><select id="profileSound"><option value="on">On — playful sounds</option><option value="off">Off — quiet mode</option></select><button class="tiny" type="button" id="profileSoundTest">🔊 Test chime</button><div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button class="tiny" type="button" id="profileGlugTest">🍼 Test glug-glug</button><button class="tiny" type="button" id="profileRefreshTest">🥤 Test pssst-ahh</button></div><label>Test a recorded fart <select id="profilePoopClip"><option value="random">🎲 Surprise me</option><option value="0">💨 Short</option><option value="1">💦 Wet</option><option value="2">☣️ Powerful</option><option value="3">🚨 Long</option></select></label><button class="tiny" type="button" id="profilePoopTest">💩 Play fart</button><div class="muted" id="profileSoundStatus" role="status"></div></section></section><section id="achievementsView" class="view"><header class="top"><div><div class="kicker">Small wins. Questionable glory.</div><h1>Achievements</h1></div><div class="icon">✦</div></header><section class="card"><div id="achievementsRoot" aria-live="polite">Sign in to collect your banners.</div></section></section><section id="historyView" class="view"><header class="top"><div><div class="kicker">Luca's Growth Guide</div><h1>History</h1></div><div class="icon">◷</div></header><section class="card historyShell"><div class="historyToolbar"><label class="historySearchLabel" for="historySearch">Search your care journal</label><div class="historySearchRow"><input id="historySearch" type="search" placeholder="Notes, caregiver, or date…"><select id="historyKind" aria-label="Filter History by event"><option value="all">All care</option><option value="bottle">Bottles</option><option value="poop">Diapers</option><option value="sleep">Sleep</option></select></div><small id="historyCount" role="status"></small></div><div id="history" aria-live="polite">Loading history…</div></section></section>
+</main><div id="quickBottlePicker" class="quickPopover" hidden role="dialog" aria-label="Quick Bottle amount"><div class="quickBottleHeading"><button type="button" class="pickerTitle" id="bottleInspector" aria-label="Inspect bottle label">🍼 Bottle · log now</button><button id="quickBottleCancel" type="button" class="pickerClose" aria-label="Close Quick Bottle">×</button></div><div class="quickBottleAmounts"><button type="button" data-quick-oz="4">4<span>oz</span></button><button type="button" data-quick-oz="5">5<span>oz</span></button><button type="button" data-quick-oz="6">6<span>oz</span></button><button type="button" data-quick-oz="7">7<span>oz</span></button><button type="button" data-quick-oz="8">8<span>oz</span></button></div><small class="quickBottleCredit"></small><small class="pickerFoot">Tap an amount. Change the time later in History.</small></div>
+<div id="quickPoopPicker" class="quickPopover" hidden role="dialog" aria-label="Quick Poop"><div class="quickBottleHeading"><strong>💩 Diaper duty</strong><button id="quickPoopCancel" type="button" class="pickerClose" aria-label="Close Quick Poop">×</button></div><form id="quickPoopForm"><label for="quickPoopCaregiver">Who handled it?</label><select id="quickPoopCaregiver"></select><input id="quickPoopOther" maxlength="40" placeholder="Caregiver’s name" aria-label="Other caregiver" hidden><label for="quickPoopSize">Size · <strong id="quickPoopSizeLabel">Medium</strong></label><input id="quickPoopSize" type="range" min="1" max="5" step="1" value="3"><div class="quickPoopScale"><span>Smear</span><span>Diaper disaster</span></div><label class="quickWet"><input id="quickPoopWet" type="checkbox"> Wet / messy</label><button id="quickPoopSave" type="submit" class="confirm">Log diaper · now</button><small class="pickerFoot">No paperwork. Edit time or details in History.</small></form></div><div id="funStatus" class="funStatus" role="status" aria-live="polite"></div><div id="sideMenu" class="sideMenu"><div id="sideShade" class="sideShade"></div><div class="sidePanel"><button id="closeMenu" class="tiny">Close</button><div class="kicker" style="margin-top:20px">Luca</div><h1>Quick menu</h1><section class="card"><div class="muted">Last bottle</div><div id="menuLastFeed" class="lastFeed">—</div><div id="menuLastFeedWhy" class="why"></div></section><button id="menuRecents" class="menuRow">◷ &nbsp; Recents / today's timeline</button><button id="menuInsights" class="menuRow">✦ &nbsp; Insights</button><button id="menuSchedule" class="menuRow">📅 &nbsp; Luca Schedule</button><button id="menuLeaderboard" class="menuRow">🏆 &nbsp; Luca's Leaderboard</button><button id="menuSupplies" class="menuRow">🛒 &nbsp; Supplies</button><button id="menuIdeas" class="menuRow">💡 &nbsp; Family Ideas</button><button id="menuFamily" class="menuRow">🧸 &nbsp; Family &amp; avatars</button><button id="menuAchievements" class="menuRow">✦ &nbsp; Achievements &amp; banners</button><button id="menuHistory" class="menuRow">◷ &nbsp; Full history</button></div></div><div id="timelineDrawer" class="drawer" role="dialog" aria-modal="true" aria-label="Family chat preview"><div id="drawerShade" class="drawerShade"></div><div class="drawerPanel"><button id="closeDrawer" class="tiny" type="button">Close</button><div class="kicker">FAMILY</div><h1>💬 Chat peek</h1><p class="why">Latest messages from your family</p><div id="drawerChatPreview" aria-live="polite">Open to see recent messages.</div><button id="drawerOpenChat" class="confirm" type="button">Open family chat</button></div></div><button id="chatPeekTab" type="button" aria-label="Peek at family chat"><span>💬</span><span id="chatUnreadBadge" hidden></span></button><div id="pullRefresh" class="pullrefresh">↓ Pull to refresh</div><div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div><nav aria-label="Main navigation"><button data-tab="insights"><b>✦</b>Insights</button><button data-tab="history"><b>◷</b>History</button><button class="active navHome" data-tab="today" aria-label="Today, home"><b>⌂</b>Today</button><button data-tab="chat"><b>💬</b>Chat</button><button id="navMore" type="button" aria-label="More sections" aria-expanded="false"><b>☰</b>More</button><button class="navHidden" data-tab="supplies" tabindex="-1" aria-hidden="true"><b>🛒</b>Supplies</button><button class="navHidden" data-tab="ideas" tabindex="-1" aria-hidden="true"><b>💡</b>Ideas</button><button class="navHidden" data-tab="achievements" tabindex="-1" aria-hidden="true">✦ Achievements</button><button class="navHidden" data-tab="profile" tabindex="-1" aria-hidden="true"><b>🧸</b>Family</button></nav>
+<script>
+if(!window.LucaDemo?.ready)throw new Error("Practice storage could not be isolated");const SUPABASE_URL="",SUPABASE_KEY="";let sb=window.LucaDemo.client;let syncUser=null,syncBaby=null,syncFamily=null,syncChannel=null,supplyChannel=null,supplies=[];
+window.addEventListener("luca:chat-session-request",e=>{if(typeof e.detail==="function")e.detail({client:sb,family:syncFamily,user:syncUser?.id||null})});
+async function ensureMyFamilyProfile(){
+ if(!sb||!syncFamily||!syncUser?.id)return;
+ const raw=String(syncUser.user_metadata?.display_name||syncUser.email?.split("@")[0]||"Family member");
+ const display_name=raw.trim().slice(0,40)||"Family member";
+ const {error}=await sb.from("family_profiles").upsert({family_id:syncFamily,user_id:syncUser.id,display_name,avatar_preset:"bear"},{onConflict:"family_id,user_id",ignoreDuplicates:true});
+ if(error)throw error;
+ const {error:heartbeatError}=await sb.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",syncFamily).eq("user_id",syncUser.id);
+ if(heartbeatError)console.warn("Profile heartbeat unavailable",heartbeatError.message);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ensureMyFamilyProfile().catch(()=>{})});
+let syncPromptTimer=null;function showSync(mode,msg){let gate=$("#authGate"),hidden=mode==="ready"||sessionStorage.getItem("hideSync")==="1";gate.style.display="none";$("#syncDot").textContent=mode==="ready"?"↻ Refreshing timeline…":"Saved on this phone · connect family sync";$("#authStatus").textContent=msg||"";$("#authForm").style.display=mode==="login"?"block":"none";$("#joinForm").style.display=mode==="join"?"block":"none";$("#syncReady").style.display=mode==="ready"?"block":"none";clearTimeout(syncPromptTimer);if(!hidden)syncPromptTimer=setTimeout(()=>{if(sessionStorage.getItem("hideSync")!=="1")gate.style.display="block"},4500)}
+async function syncDeadline(task){let timer;try{return await Promise.race([task,new Promise((_,reject)=>{timer=setTimeout(()=>reject({code:"timeout"}),12000)})])}finally{clearTimeout(timer)}}
+let setupSyncFlight=null,channelBaby=null;
+function setupSync(){
+ if(setupSyncFlight)return setupSyncFlight;
+ setupSyncFlight=connectFamilySync().catch(err=>{
+  console.warn("Family sync unavailable",{code:err?.code||"network"});
+  $("#syncDot").textContent="Family sync unavailable — saved entries retained · tap to retry";return false;
+ }).finally(()=>{setupSyncFlight=null});return setupSyncFlight;
+}
+async function connectFamilySync(){
+ if(!sb){showSync("login","Family Sync is temporarily unavailable on this phone.");return false}
+ const {data:{user},error:authError}=await syncDeadline(sb.auth.getUser());
+ if(authError)throw authError;
+ syncUser=user;
+ if(!user){syncBaby=null;syncFamily=null;window.dispatchEvent(new Event("luca:session-changed"));showSync("login","Sign in to share Luca's timeline across the family.");return false}
+ const {data,error}=await syncDeadline(sb.rpc("my_family_setup"));if(error)throw error;
+ const family=data&&data[0];
+ if(!family?.baby_id){syncBaby=null;syncFamily=null;window.dispatchEvent(new Event("luca:session-changed"));showSync("join","Signed in. Enter the family code to join Luca's timeline.");return false}
+ syncBaby=family.baby_id;syncFamily=family.family_id;
+ window.dispatchEvent(new CustomEvent("luca:family-session-ready"));
+ showSync("ready","Connected as "+(user.email||"family member")+" ✓");
+ const timelineLoaded=await pullShared();
+ void ensureMyFamilyProfile().catch(()=>{});
+ void (async()=>{await ensureSupplies();await pullSupplies()})().catch(()=>{});
+ if($("#scheduleView").classList.contains("active"))void (window.pullSchedule||pullSchedule)().catch(()=>{});
+ if(channelBaby!==syncBaby){
+  if(syncChannel)void sb.removeChannel(syncChannel);
+  if(supplyChannel)void sb.removeChannel(supplyChannel);
+  channelBaby=syncBaby;
+  syncChannel=sb.channel("luca-events").on("postgres_changes",{event:"*",schema:"public",table:"baby_events",filter:"baby_id=eq."+syncBaby},()=>void pullShared()).subscribe();
+  supplyChannel=sb.channel("luca-supplies").on("postgres_changes",{event:"*",schema:"public",table:"family_supplies",filter:"family_id=eq."+syncFamily},()=>void pullSupplies()).subscribe();
+ }
+ return timelineLoaded;
+}
+async function ensureSupplies(){if(!syncFamily)return;let {data}=await sb.from("family_supplies").select("id").eq("family_id",syncFamily).limit(1);if(data&&data.length)return;for(let name of ["Formula","Water","Diapers","Wipes"]){await sb.from("family_supplies").insert({family_id:syncFamily,name,status:"good",updated_by:syncUser.id})}}
+async function pullSupplies(){if(!syncFamily){renderSupplies();return;}let {data,error}=await sb.from("family_supplies").select("*").eq("family_id",syncFamily).order("name");if(!error){supplies=data||[];let pending=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");for(let [name,status] of Object.entries(pending)){let item=supplies.find(x=>x.name.toLowerCase()===name.toLowerCase());if(item&&syncUser)await sb.from("family_supplies").update({status,updated_by:syncUser.id,updated_at:new Date().toISOString()}).eq("id",item.id)}if(Object.keys(pending).length&&syncUser){localStorage.removeItem("luca-pending-supplies");let r=await sb.from("family_supplies").select("*").eq("family_id",syncFamily).order("name");if(!r.error)supplies=r.data||[]}renderSupplies()}}
+function renderSupplies(){let el=$("#supplyList");if(!el)return;let pending=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");let local=Object.entries(pending).filter(([name])=>!supplies.some(s=>s.name.toLowerCase()===name.toLowerCase())).map(([name,status])=>({id:"local:"+name,name,status,local:true}));let shown=[...supplies,...local];el.innerHTML=shown.length?shown.map(s=>'<div class="entry"><div class="entrytop"><b>'+esc(s.name)+'</b><span class="chip">'+(s.status==="low"?"⚠️ Running low":s.status==="ordered"?"📦 Ordered":"✓ Good")+'</span></div><div class="actions"><button class="tiny" data-supply="'+(s.local?("local:"+s.name):s.id)+'" data-status="'+(s.status==="low"?"good":"low")+'">'+(s.status==="low"?"Restocked":"Running low")+'</button>'+(s.local?'<button class="tiny" data-supply-edit="'+esc(s.name)+'">Edit</button><button class="tiny" data-supply-remove="'+esc(s.name)+'">Remove</button>':"")+(s.product_url?'<button class="tiny" data-buy="'+esc(s.product_url)+'">Buy it</button>':"")+'</div></div>').join(""):'<div class="muted">No supply alerts yet. Say “formula low” from Luca.</div>';document.querySelectorAll("[data-supply]").forEach(b=>b.onclick=()=>setSupply(b.dataset.supply,b.dataset.status));document.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>window.open(b.dataset.buy,"_blank"));document.querySelectorAll("[data-supply-edit]").forEach(b=>b.onclick=()=>editLocalSupply(b.dataset.supplyEdit));document.querySelectorAll("[data-supply-remove]").forEach(b=>b.onclick=()=>removeLocalSupply(b.dataset.supplyRemove))}
+function addLocalSupply(name,status="good"){name=(name||"").trim();if(!name)return;let p=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");p[name]=status;localStorage.setItem("luca-pending-supplies",JSON.stringify(p));renderSupplies()}
+function editLocalSupply(name){let n=prompt("Edit supply name",name);if(!n||!n.trim()||n.trim()===name)return;let p=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}"),st=p[name]||"good";delete p[name];p[n.trim()]=st;localStorage.setItem("luca-pending-supplies",JSON.stringify(p));renderSupplies()}
+function removeLocalSupply(name){let p=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");delete p[name];localStorage.setItem("luca-pending-supplies",JSON.stringify(p));renderSupplies()}
+document.querySelector("#addSupply")?.addEventListener("click",()=>{let i=document.querySelector("#manualSupply");if(!i)return;let n=i.value.trim();if(!n)return toast("Type a supply first");addLocalSupply(n,"good");i.value="";toast(n+" added ✓")});
+async function setSupply(id,status){if(String(id).startsWith("local:")){let name=String(id).slice(6),pending=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");pending[name]=status;localStorage.setItem("luca-pending-supplies",JSON.stringify(pending));renderSupplies();return toast(status==="low"?name+" marked running low ✓":name+" marked restocked ✓")}if(!syncUser)return toast("Sign in first");let {error}=await sb.from("family_supplies").update({status,updated_by:syncUser.id,updated_at:new Date().toISOString()}).eq("id",id);if(error)return toast("Couldn't update supply");toast(status==="low"?"Everyone can see it's running low":"Marked restocked ✓");await pullSupplies()}
+function pullShared(){return careEvents.refresh()}
+function saveCareEvent(e){return careEvents.save(e)}
+function updateRemote(e){return saveCareEvent(e)}
+async function deleteRemote(id){const e=a.find(x=>String(x.id)===String(id));return e?careEvents.remove(e):false}
+const K="luca-log-v2";let a=JSON.parse(localStorage.getItem(K)||"null");if(!a){let old=JSON.parse(localStorage.getItem("luca-log-v1")||"[]");a=old.map(x=>({id:x.id||x.at,at:x.at,oz:x.type==="feed"?x.oz:null,tags:x.type!=="feed"?[x.type]:[],notes:""}));localStorage.setItem(K,JSON.stringify(a))}let ozPick=null,tags=new Set(),people=new Set(),editId=null;const $=s=>document.querySelector(s),day=x=>new Date(x).toDateString(),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const careEvents=LucaCareSync.create({
+ context:()=>({client:sb,baby:syncBaby,user:syncUser}),read:()=>a,
+ write:entries=>{a=entries;persist();render()},
+ status:({state,code,pending})=>{
+  const dot=$("#syncDot");dot.dataset.state=state;
+  dot.textContent=state==="synced"?"☁️ Timeline synced":state==="syncing"?"↻ Refreshing timeline…":state==="local"?"Saved on this phone · connect family sync":
+   (pending?"Saved on this phone · "+pending+" pending":"Timeline sync failed — cached history retained")+(code?" ("+code+")":"")+" · tap to retry";
+ }
+});
+function nowFields(d=new Date()){let z=n=>String(n).padStart(2,"0");$("#date").value=d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate());$("#time").value=z(d.getHours())+":"+z(d.getMinutes())}nowFields();setTimeout(()=>{try{renderSupplies()}catch(e){console.error(e)}},0);
+/* P85: same-minute bedtime entries are one logical log; never delete underlying history. */
+function bedtimeKey(e){
+ if(!(e.tags||[]).includes("sleep"))return null;
+ const txt=String(e.notes||"")+" "+String(e.sourceText||"");
+ if(!/(?:down for the night|going to (?:sleep|bed)|went to (?:sleep|bed)|nighttime bedtime|bedtime)/i.test(txt))return null;
+ const time=new Date(e.at);if(!Number.isFinite(time.getTime()))return null;
+ return Math.floor(time.getTime()/60000);
+}
+function visibleCareEvents(events){
+ const bedtimeSeen=new Map(),out=[];
+ for(const e of events){
+  const k=bedtimeKey(e);if(k==null){out.push(e);continue}
+  const prev=bedtimeSeen.get(k);
+  if(!prev){bedtimeSeen.set(k,e);out.push(e);continue}
+  const detail=x=>String(x.notes||"").trim().length;
+  if(detail(e)>detail(prev)){out[out.indexOf(prev)]=e;bedtimeSeen.set(k,e)}
+ }
+ return out;
+}
+function persist(){a.sort((x,y)=>new Date(y.at)-new Date(x.at));localStorage.setItem(K,JSON.stringify(a));window.dispatchEvent(new Event("luca:care-updated"))}let toastTimer;function toast(s,kind=""){let t=$("#toast");clearTimeout(toastTimer);t.textContent=s;const line=window.lucaFeedbackLine?.(kind);if(line){const quip=document.createElement("small");quip.className="toastQuip";quip.textContent=line;t.append(quip)}t.classList.add("on");toastTimer=setTimeout(()=>t.classList.remove("on"),4500)}
+let smartItems=[],smartSupplyItems=[];const CAREGIVERS=["Sam","Maddie","Nona","Jay","Boppa","Yolanda","Lindsay"];function deviceCaregiver(){return localStorage.getItem("luca-caregiver")||"Sam"}function namedCaregiver(text){let s=(text||"").toLowerCase();return CAREGIVERS.find(n=>s.includes(n.toLowerCase()))||null}function caregiverNearAction(src,keys){let lower=src.toLowerCase(),best=null,bestDist=1e9;for(let name of CAREGIVERS){let re=new RegExp("\\b"+name+"\\b","ig"),m;while((m=re.exec(src))){for(let key of keys){let kr=new RegExp("\\b"+key+"\\w*\\b","ig"),km;while((km=kr.exec(src))){let dist=Math.abs(m.index-km.index);if(dist<bestDist&&dist<70){best=name;bestDist=dist}}}}}return best}
+function assignSmartCredit(src,items){let mentioned=CAREGIVERS.filter(n=>src.toLowerCase().includes(n.toLowerCase()));items.forEach(it=>{let keys=it.kind==="feed"?["oz","bottle","fed","feed"]:it.kind==="poop"?["poop","poopie","diaper","changed"]:it.kind==="solids"?["food","solids","yogurt","banana","avocado","peas","potato","potatoes","jar","given"]:it.kind==="sleep"?["nap","sleep","bed"]:it.kind==="medicine"?["medicine","meds","amox","amoxicillin","ibuprofen","tylenol"]:[];let specific=caregiverNearAction(src,keys);if(it.raw){let rawName=namedCaregiver(it.raw);if(rawName)specific=rawName}it.credit=specific||deviceCaregiver();it.creditChoices=(!specific&&mentioned.length>1&&keys.length)?mentioned:[]})}
+function parseClock(s,base=new Date()){let m=(s||"").trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);if(!m)return null;let h=+m[1],min=+(m[2]||0),ap=(m[3]||"").toLowerCase(),amb=!ap;if(ap){if(h===12)h=0;if(ap==="pm")h+=12}let d=new Date(base);d.setSeconds(0,0);d.setHours(h,min,0,0);return {date:d,ambiguous:amb,raw:s,h12:+m[1],min,ap};}
+function inferDateFromChoice(clock,choice){let d=new Date();let h=clock.h12%12;if(choice==="PM")h+=12;d.setHours(h,clock.min,0,0);return d;}
+function lastConfirmedFeed(){return a.filter(e=>e.oz&&e.at).sort((x,y)=>new Date(y.at)-new Date(x.at))[0]||null}
+function feedTimeNeedsClarification(src,clock){if(clock)return false;if(/\b(?:just|now|just now|right now)\b/i.test(src))return false;if(/\b(?:earlier|before|this morning|this afternoon|this evening|tonight|fed|feed|bottle)\b/i.test(src)){let last=lastConfirmedFeed();if(!last)return true;return (Date.now()-new Date(last.at))/36e5>5}return false}
+function relativeTime(minutes){let d=new Date(Date.now()-minutes*60000);return {date:d,ambiguous:false,raw:minutes===0?"just now":minutes+" min ago"}}
+function smartParseText(txt){let out=[],src=txt.trim();smartSupplyItems=[];if(!src)return out;
+ [["Formula",/\b(?:low|running low|almost out)\s+(?:in|on|of)?\s*formula\b|\bformula\s+(?:is\s+)?(?:low|running low|almost out)\b/i],["Water",/\b(?:low|running low|almost out)\s+(?:in|on|of)?\s*water\b|\bwater\s+(?:is\s+)?(?:low|running low|almost out)\b/i],["Diapers",/\b(?:low|running low|almost out)\s+(?:in|on|of)?\s*diapers?\b|\bdiapers?\s+(?:is|are)?\s*(?:low|running low|almost out)\b|\b(?:only\s+)?(\d+)\s+diapers?\s+left\b/i],["Wipes",/\b(?:low|running low|almost out)\s+(?:in|on|of)?\s*wipes?\b|\bwipes?\s+(?:is|are)?\s*(?:low|running low|almost out)\b|\b(?:only\s+)?(\d+)\s+(?:packs?\s+of\s+)?wipes?\s+left\b/i]].forEach(([name,re])=>{let m=src.match(re);if(m)smartSupplyItems.push({name,label:"🛒 "+name+" — running low"+(m[1]?" ("+m[1]+" left)":"")})});
+ // Parse human-style clauses. A comma/semicolon, "and", or a new caregiver name can start a new action.
+ let normalized=src.replace(/\s+(?=(?:Sam|Maddie|Nona|Jay|Boppa)\b)/ig," | ").replace(/\s*(?:,|;|\band\b)\s*/ig," | ");
+ let spans=normalized.split("|").map(x=>x.trim()).filter(Boolean);
+ // Keep a trailing attribution like "8 oz - Nona" attached to the action before parsing.
+ let suffixPairs=[];let sr=/(\d+(?:\.\d+)?\s*oz|bottle|feed|fed|avocado|banana|yogurt|peas|sweet potatoes?|solids?|food|poop\w*|diaper)\s*[-–—:]\s*(Sam|Maddie|Nona|Jay|Boppa)\b/ig,sx;while((sx=sr.exec(src)))suffixPairs.push({token:sx[1].toLowerCase(),who:CAREGIVERS.find(n=>n.toLowerCase()===sx[2].toLowerCase())});
+ function actorFor(span,kind){let by=span.match(/\b(?:by|from)\s+(Sam|Maddie|Nona|Jay|Boppa)\b/i);if(by)return CAREGIVERS.find(n=>n.toLowerCase()===by[1].toLowerCase());let any=span.match(/\b(Sam|Maddie|Nona|Jay|Boppa)\b/i);if(any)return CAREGIVERS.find(n=>n.toLowerCase()===any[1].toLowerCase());return null}
+ let used={};
+ for(let span of spans){
+   let actor=null;
+   let ozOnly=span.match(/\b(\d+(?:\.\d+)?)\s*(?:oz|ounce|ounces)\b/i);if(ozOnly&&!used.feed){actor=actorFor(span,"feed");out.push({kind:"feed",label:"🍼 Bottle — "+(+ozOnly[1])+" oz",raw:span,oz:+ozOnly[1],credit:actor||null});used.feed=1}
+   let poop=/\b(?:poop\w*|diaper)\b/i.test(span);
+   if(poop&&!used.poop){actor=actorFor(span,"poop");let explicit=suffixPairs.find(p=>/poop|diaper/.test(p.token));if(explicit)actor=explicit.who;let it={kind:"poop",label:"💩 Poop diaper",raw:span,credit:actor||null};if(!actor){let names=CAREGIVERS.filter(n=>new RegExp("\\b"+n+"\\b","i").test(src));it.creditChoices=names.length?names:CAREGIVERS.slice();it.credit=null}out.push(it);used.poop=1}
+   let solid=span.match(/\b(avocado|banana|yogurt|yoghurt|peas|sweet potatoes?|applesauce|solids?|food|jar)\b/i);
+   if(solid&&!used.solids){actor=actorFor(span,"solids");let explicit=suffixPairs.find(p=>/avocado|banana|yogurt|peas|potato|solid|food/.test(p.token));if(explicit)actor=explicit.who;let food=solid[1];let it={kind:"solids",label:"🥣 Solids — "+food,relative:"With this update",raw:span,credit:actor||null};if(!actor){let names=CAREGIVERS.filter(n=>new RegExp("\\b"+n+"\\b","i").test(src));it.creditChoices=names.length?names:CAREGIVERS.slice();it.credit=null}out.push(it);used.solids=1}
+   let oz=span.match(/(\d+(?:\.\d+)?)\s*oz\b/i),feedWord=/\b(?:fed|feed(?:ing)?|bottle|milk|formula)\b/i.test(span);
+   if((feedWord||oz)&&!used.feed){actor=actorFor(span,"feed");let explicit=suffixPairs.find(p=>/oz|bottle|feed|fed/.test(p.token));if(explicit)actor=explicit.who;let tm=span.match(/(?:@|at)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i),clock=tm?parseClock(tm[1]):null;let it={kind:"feed",label:oz?"🍼 Bottle — "+oz[1]+" oz":"🍼 Feeding — how much?",oz:oz?+oz[1]:null,clock,raw:span,needsFeedDetail:!oz,feedChoice:!oz&&/\b(?:feeding|fed|feed|milk|formula|bottle)\b/i.test(span)?"bottle":null,needsFeedTime:feedTimeNeedsClarification(span,clock),credit:actor||null};if(!actor){let names=CAREGIVERS.filter(n=>new RegExp("\\b"+n+"\\b","i").test(src));it.creditChoices=names.length?names:CAREGIVERS.slice();it.credit=null}out.push(it);used.feed=1}
+ }
+ // Explicit suffix attribution wins: "8 oz - Nona" belongs to that immediately preceding action.
+ let suffixRe=/(\d+(?:\.\d+)?\s*oz|bottle|feed|fed|avocado|banana|yogurt|peas|sweet potatoes?|solids?|food|poop\w*|diaper)\s*[-–—:]\s*(Sam|Maddie|Nona|Jay|Boppa)\b/ig,sm;
+ while((sm=suffixRe.exec(src))){let token=sm[1].toLowerCase(),who=CAREGIVERS.find(n=>n.toLowerCase()===sm[2].toLowerCase()),kind=/oz|bottle|feed|fed/.test(token)?"feed":/poop|diaper/.test(token)?"poop":"solids";let it=out.find(x=>x.kind===kind);if(it){it.credit=who;it.creditChoices=[];it.creditChoice=who}}
+ // A standalone trailing caregiver token can still attach to the nearest uncredited action.
+ spans.forEach((span,idx)=>{let only=span.match(/^[-–—]?\s*(Sam|Maddie|Nona|Jay|Boppa)\s*$/i);if(only){let who=CAREGIVERS.find(n=>n.toLowerCase()===only[1].toLowerCase());for(let j=out.length-1;j>=0;j--){if(!out[j].credit){out[j].credit=who;out[j].creditChoices=[];break}}}});
+ let nap=src.match(/(?:nap|sleep)\s*(?:@|at)?\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)?\s*(?:-|–|to)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);if(nap){let s=parseClock(nap[1]),e=parseClock(nap[2]);out.push({kind:"sleep",label:"😴 Nap",start:s,end:e,raw:nap[0]})}
+ if(!nap&&/\b(?:going to sleep|went to sleep|going to bed|went to bed|bedtime|asleep for the night|down for the night)\b/i.test(src)){let m=src.match(/(?:at|@)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);let clock=m?parseClock(m[1]):null;out.push({kind:"sleep",label:"🌙 Nighttime bedtime"+(m?" — "+m[1]:""),clock,raw:src,nightBedtime:true});}
+
+ if(!out.some(it=>it.kind==="sleep")&&/\b(?:slept|sleep|woke|wakeups?|wake-ups?)\b/i.test(src)){const wake=src.match(/(?:until|till|woke\s*(?:up)?\s*(?:at)?|up at)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);out.push({kind:"sleep",clock:wake?parseClock(wake[1]):null,label:/night|overnight/i.test(src)?"🌙 Night sleep note — duration not yet known":"😴 Sleep note — add times to track duration",raw:src,note:src,sleepNote:true});}
+ let med=src.match(/\b(amoxicillin|amox|ibuprofen|tylenol|medicine|meds?)\b[^,.]*/i);if(med){let dose=med[0].match(/(\d+(?:\.\d+)?)\s*(ml|mL|mg)\b/),tm=med[0].match(/(?:@|at)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i),clock=tm?parseClock(tm[1]):null;out.push({kind:"medicine",label:"💊 "+med[0].trim(),raw:med[0],clock,medName:med[1],dose:dose?dose[1]+" "+dose[2]:null,needsMedDose:!dose,needsMedTime:!clock})}
+ if(!out.length&&!smartSupplyItems.length)out.push({kind:"other",label:"＋ Note",raw:src,note:src});
+ // Preserve explicit actors found above; only infer when a component still has none.
+ let missing=out.filter(x=>!x.credit&&!(x.creditChoices&&x.creditChoices.length));if(missing.length)assignSmartCredit(src,missing);
+ return out;}
+function smartNeedsChoice(it){return (it.needsFeedDetail&&!it.feedChoice)||(it.feedChoice==="bottle"&&!it.oz)||(it.needsFeedTime&&!it.feedTimeChoice)||(it.needsMedTime&&!it.medTimeChoice)||(it.needsMedDose&&!it.medDoseChoice)||(it.creditChoices&&it.creditChoices.length&&!it.creditChoice)||(it.clock&&it.clock.ambiguous&&!it.clockChoice)||(it.start&&it.start.ambiguous&&!it.startChoice)||(it.end&&it.end.ambiguous&&!it.endChoice);}
+function renderSmart(){let box=$("#smartPreview"),wrap=$("#smartItems");if(!smartItems.length&&!smartSupplyItems.length){box.classList.remove("on");return}box.classList.add("on");wrap.innerHTML=smartItems.map((it,i)=>{let extra="";if(it.needsFeedTime&&!it.feedTimeChoice)extra+='<div class="clarify"><div class="q">When was this feed?</div><div class="clarifyBtns"><button data-feedtime="'+i+'" data-min="0">Just now</button><button data-feedtime="'+i+'" data-min="30">~30 min ago</button><button data-feedtime="'+i+'" data-min="60">~1 hr ago</button><button data-feedtime="'+i+'" data-min="custom">Choose time</button></div></div>';if(it.needsMedTime&&!it.medTimeChoice)extra+='<div class="clarify"><div class="q">What time was the medicine given?</div><div class="clarifyBtns"><button data-medtime="'+i+'" data-min="0">Just now</button><button data-medtime="'+i+'" data-min="30">~30 min ago</button><button data-medtime="'+i+'" data-min="60">~1 hr ago</button></div></div>';if(it.needsMedDose&&!it.medDoseChoice)extra+='<div class="clarify"><div class="q">How much medicine was given?</div><div class="clarifyBtns"><button data-meddose="'+i+'" data-dose="unknown">Amount unknown</button><button data-meddose="'+i+'" data-dose="custom">Enter amount in text</button></div></div>';if(it.needsFeedDetail&&!it.feedChoice)extra+='<div class="clarify"><div class="q">What did Luca have?</div><div class="clarifyBtns"><button data-feedchoice="'+i+'" data-choice="bottle">🍼 Bottle</button><button data-feedchoice="'+i+'" data-choice="solids">🥣 Solid food</button></div></div>';if(it.feedChoice==="bottle"&&!it.oz)extra+='<div class="clarify"><div class="q">How many ounces?</div><div class="clarifyBtns">'+[4,5,6,7,8].map(n=>'<button data-ozchoice="'+i+'" data-oz="'+n+'">'+n+' oz</button>').join("")+'</div></div>';if(it.clock&&it.clock.ambiguous&&!it.clockChoice)extra+='<div class="clarify"><div class="q">Did you mean '+esc(it.clock.raw)+' AM or PM?</div><div class="clarifyBtns"><button data-smartchoice="'+i+'" data-part="clock" data-choice="AM">AM</button><button data-smartchoice="'+i+'" data-part="clock" data-choice="PM">PM</button></div></div>';if(it.start&&it.start.ambiguous&&!it.startChoice)extra+='<div class="clarify"><div class="q">Nap start '+esc(it.start.raw)+':</div><div class="clarifyBtns"><button data-smartchoice="'+i+'" data-part="start" data-choice="AM">AM</button><button data-smartchoice="'+i+'" data-part="start" data-choice="PM">PM</button></div></div>';if(it.creditChoices&&it.creditChoices.length&&!it.creditChoice)extra+='<div class="clarify"><div class="q">Who handled this?</div><div class="clarifyBtns">'+it.creditChoices.map(n=>'<button data-creditchoice="'+i+'" data-person="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div></div>';if(it.end&&it.end.ambiguous&&!it.endChoice)extra+='<div class="clarify"><div class="q">Nap end '+esc(it.end.raw)+':</div><div class="clarifyBtns"><button data-smartchoice="'+i+'" data-part="end" data-choice="AM">AM</button><button data-smartchoice="'+i+'" data-part="end" data-choice="PM">PM</button></div></div>';return '<div class="smartItem"><div class="smartItemTop"><div data-changecredit="'+i+'" style="cursor:pointer;flex:1"><div class="label">'+esc(it.label)+'</div><div class="sub">'+(it.relative?esc(it.relative):"")+(it.credit?" · "+esc(it.credit):"")+' <span style="opacity:.72">· tap to change person</span></div></div><button class="tiny del" data-smartremove="'+i+'">Remove</button></div>'+extra+'</div>'}).join("")+smartSupplyItems.map((s,i)=>'<div class="smartItem"><div class="smartItemTop"><div><div class="label">'+esc(s.label)+'</div><div class="sub">Supply alert for the family</div></div><button class="tiny del" data-smartsupplyremove="'+i+'">Remove</button></div></div>').join("");document.querySelectorAll("[data-changecredit]").forEach(el=>el.onclick=()=>{let it=smartItems[+el.dataset.changecredit];it.creditChoices=CAREGIVERS.slice();it.creditChoice=null;it.credit=null;renderSmart()});document.querySelectorAll("[data-smartsupplyremove]").forEach(b=>b.onclick=()=>{smartSupplyItems.splice(+b.dataset.smartsupplyremove,1);renderSmart()});document.querySelectorAll("[data-smartremove]").forEach(b=>b.onclick=()=>{smartItems.splice(+b.dataset.smartremove,1);renderSmart()});document.querySelectorAll("[data-feedtime]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.feedtime];if(b.dataset.min==="custom"){let v=prompt("Feed time (example: 9:15 am)");let pc=parseClock(v||"");if(!pc)return toast("Please enter a time");it.clock=pc;it.feedTimeChoice="custom"}else{it.clock=relativeTime(+b.dataset.min);it.feedTimeChoice=b.dataset.min;it.needsFeedTime=false}renderSmart()});document.querySelectorAll("[data-medtime]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.medtime];it.clock=relativeTime(+b.dataset.min);it.medTimeChoice=b.dataset.min;it.needsMedTime=false;renderSmart()});document.querySelectorAll("[data-meddose]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.meddose];if(b.dataset.dose==="custom"){let v=prompt("Enter the recorded amount, including unit (example: 5.5 mL)");if(!v)return;it.dose=v;it.label+=" · "+v}else it.dose="Amount unknown";it.medDoseChoice=b.dataset.dose;it.needsMedDose=false;renderSmart()});document.querySelectorAll("[data-feedchoice]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.feedchoice];it.feedChoice=b.dataset.choice;if(b.dataset.choice==="solids"){it.kind="solids";it.label="🥣 Solid food";it.needsFeedDetail=false}else{it.label="🍼 Bottle — choose ounces"}renderSmart()});document.querySelectorAll("[data-ozchoice]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.ozchoice];it.oz=+b.dataset.oz;it.needsFeedDetail=false;it.label="🍼 Bottle — "+it.oz+" oz";renderSmart()});document.querySelectorAll("[data-creditchoice]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.creditchoice];it.creditChoice=b.dataset.person;it.credit=b.dataset.person;renderSmart()});document.querySelectorAll("[data-smartchoice]").forEach(b=>b.onclick=()=>{let it=smartItems[+b.dataset.smartchoice];it[b.dataset.part+"Choice"]=b.dataset.choice;renderSmart()});$("#smartSave").disabled=smartItems.some(smartNeedsChoice);}
+$("#smartParse").onclick=()=>{smartItems=smartParseText($("#smartText").value);renderSmart();if(!smartItems.length)toast("Type an update first")};
+$("#smartClear").onclick=()=>{$("#smartText").value="";smartItems=[];smartSupplyItems=[];renderSmart()};
+$("#smartFix").onclick=()=>{$("#smartHint").textContent="Tap Remove on anything that doesn't belong, or use the AM/PM buttons where shown. You can edit the original sentence and tap Understand this again."};
+let audioCtx=null,poopSoundIndex=0;
+function lucaSoundEnabled(){try{return localStorage.getItem("luca-sound")!=="off"}catch{return true}}
+function ac(){if(!lucaSoundEnabled())return null;const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return null;try{audioCtx=audioCtx||new Ctx();if(audioCtx.state==="suspended")audioCtx.resume().catch(()=>{});return audioCtx}catch{return null}}
+function safeAudio(fn){try{if(lucaSoundEnabled())fn()}catch(e){console.warn("Optional Luca audio unavailable",e)}}document.addEventListener("DOMContentLoaded",()=>{
+ const pick=document.querySelector("#profileSound"),test=document.querySelector("#profileSoundTest"),status=document.querySelector("#profileSoundStatus");
+ if(!pick||!test)return;
+ pick.value=lucaSoundEnabled()?"on":"off";
+ pick.addEventListener("change",()=>{localStorage.setItem("luca-sound",pick.value);status.textContent=pick.value==="off"?"Sounds disabled on this device.":"Sounds enabled on this device.";});
+ test.addEventListener("click",()=>{if(!lucaSoundEnabled()){status.textContent="Turn sounds on to test.";return;}safeAudio(()=>tone(659,.15,.06));status.textContent="Test played (if your device allows audio).";});
+ for(const [id,sound,label] of [["#profileGlugTest",bottleGlug,"Glug-glug"],["#profileRefreshTest",bottleCapRefresh,"Pssst-ahh"]])document.querySelector(id)?.addEventListener("click",()=>{if(!lucaSoundEnabled()){status.textContent="Turn sounds on to test.";return;}safeAudio(sound);status.textContent=label+" preview played (if device allows audio).";});
+ const poopTest=document.querySelector("#profilePoopTest"),clipSelect=document.querySelector("#profilePoopClip");
+ poopTest?.addEventListener("click",async()=>{if(!lucaSoundEnabled()){status.textContent="Turn sounds on to test.";return;}const index=clipSelect.value==="random"?Math.floor(Math.random()*poopAudioPool.length):Number(clipSelect.value);const audio=poopAudioPool[index];try{audio.pause();audio.currentTime=0;audio.volume=.85;await audio.play();status.textContent="Playing recorded "+["short","wet","powerful","long"][index]+" fart.";}catch{status.textContent="Sound blocked. Check silent mode, volume, and try again.";}});
+});
+function tone(f,d,v=.045,type="sine",delay=0){let x=ac();if(!x)return;let o=x.createOscillator(),g=x.createGain(),t=x.currentTime+delay;o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+d)}function swoosh(){let x=ac();if(!x)return;let o=x.createOscillator(),g=x.createGain(),t=x.currentTime;o.type="sine";o.frequency.setValueAtTime(320,t);o.frequency.exponentialRampToValueAtTime(900,t+.22);g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+.3)}/* Recorded-only poop SFX: add licensed clips to /sounds/poop/. No synthetic fallback. */
+const realPoopSounds=["sounds/poop/short-01.mp3","sounds/poop/wet-01.mp3","sounds/poop/nasty-01.mp3","sounds/poop/long-01.mp3"];
+let lastPoopSound=-1;
+const poopAudioPool=realPoopSounds.map(src=>{const audio=new Audio();audio.preload="auto";audio.src=src;audio.load();return audio});
+function fart(){
+ if(!lucaSoundEnabled())return;
+ const choices=poopAudioPool.map((audio,i)=>({audio,i})).filter(x=>x.i!==lastPoopSound);
+ const pick=choices[Math.floor(Math.random()*choices.length)];lastPoopSound=pick.i;poopSoundIndex++;
+ const audio=pick.audio;
+ try{audio.pause();audio.currentTime=0}catch{}
+ audio.volume=.85;
+ audio.play().catch(e=>console.warn("Recorded poop audio could not play",e));
+}
+/* P78: soft, liquid-sounding glug sequence for confirmed bottles. */
+function bottleGlug(){
+ const ctx=ac();if(!ctx)return;
+ const t=ctx.currentTime+.015;
+ for(let i=0;i<5;i++){
+  const start=t+i*.125+(Math.random()-.5)*.018;
+  const oscillator=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
+  oscillator.type="sine";filter.type="lowpass";filter.frequency.value=680;
+  oscillator.frequency.setValueAtTime(190+Math.random()*55,start);
+  oscillator.frequency.exponentialRampToValueAtTime(90+Math.random()*25,start+.105);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(.09,start+.018);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+.12);
+  oscillator.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+  oscillator.start(start);oscillator.stop(start+.13);
+ }
+}
+/* Alternate bottle celebration: a cap pop, fizzy pssst, and soft ahh. */
+function bottleCapRefresh(){
+ const ctx=ac();if(!ctx)return;
+ const t=ctx.currentTime+.01;
+ const pop=ctx.createOscillator(),popGain=ctx.createGain();pop.type="triangle";
+ pop.frequency.setValueAtTime(360,t);pop.frequency.exponentialRampToValueAtTime(110,t+.055);
+ popGain.gain.setValueAtTime(.0001,t);popGain.gain.exponentialRampToValueAtTime(.10,t+.006);popGain.gain.exponentialRampToValueAtTime(.0001,t+.075);
+ pop.connect(popGain);popGain.connect(ctx.destination);pop.start(t);pop.stop(t+.08);
+ const length=Math.floor(ctx.sampleRate*.55),buffer=ctx.createBuffer(1,length,ctx.sampleRate),samples=buffer.getChannelData(0);
+ for(let i=0;i<length;i++)samples[i]=(Math.random()*2-1)*(1-i/length);
+ const hiss=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),hissGain=ctx.createGain();hiss.buffer=buffer;filter.type="highpass";filter.frequency.value=1100;
+ hissGain.gain.setValueAtTime(.0001,t+.07);hissGain.gain.exponentialRampToValueAtTime(.08,t+.12);hissGain.gain.exponentialRampToValueAtTime(.0001,t+.60);
+ hiss.connect(filter);filter.connect(hissGain);hissGain.connect(ctx.destination);hiss.start(t+.07);
+ const ah=ctx.createOscillator(),ahGain=ctx.createGain(),ahFilter=ctx.createBiquadFilter();ah.type="sawtooth";ahFilter.type="lowpass";ahFilter.frequency.value=440;
+ ah.frequency.setValueAtTime(155,t+.64);ah.frequency.exponentialRampToValueAtTime(118,t+1.03);
+ ahGain.gain.setValueAtTime(.0001,t+.64);ahGain.gain.exponentialRampToValueAtTime(.018,t+.72);ahGain.gain.exponentialRampToValueAtTime(.0001,t+1.08);
+ ah.connect(ahFilter);ahFilter.connect(ahGain);ahGain.connect(ctx.destination);ah.start(t+.64);ah.stop(t+1.09);
+}
+let bottleSoundLast="";function bottleLogSound(){const next=bottleSoundLast==="glug"?"refresh":bottleSoundLast==="refresh"?"glug":Math.random()<.5?"glug":"refresh";bottleSoundLast=next;(next==="glug"?bottleGlug:bottleCapRefresh)()}
+function playPoopFun(){let p=$("#poopBurst");p.classList.remove("go");void p.offsetWidth;if(window.LucaPlayfulness?.enabled()!==false&&window.LucaPlayfulness?.motion()!==false)p.classList.add("go");safeAudio(fart)}
+function introJingle(){tone(523,.18,.025,"sine",0);tone(659,.18,.022,"sine",.13);tone(784,.25,.025,"sine",.27)}function bottleCelebrate(oz){let b=$("#bottleCelebrate"),fill=$("#bigMilk");$("#bigOz").textContent=(oz||"")+" oz today";fill.style.height="0";b.classList.add("show");requestAnimationFrame(()=>requestAnimationFrame(()=>fill.style.height=Math.min(100,(+oz||0)/8*100)+"%"));safeAudio(bottleLogSound);setTimeout(()=>b.classList.remove("show"),1800)}setTimeout(()=>{$("#introToy")?.classList.add("introSettle")},2350);setTimeout(()=>{$("#introToy")?.classList.add("introFadeBaby")},3450);/* Audio only plays as optional feedback on explicit interactions, never on first arbitrary touch. */$("#inlineItems").onclick=e=>{let b=e.target.closest("button");if(!b)return;let all=[...$("#inlineItems").querySelectorAll("button")],idx=all.indexOf(b),orig=[...$("#smartItems").querySelectorAll("button")][idx];if(orig){orig.click();$("#inlineItems").innerHTML=$("#smartItems").innerHTML}};$("#inlineSave").onclick=()=>$("#smartSave").click();$("#inlineCancel").onclick=()=>{$("#inlineClarify").classList.remove("show");smartItems=[];smartSupplyItems=[]};let smartSaving=false;$("#smartSave").onclick=()=>{
+ if(smartSaving)return;
+ if(!smartItems.length&&!smartSupplyItems.length)return toast("Nothing to save");
+ if(smartItems.some(smartNeedsChoice))return toast("Answer the highlighted choice first");
+ smartSaving=true;$("#smartSave").disabled=true;
+ try{
+  const baseText=$("#smartText").value.trim(),items=[...smartItems];
+  for(const it of items){
+   let at=new Date();
+   if(it.clock)at=it.clock.ambiguous?inferDateFromChoice(it.clock,it.clockChoice):it.clock.date;
+   else if(it.start)at=it.start.ambiguous?inferDateFromChoice(it.start,it.startChoice):it.start.date;
+   let notes="";
+   if(it.kind==="sleep"&&it.sleepNote)notes=it.note||baseText;
+   else if(it.kind==="sleep"&&it.nightBedtime)notes="Nighttime bedtime"+(it.clock?" · "+it.clock.raw:"");
+   else if(it.kind==="sleep"&&it.start&&it.end){
+    const sd=it.start.ambiguous?inferDateFromChoice(it.start,it.startChoice):it.start.date,ed=it.end.ambiguous?inferDateFromChoice(it.end,it.endChoice):it.end.date;
+    if(ed<=sd)ed.setDate(ed.getDate()+1);const mins=Math.round((ed-sd)/60000);
+    notes="Nap "+it.start.raw+"–"+it.end.raw+" ("+Math.floor(mins/60)+"h "+mins%60+"m)";
+   }else if(it.kind==="solids")notes=it.label.replace(/^🥣\s*/,"")+(it.relative?"; "+it.relative:"");
+   else if(it.kind==="other")notes=it.note||baseText;
+   else if(it.kind==="medicine")notes=it.label.replace(/^💊\s*/,"")+(it.dose?" · Dose: "+it.dose:"");
+   void saveCareEvent({id:Date.now()+"-"+Math.random(),at:at.toISOString(),oz:it.oz||null,tags:it.kind==="feed"?[]:[it.kind],people:[it.creditChoice||it.credit||deviceCaregiver()],notes,source:"smart",sourceText:it.raw||it.label||baseText});
+  }
+  for(const supply of smartSupplyItems){const item=supplies.find(x=>x.name.toLowerCase()===supply.name.toLowerCase());if(item&&syncUser)void setSupply(item.id,"low").catch(()=>{});else addLocalSupply(supply.name,"low")}
+  if(items.some(x=>x.oz))safeAudio(bottleLogSound);
+  if(items.some(x=>x.kind==="poop"))playPoopFun();
+  $("#quickText").value="";$("#smartText").value="";smartItems=[];smartSupplyItems=[];renderSmart();$("#inlineClarify").classList.remove("show");
+  toast("Entry saved on this phone ✓",items.some(x=>x.kind==="poop")?"poop":items.some(x=>x.oz)?"feed":items.some(x=>x.kind==="sleep")?"sleep":"");
+ }catch(err){console.error("Care entry save failed",err);toast("Couldn't save — keep this entry and try again")}
+ finally{smartSaving=false;$("#smartSave").disabled=false}
+};
+
+document.querySelectorAll("[data-oz]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-oz]").forEach(x=>x.classList.remove("on"));if(ozPick===+b.dataset.oz){ozPick=null}else{ozPick=+b.dataset.oz;b.classList.add("on")}});document.querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{let t=b.dataset.tag;tags.has(t)?tags.delete(t):tags.add(t);b.classList.toggle("on")});document.querySelectorAll("[data-person]").forEach(b=>b.onclick=()=>{let p=b.dataset.person;people.has(p)?people.delete(p):people.add(p);b.classList.toggle("on");if(p==="Other")$("#otherPerson").style.display=people.has("Other")?"block":"none"});
+function reset(){$("#manualComposer").dataset.editing="false";ozPick=null;tags.clear();people.clear();editId=null;$("#notes").value="";$("#otherPerson").value="";$("#otherPerson").style.display="none";document.querySelectorAll(".choice").forEach(x=>x.classList.remove("on"));$("#poopDetails").style.display="none";$("#poopSize").value="3";$("#poopSize").setAttribute("aria-valuetext","Medium");$("#poopSizeLabel").textContent="Medium";$("#poopWet").checked=false;$("#composerTitle").textContent="Add entry";$("#saveEntry").textContent="Confirm entry";$("#cancelEdit").style.display="none";nowFields()}
+let entrySaveBusy=false;
+$("#saveEntry").onclick=async()=>{if(entrySaveBusy)return;if(!ozPick&&!tags.size&&!$("#notes").value.trim())return toast("Choose or describe something first");let dt=new Date($("#date").value+"T"+$("#time").value);if(isNaN(dt))return toast("Choose a date and time");let ps=[...people].filter(p=>p!=="Other");if(people.has("Other")&&$("#otherPerson").value.trim())ps.push($("#otherPerson").value.trim());if(people.has("Other")&&!$("#otherPerson").value.trim())return toast("Enter the caregiver name");if(!ps.length){if(tags.has("poop"))return toast("Choose who changed Luca's diaper");ps=[deviceCaregiver()]}let poopExtra=tags.has("poop")?("Poop size: "+["","smear","small","medium","large","diaper disaster"][Number($("#poopSize").value)]+($("#poopWet").checked?"; wet/messy":"")):"";let originalNotes=$("#notes").value.trim();if(poopExtra)originalNotes=originalNotes.replace(/(?: · )?Poop size: (?:smear|small|medium|large|diaper disaster)(?:; wet\/messy)?$/i,"").trim();let details={...(a.find(x=>String(x.id)===String(editId))?.details||{})};if(tags.has("poop"))details.poop={size:Number($("#poopSize").value),wet:$("#poopWet").checked};else if(details.poop)details.poop=null;let e={id:editId||Date.now()+"-"+Math.random(),at:dt.toISOString(),oz:ozPick,tags:[...tags],people:ps,notes:[originalNotes,poopExtra].filter(Boolean).join(" · "),details};if(!editId&&bedtimeKey(e)!=null){
+ const existing=a.find(x=>bedtimeKey(x)===bedtimeKey(e));
+ if(existing){toast("Bedtime already logged — edit the existing entry");edit(existing.id);return}
+}
+entrySaveBusy=true;$("#saveEntry").disabled=true;
+try{
+ const wasEditing=!!editId,old=wasEditing?a.find(x=>x.id===editId):null;
+ if(old){e={...old,...e};editUndo.set(String(old.id),structuredClone(old));}
+ void saveCareEvent(e);
+ if(!wasEditing&&e.tags.includes("poop"))playPoopFun();
+ if(!wasEditing&&Number(e.oz)>0)safeAudio(bottleLogSound);
+ reset();$("#manualComposer").classList.add("hiddenOldComposer");render();
+ toast(wasEditing?"Changes saved on this phone ✓":"Entry saved on this phone ✓",wasEditing?"":e.tags.includes("poop")?"poop":e.oz?"feed":e.tags.includes("sleep")?"sleep":"");
+ if(wasEditing)offerEditUndo(e.id);
+ }catch(err){console.error("Care entry save failed",err);toast("Couldn't save — keep this entry and try again")}
+ finally{entrySaveBusy=false;$("#saveEntry").disabled=false}};
+
+$("#closeComposer").onclick=()=>$("#manualComposer").classList.add("hiddenOldComposer");$("#discardComposer").onclick=()=>{reset();$("#manualComposer").classList.add("hiddenOldComposer")};$("#cancelEdit").onclick=()=>{reset();$("#manualComposer").classList.add("hiddenOldComposer")};
+const editUndo=new Map();
+function offerEditUndo(id){const t=$("#toast");const b=document.createElement("button");b.className="tiny";b.textContent="Undo";b.onclick=()=>undoLucaEdit(id);t.append(" ",b);}
+async function undoLucaEdit(id){const prior=editUndo.get(String(id));if(!prior)return;void saveCareEvent(prior);editUndo.delete(String(id));toast("Edit restored on this phone ✓")}
+function edit(id){
+ const e=a.find(x=>String(x.id)===String(id));if(!e)return;
+ if(!e.oz&&careSleep(e)&&(e.tags||[]).every(t=>t==="sleep"||t==="other")){openSleepEntry(e);return;}
+ sleepEditor.close();
+ reset();editId=e.id;const form=$("#manualComposer");form.dataset.editing="true";
+ ozPick=e.oz;tags=new Set(e.tags||[]);
+ const known=["Maddie","Sam","Nona","Jay","Boppa"];
+ people=new Set((e.people||[]).filter(p=>known.includes(p)));
+ const custom=(e.people||[]).filter(p=>!known.includes(p));
+ if(custom.length){people.add("Other");$("#otherPerson").value=custom.join(", ");$("#otherPerson").style.display="block"}
+ $("#notes").value=e.notes||"";form.classList.remove("hiddenOldComposer");nowFields(new Date(e.at));
+ if(e.oz)form.querySelector('[data-oz="'+e.oz+'"]')?.classList.add("on");
+ tags.forEach(t=>form.querySelector('[data-tag="'+t+'"]')?.classList.add("on"));
+ people.forEach(p=>form.querySelector('[data-person="'+p+'"]')?.classList.add("on"));
+ if(tags.has("poop")){
+  $("#poopDetails").style.display="block";
+  const size=(e.notes||"").match(/Poop size: (smear|small|medium|large|diaper disaster)/i);
+  const value=Number.isInteger(e.details?.poop?.size)&&e.details.poop.size>=1&&e.details.poop.size<=5?e.details.poop.size:size?["","smear","small","medium","large","diaper disaster"].indexOf(size[1].toLowerCase()):3;
+  $("#poopSize").value=String(value);$("#poopSizeLabel").textContent=["","Smear","Small","Medium","Large","Diaper disaster"][value];$("#poopSize").setAttribute("aria-valuetext",$("#poopSizeLabel").textContent);$("#poopWet").checked=typeof e.details?.poop?.wet==="boolean"?e.details.poop.wet:/; wet\/messy/i.test(e.notes||"");
+ }
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#todayView").classList.add("active");
+ document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab==="today"));
+ $("#composerTitle").textContent="Editing entry";$("#saveEntry").textContent="Save changes";$("#cancelEdit").style.display="block";
+ form.scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function del(id){const e=a.find(x=>x.id===id);if(!e||!confirm("Delete this entry?"))return;if(e.remote||e.babyId){const deleted=await deleteRemote(id);if(!deleted){toast("Delete failed — entry kept. Check connection and retry.");return}}a=a.filter(x=>x.id!==id);persist();render();toast("Entry deleted")}
+const names={poop:"💩 Poop",happy:"😊 Happy",cranky:"😣 Cranky",sleep:"🌙 Sleep",solids:"🥣 Solids",medicine:"💊 Medicine",activity:"🧸 Activity",other:"＋ Other"};
+let scheduleRows=[],scheduleCursor=new Date();async function pullSchedule(){let start=new Date(scheduleCursor.getFullYear(),scheduleCursor.getMonth(),1),end=new Date(scheduleCursor.getFullYear(),scheduleCursor.getMonth()+1,1);$("#scheduleMonth").textContent=start.toLocaleDateString([],{month:"long",year:"numeric"});let now=new Date(),sameMonth=now.getFullYear()===start.getFullYear()&&now.getMonth()===start.getMonth();$("#scheduleToday").style.visibility=sameMonth?"hidden":"visible";if(!syncFamily){scheduleRows=[];$("#scheduleList").innerHTML='<div class="note">Family sync is not connected on this phone, so the shared work schedules cannot load. Sign in to Family Sync, then reopen Schedule.</div>';return}let {data,error}=await sb.from("luca_schedule").select("*").eq("family_id",syncFamily).gte("start_at",start.toISOString()).lt("start_at",end.toISOString()).order("start_at");if(!error){scheduleRows=data||[];renderSchedule()}}function fmtTime(x){return new Date(x).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}function renderSchedule(){let el=$("#scheduleList");if(!el)return;let by={};scheduleRows.forEach(r=>{let k=new Date(r.start_at).toLocaleDateString("en-CA");(by[k]??=[]).push(r)});let days=[],year=scheduleCursor.getFullYear(),month=scheduleCursor.getMonth(),last=new Date(year,month+1,0).getDate();for(let n=1;n<=last;n++){let d=new Date(year,month,n),k=d.toLocaleDateString("en-CA"),rs=by[k]||[],work=rs.filter(x=>x.kind==="work"),cover=rs.filter(x=>x.kind==="coverage");if(work.length||cover.length){days.push('<div class="entry"><div class="entrytop"><b>'+d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})+'</b>'+(cover.length?'<span class="chip">✓ Covered</span>':'<span class="chip">Coverage?</span>')+'</div>'+work.map(x=>'<div class="note">💼 '+esc(x.person)+' · '+fmtTime(x.start_at)+'–'+fmtTime(x.end_at)+'</div>').join("")+cover.map(x=>'<div class="note">👶 '+esc(x.person)+' watching Luca · '+fmtTime(x.start_at)+'–'+fmtTime(x.end_at)+'</div>').join("")+(!cover.length&&work.length?'<div class="clarifyBtns" style="margin-top:8px">'+["Nona","Yolanda","Boppa","Lindsay","Jay"].map(n=>'<button data-coverday="'+k+'" data-coverperson="'+n+'">'+n+'</button>').join("")+'</div>':"")+'</div>')}}el.innerHTML=days.join("")||'<div class="muted">No work or coverage loaded for this month.</div>';document.querySelectorAll("[data-coverday]").forEach(b=>b.onclick=()=>window.openCoverage53?window.openCoverage53(b.dataset.coverday,b.dataset.coverperson):addCoverage(b.dataset.coverday,b.dataset.coverperson));if(window.decorateSchedule53)window.decorateSchedule53()}$("#schedulePrev").onclick=()=>{scheduleCursor=new Date(scheduleCursor.getFullYear(),scheduleCursor.getMonth()-1,1);pullSchedule()};$("#scheduleNext").onclick=()=>{scheduleCursor=new Date(scheduleCursor.getFullYear(),scheduleCursor.getMonth()+1,1);pullSchedule()};$("#scheduleToday").onclick=()=>{let d=new Date();scheduleCursor=new Date(d.getFullYear(),d.getMonth(),1);pullSchedule()};async function addCoverage(day,person){if(window.openCoverage53)return window.openCoverage53(day,person);if(!syncFamily||!syncUser)return toast("Sign in to share coverage");let start=new Date(day+"T06:00:00"),end=new Date(day+"T23:00:00");let {error}=await sb.from("luca_schedule").insert({family_id:syncFamily,person,kind:"coverage",start_at:start.toISOString(),end_at:end.toISOString(),source:"family assignment",created_by:syncUser.id});if(error)return toast("Couldn't save coverage");toast(person+" added ✓");await pullSchedule()}let lbRange="week";function mondayStart(){let d=new Date(),x=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-x);return d}function leaderboardData(){let start=lbRange==="week"?mondayStart():new Date(0),scores={};a.filter(e=>new Date(e.at)>=start).forEach(e=>(e.people||[]).forEach(p=>{if(!scores[p])scores[p]={name:p,bottles:0,poops:0,food:0,sleep:0,medicine:0,total:0};let s=scores[p],tags=e.tags||[],type=e.event_type||"";if(e.oz||type==="feed"){s.bottles++;s.total++}if(tags.includes("poop")||type==="poop"){s.poops++;s.total+=3}if(tags.includes("solids")||type==="solids"){s.food++;s.total++}if(tags.includes("sleep")||type==="sleep"){s.sleep++}if(tags.includes("medicine")||type==="medicine"){s.medicine++;s.total++}}));return Object.values(scores).sort((x,y)=>y.total-x.total||y.bottles-x.bottles)}function renderLeaderboard(){let el=$("#leaderboard");if(!el)return;let d=leaderboardData(),medals=["🥇","🥈","🥉"];el.innerHTML=d.length?d.map((s,i)=>'<div class="lbRow"><div class="lbRank">'+(medals[i]||"#"+(i+1))+'</div><div><b>'+esc(s.name)+'</b><div class="lbCats">🍼 '+s.bottles+' · 💩 '+s.poops+' × 3 · 🥣 '+s.food+' · 😴 '+s.sleep+' · 💊 '+s.medicine+'</div></div><div class="lbScore">'+s.total+' pts</div></div>').join(""):'<div class="muted">No credited care events yet.</div>';$("#lbWeek").style.background=lbRange==="week"?"#72d4d0":"#ffffff0b";$("#lbWeek").style.color=lbRange==="week"?"#082137":"#bcd0e0";$("#lbAll").style.background=lbRange==="all"?"#72d4d0":"#ffffff0b";$("#lbAll").style.color=lbRange==="all"?"#082137":"#bcd0e0"}function chips(e){let q=[];if(e.oz)q.push("🍼 "+e.oz+" oz");(e.tags||[]).forEach(t=>q.push(t==="sleep"?sleepEventLabel(e):(names[t]||t)));if(!(e.tags||[]).includes("sleep")&&careSleep(e))q.push(sleepEventLabel(e));(e.people||[]).forEach(p=>q.push("👤 "+p));return q}
+/* P82: optional, evidence-based morning sleep check-in after a real morning log. */
+let pendingSleepBedtime=null;
+function renderSleepCheckin(){
+ const card=$("#sleepCheckinCard");if(!card)return;
+ const now=new Date(),hour=now.getHours();card.hidden=true;pendingSleepBedtime=null;
+ if(hour<5||hour>10)return;
+ const morning=a.filter(e=>{const t=new Date(e.at);return day(e.at)===day(now)&&t.getHours()>=5&&t.getHours()<=10&&!/Morning sleep check-in/i.test(e.notes||"")});
+ if(!morning.length)return;
+ const prior=a.filter(e=>{const t=new Date(e.at);return (e.tags||[]).includes("sleep")&&/Nighttime bedtime/i.test(e.notes||e.sourceText||"")&&t.getTime()<now.getTime()&&now.getTime()-t.getTime()<18*3600000&&t.getHours()>=17}).sort((x,y)=>new Date(y.at)-new Date(x.at))[0];
+ if(!prior)return;
+ const checked=a.some(e=>(e.tags||[]).includes("sleep")&&/Morning sleep check-in/i.test(e.notes||"")&&new Date(e.at)>new Date(prior.at));
+ if(checked||localStorage.getItem("luca-sleep-dismiss-"+prior.id)==="yes")return;
+ pendingSleepBedtime=prior;card.hidden=false;
+ $("#sleepCheckinIntro").textContent="Last bedtime logged "+new Date(prior.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+". Tell us when he woke up and whether he woke overnight.";
+ const wake=$("#sleepWakeTime");if(!wake.dataset.forBedtime||wake.dataset.forBedtime!==String(prior.id)){const first=morning.sort((x,y)=>new Date(x.at)-new Date(y.at))[0];const d=new Date(first.at);wake.value=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");wake.dataset.forBedtime=String(prior.id);}
+}
+$("#dismissSleepCheckin")?.addEventListener("click",()=>{if(pendingSleepBedtime)localStorage.setItem("luca-sleep-dismiss-"+pendingSleepBedtime.id,"yes");$("#sleepCheckinCard").hidden=true;});
+$("#saveSleepCheckin")?.addEventListener("click",async()=>{
+ const bedtime=pendingSleepBedtime;if(!bedtime)return;
+ const clock=$("#sleepWakeTime").value;if(!/^\d{2}:\d{2}$/.test(clock))return toast("Choose a wake-up time");
+ const now=new Date(),wake=new Date(now.getFullYear(),now.getMonth(),now.getDate(),+clock.slice(0,2),+clock.slice(3));
+ const mins=Math.round((wake-new Date(bedtime.at))/60000);
+ if(mins<60||mins>18*60)return toast("Check the wake time; it should follow bedtime");
+ const wakes=$("#sleepWakeups").value,quality=$("#sleepQuality").value,awakeText=$("#sleepAwakeMinutes").value.trim();if(awakeText!==""&&(!/^\d+$/.test(awakeText)||+awakeText>480||+awakeText>mins))return toast("Check minutes awake overnight");
+ const note="Morning sleep check-in · "+Math.floor(mins/60)+"h "+(mins%60)+"m in bed · wakeups: "+(wakes===""?"unknown":wakes==="6"?"6+":wakes)+" · quality: "+quality+(awakeText===""?"":" · awake minutes: "+awakeText);
+ const e={id:Date.now()+"-sleep-"+Math.random(),at:wake.toISOString(),oz:null,tags:["sleep"],people:[deviceCaregiver()],notes:note,source:"morning-checkin",sourceText:"Bedtime "+new Date(bedtime.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})};
+ $("#saveSleepCheckin").disabled=true;
+ try{void saveCareEvent(e);toast("Morning sleep check-in saved on this phone ✓");render();}finally{$("#saveSleepCheckin").disabled=false;}
+
+});
+/* P84: report observed sleep, never infer uninterrupted sleep from a bedtime. */
+let sleepWindowDays=7;
+const sleepMinsLabel=n=>n==null?"—":Math.floor(n/60)+"h "+String(n%60).padStart(2,"0")+"m";
+let sleepSessions=new Map();function careSleep(e){return sleepSessions.get(String(e.syncId||e.id))||LucaSleep.session(e);}
+function sleepStats(entries,days=7,now=new Date()){return LucaSleep.summarize(entries,days,now);}
+function sleepRangeLabel(e){const s=careSleep(e);if(!s)return "";if(!s.complete)return "Duration not recorded — add start and wake-up times";const format=t=>new Date(t).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});return (s.inferred?"Inferred from notes · ":"")+format(s.start)+" → "+format(s.end);}
+const sleepEditor=LucaSleepUI.mount({host:$("#sleepComposer"),getEntries:()=>a,save:saveCareEvent,render,toast,deviceCaregiver,beforeEdit:old=>editUndo.set(String(old.id),structuredClone(old)),afterEdit:offerEditUndo,showToday:()=>{window.closeLucaQuickActions?.();closeMenu();closeDrawer();reset();$("#manualComposer").classList.add("hiddenOldComposer");$("#quickBottlePicker").hidden=true;document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$("#todayView").classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab==="today"));}});
+function openSleepEntry(entry=null){sleepEditor.open({entry});}
+
+function renderSleepTrends(){
+ const el=$("#sleepTrends");if(!el)return;const s=sleepStats(a,sleepWindowDays),label=LucaSleep.duration;
+ const metric=(value,name)=>'<div class="sleepMetric"><strong>'+esc(value)+'</strong><span>'+esc(name)+'</span></div>';
+ const recent='<div class="sleepMetrics">'+metric(label(s.last24),"logged · last 24h")+metric(s.last24==null?"—":s.naps24,"naps · last 24h")+metric(label(s.longest),"longest · "+sleepWindowDays+" days")+'</div>';
+ const bars=s.rows.slice(-7),max=Math.max(60,...bars.map(r=>r.total||0));
+ const chart='<div class="sleepChart" role="img" aria-label="Recorded sleep windows over the last seven days">'+bars.map(r=>'<div class="sleepBarDay"><div class="sleepBarTrack" title="'+esc(r.date+": "+label(r.total))+'"><i style="height:'+((r.total||0)/max*100)+'%"></i></div><span>'+esc(new Date(r.date+"T12:00:00").toLocaleDateString([],{weekday:"narrow"}))+'</span></div>').join("")+'</div>';
+ const row=(name,value,detail)=>'<div class="sleepStat"><div><b>'+esc(name)+'</b><small>'+esc(detail)+'</small></div><span>'+esc(value)+'</span></div>';
+ el.innerHTML=recent+chart+row("Average nap time",label(s.nap),s.napSessions+" timed naps across "+s.napCount+" recorded days")+row("Average overnight window",label(s.night),s.nightCount+" recorded nights")+row("Overnight sleep, adjusted",label(s.actualNight),s.actualCount+" nights with awake minutes entered")+row("Night wake-ups",s.wakes==null?"—":s.wakes+" / night",s.wakeCount+" nights with a count")+(s.partialCount?'<p class="sleepMissing">'+s.partialCount+' sleep note'+(s.partialCount===1?" needs":"s need")+' start/end times before duration can be counted.</p>':'')+'<p class="why sleepStatsFoot">'+(s.inferredCount?s.inferredCount+" sleep window"+(s.inferredCount===1?"":"s")+" inferred from clear notes. ":"")+'Logged windows only. Awake minutes are subtracted when supplied; missing sleep is not counted as zero. Edit a sleep entry to add details.</p>';
+ $("#sleep7")?.setAttribute("aria-pressed",String(sleepWindowDays===7));$("#sleep30")?.setAttribute("aria-pressed",String(sleepWindowDays===30));
+}
+$("#sleep7")?.addEventListener("click",()=>{sleepWindowDays=7;renderSleepTrends()});
+$("#sleep30")?.addEventListener("click",()=>{sleepWindowDays=30;renderSleepTrends()});
+function sleepEventLabel(e){const sleep=careSleep(e);return sleep?(sleep.kind==="night"?"🌙 Night sleep":"😴 Nap")+(sleep.complete?" · "+LucaSleep.duration(sleep.minutes)+(sleep.inferred?" · inferred":""):" · time unknown"):"🌙 Sleep";}
+function historyEventLabel(e){const tags=Array.isArray(e.tags)?e.tags:[];if(!e.oz&&tags.every(t=>t==="sleep"||t==="other")&&careSleep(e))return sleepEventLabel(e);return e.oz!=null&&Number(e.oz)>0?"🍼 "+Number(e.oz)+" oz bottle":tags.length?tags.map(t=>t==="sleep"?sleepEventLabel(e):({poop:"💩 Poop",pee:"💧 Pee",nap:"😴 Nap",solids:"🥣 Solids",medicine:"💊 Medicine",walk:"🚶 Walk",play:"🧸 Play"}[t]||t)).join(" · "):e.event_type||"Care event"}
+function historyKind(e){return Number(e.oz)>0?"bottle":(e.tags||[]).includes("poop")?"poop":careSleep(e)?"sleep":"other"}
+function careActionIcon(kind){return kind==="edit"?'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 4 4 4M4 16l4-1 9-9-4-4-9 9-1 5Z"/></svg>':'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M7 5V3h6v2M5 5l1 12h8l1-12M8 8v6m4-6v6"/></svg>'}
+function renderHistory(){
+ const host=$("#history");if(!host)return;
+ const opened=new Set([...host.querySelectorAll("details[open][data-history-day]")].map(x=>x.dataset.historyDay));
+ const query=($("#historySearch")?.value||"").trim().toLowerCase(),filter=$("#historyKind")?.value||"all";
+ const all=visibleCareEvents(a).filter(e=>e.at&&!Number.isNaN(new Date(e.at).getTime()));
+ const filtered=all.filter(e=>(filter==="all"||(filter==="bottle"?Number(e.oz)>0:filter==="poop"?(e.tags||[]).includes("poop"):Boolean(careSleep(e))))&&(!query||[historyEventLabel(e),e.notes,(e.people||[]).join(" "),day(e.at)].join(" ").toLowerCase().includes(query)));
+ $("#historyCount").textContent=filtered.length+" entr"+(filtered.length===1?"y":"ies")+(filtered.length!==all.length?" of "+all.length:"")+" · saved moments, easy to find";
+ const grouped={};filtered.forEach(e=>(grouped[day(e.at)]??=[]).push(e));
+ host.innerHTML=Object.entries(grouped).sort((x,y)=>new Date(y[0])-new Date(x[0])).map(([k,events])=>{
+  const feeds=events.filter(e=>Number(e.oz)>0),total=feeds.reduce((sum,e)=>sum+Number(e.oz),0),poops=events.filter(e=>(e.tags||[]).includes("poop")).length;
+  const date=new Date(events[0].at),today=day(Date.now())===k,yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const title=today?"Today":day(yesterday)===k?"Yesterday":date.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
+  const rows=[...events].sort((x,y)=>new Date(y.at)-new Date(x.at)).map(e=>{
+   const time=new Date(e.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}),kind=historyKind(e),people=(Array.isArray(e.people)?e.people:[]).filter(Boolean).join(", ");
+   const label=historyEventLabel(e).replace(/^[🍼💩🌙😴💊🥣💧＋]+\s*/u,"");
+   return '<li class="historyEvent" data-care-kind="'+kind+'"><span class="historyEventIcon" aria-hidden="true">'+({bottle:"🍼",poop:"💩",sleep:"☾",other:"✦"}[kind])+'</span><div class="historyEventBody"><div class="historyEventHeading"><strong>'+esc(label)+'</strong><time>'+esc(time)+'</time></div>'+(people?'<div class="historyPeople" aria-label="Caregiver: '+esc(people)+'">'+esc(people)+'</div>':'')+(sleepRangeLabel(e)?'<div class="historyNote sleepRange">'+esc(sleepRangeLabel(e))+'</div>':'')+(e.notes?'<div class="historyNote">'+esc(String(e.notes))+'</div>':'')+'<div class="historyEventActions"><button type="button" data-history-edit="'+esc(String(e.id))+'">'+careActionIcon("edit")+'<span>Edit</span></button><button type="button" class="historyDelete" data-history-delete="'+esc(String(e.id))+'">'+careActionIcon("delete")+'<span>Delete</span></button></div></div></li>';
+  }).join("");
+  return '<details class="historyDay" data-history-day="'+esc(k)+'"'+(opened.has(k)?" open":"")+'><summary><span class="historyDayDate"><b>'+esc(title)+'</b><small>'+esc(date.toLocaleDateString([],{month:"long",day:"numeric",year:"numeric"}))+'</small></span><span class="historyDayTotals"><span>'+total+' oz</span><span>'+poops+' diaper'+(poops===1?'':'s')+'</span><small>'+events.length+' entr'+(events.length===1?'y':'ies')+'</small></span><span class="historyChevron" aria-hidden="true">⌄</span></summary><ol class="historyEvents">'+rows+'</ol></details>';
+ }).join("")||'<div class="historyEmpty"><span aria-hidden="true">◷</span><strong>'+(all.length?'Nothing matches yet.':'Your story starts here.')+'</strong><p>'+(all.length?'Try another word or event type.':'Every tiny victory, in one place.')+'</p></div>';
+}
+$("#historySearch").addEventListener("input",renderHistory);$("#historyKind").addEventListener("change",renderHistory);
+function showHistoryEdit(id){document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelector('nav [data-tab="today"]')?.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#todayView").classList.add("active");edit(id)}
+$("#history").addEventListener("click",e=>{const btn=e.target.closest("button[data-history-edit],button[data-history-delete]");if(!btn)return;const id=btn.dataset.historyEdit??btn.dataset.historyDelete;const record=a.find(x=>String(x.id)===id);if(!record){toast("Entry not found. Refresh History.");return}if(btn.hasAttribute("data-history-edit"))showHistoryEdit(record.id);else del(record.id)});
+function render(){sleepSessions=LucaSleep.resolve(a);renderHistory();try{renderSleepCheckin()}catch(err){console.error("Sleep check-in render failed",err)}try{renderSleepTrends()}catch(err){console.error("Sleep trends render failed",err)}let d=visibleCareEvents(a.filter(e=>day(e.at)===day(Date.now()))),feeds=d.filter(e=>e.oz);let totalMilk=feeds.reduce((s,e)=>s+e.oz,0),recentDays={};a.filter(e=>e.oz).forEach(e=>{let k=day(e.at);(recentDays[k]??=[]).push(e.oz)});let priorTotals=Object.entries(recentDays).filter(([k])=>k!==day(Date.now())).slice(0,7).map(([,v])=>v.reduce((s,x)=>s+x,0)).filter(x=>x>=12),milkTarget=priorTotals.length?Math.round(priorTotals.reduce((s,x)=>s+x,0)/priorTotals.length):null;$("#milkAmt").textContent=totalMilk+" oz";$("#milkGoal").textContent=milkTarget?"of ~"+milkTarget+" avg":"today";$("#milkFill").style.height=(milkTarget?Math.min(100,totalMilk/milkTarget*100):Math.min(100,totalMilk/32*100))+"%";let solidCount=d.filter(e=>(e.tags||[]).includes("solids")).length,poopCount=d.filter(e=>(e.tags||[]).includes("poop")).length,waterEvents=d.filter(e=>(e.tags||[]).includes("water")||/\bwater\b/i.test(e.sourceText||e.notes||""));$("#dockMilk").textContent=totalMilk+" oz";$("#dockMilkSub").textContent="today · "+feeds.length+" bottle"+(feeds.length===1?"":"s");$("#dockMilkScale").textContent="0 · 8 · 16 · 24 · "+Math.max(32,Math.ceil((milkTarget||32)/8)*8)+" oz";$("#dockMilkFill").style.width=(milkTarget?Math.min(100,totalMilk/milkTarget*100):Math.min(100,totalMilk/32*100))+"%";$("#dockSolids").textContent=solidCount+" meal"+(solidCount===1?"":"s");$("#dockSolidsFill").style.width=Math.min(100,solidCount/2*100)+"%";$("#dockWater").textContent=waterEvents.length?waterEvents.length+" logged":"0 logged";$("#dockPoop").textContent=poopCount+" poop"+(poopCount===1?"":"s");$("#oz").textContent=feeds.reduce((s,e)=>s+e.oz,0);$("#feeds").textContent=feeds.length;$("#poops").textContent=d.filter(e=>(e.tags||[]).includes("poop")).length;let all=a.filter(e=>e.oz).slice(0,8),ints=[];for(let i=0;i<all.length-1;i++){let m=(new Date(all[i].at)-new Date(all[i+1].at))/60000;if(m>=45&&m<=360)ints.push(m)}if(all.length){let m=ints.length?ints.reduce((s,x)=>s+x,0)/ints.length:180,n=new Date(new Date(all[0].at).getTime()+m*60000);$("#next").textContent=n.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});$("#why").textContent=ints.length?"Based on "+ints.length+" reliable recent interval"+(ints.length===1?"":"s")+" · about "+Math.round(m/15)*15+" minutes between feeds. Long logging gaps are excluded.":"More feed spacing is needed to personalize this estimate."}else{$("#next").textContent="—"}
+$("#timeline").innerHTML=d.length?d.map(e=>'<div class="entry"><div class="entrytop"><b>'+new Date(e.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+'</b><span class="muted">'+new Date(e.at).toLocaleDateString([],{month:"short",day:"numeric"})+'</span></div><div class="chips">'+chips(e).map(x=>'<span class="chip">'+esc(x)+'</span>').join("")+'</div>'+(sleepRangeLabel(e)?'<div class="sleepRange">'+esc(sleepRangeLabel(e))+'</div>':'')+((e.notes||e.sourceText)?'<div class="note">'+esc(e.notes||e.sourceText)+'</div>':"")+(e.notes&&e.sourceText&&e.sourceText.trim()!==e.notes.trim()?'<details class="note"><summary>Original message</summary>'+esc(e.sourceText)+'</details>':"")+'<div class="actions"><button class="tiny" data-edit="'+esc(String(e.id))+'">' +careActionIcon("edit")+'<span>Edit</span></button><button class="tiny del" data-del="'+esc(String(e.id))+'">'+careActionIcon("delete")+'<span>Delete</span></button></div></div>').join(""):"Nothing logged yet.";$("#heroNext").textContent=$("#next").textContent;$("#heroWhy").textContent=$("#why").textContent;document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del));
+try{renderLeaderboard()}catch(err){console.error("Leaderboard render failed",err)}let po=d.filter(e=>(e.tags||[]).includes("poop")).length,sl=d.filter(e=>(e.tags||[]).includes("sleep")).length,so=d.filter(e=>(e.tags||[]).includes("solids")).length;$("#insight").textContent=d.length?"Today: "+feeds.reduce((s,e)=>s+e.oz,0)+" oz across "+feeds.length+" bottles, "+po+" poop"+(po===1?"":"s")+", "+sl+" sleep log"+(sl===1?"":"s")+" and "+so+" solid-food log"+(so===1?"":"s")+".":"Nothing logged today yet.";
+const recent=a.filter(e=>Date.now()-new Date(e.at).getTime()<=7*86400000&&new Date(e.at).getTime()<=Date.now());
+const recentFeeds=recent.filter(e=>Number(e.oz)>0).sort((x,y)=>new Date(x.at)-new Date(y.at));
+const gaps=[];for(let i=1;i<recentFeeds.length;i++){const gap=(new Date(recentFeeds[i].at)-new Date(recentFeeds[i-1].at))/3600000;if(gap>=.5&&gap<=10)gaps.push(gap)}
+const lastThree=recent.filter(e=>Date.now()-new Date(e.at).getTime()<=3*86400000),previous=recent.filter(e=>{let t=Date.now()-new Date(e.at).getTime();return t>3*86400000&&t<=7*86400000});
+const average=(arr)=>arr.length?(arr.reduce((s,x)=>s+x,0)/arr.length).toFixed(1):null;
+const todayOz=feeds.reduce((s,e)=>s+Number(e.oz||0),0),previousDaily=previous.filter(e=>e.oz).reduce((s,e)=>s+Number(e.oz),0)/4;
+const trends=[];
+if(gaps.length>=3)trends.push("🍼 Observed bottle spacing over the last 7 days: about "+average(gaps)+" hours across "+gaps.length+" recorded gaps. Missing logs can distort this.");
+if(previous.filter(e=>e.oz).length>=4&&feeds.length>=2)trends.push("📊 Today's recorded intake is "+todayOz+" oz, versus "+previousDaily.toFixed(1)+" oz/day in the preceding 4-day window. These are logged amounts, not necessarily everything Luca drank.");
+const poopRecent=lastThree.filter(e=>(e.tags||[]).includes("poop")).length;
+if(poopRecent)trends.push("💩 "+poopRecent+" poop "+(poopRecent===1?"entry":"entries")+" in the last 3 days. You can now track size and messiness in new manual entries.");
+if(!trends.length)trends.push("We need several days of consistently recorded bottles and diapers before reliable trends appear. No guesses from missing entries.");
+$("#insightTrends").textContent=trends.join("\\n\\n");}
+
+
+$("#emailLogin").onclick=async()=>{if(!sb)return toast("Family Sync unavailable");let email=$("#authEmail").value.trim();if(!email)return toast("Enter your email");localStorage.setItem("luca-sync-email",email);$("#emailLogin").disabled=true;try{let {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:"https://dadofluca.github.io/Lucas-Growth-Guide/"}});toast(error?(error.status===429?"Email limit reached — wait a bit and retry":"Couldn\'t send sign-in email"):"Check your email ✓")}catch(e){console.error(e);toast("Couldn\'t send sign-in email")}finally{setTimeout(()=>$("#emailLogin").disabled=false,1200)}};$("#finishSync").onclick=async()=>{await setupSync();if(syncUser)toast("Family Sync connected ✓");else toast("Not connected yet — tap the email link first")};
+$("#joinFamily").onclick=async()=>{let code=$("#joinCode").value.trim();if(!code)return toast("Enter the family code");let {error}=await sb.rpc("join_family_by_code",{code});if(error)return toast("That code didn't work");await setupSync()};
+$("#signOut").onclick=async()=>{await sb.auth.signOut();syncUser=null;syncBaby=null;syncFamily=null;channelBaby=null;if(syncChannel)void sb.removeChannel(syncChannel);if(supplyChannel)void sb.removeChannel(supplyChannel);showSync("login","Signed out.");window.dispatchEvent(new Event("luca:session-changed"));};
+/* P22: sync isolated from app startup while auth hang is debugged */
+$("#syncDot").onclick=()=>void setupSync();
+window.addEventListener("online",()=>void setupSync());
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)void setupSync()});
+if(sb)sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","TOKEN_REFRESHED","SIGNED_OUT"].includes(event))setTimeout(()=>void setupSync(),0)});
+let pullY=null,pullBusy=false;window.addEventListener("touchstart",e=>{if(window.scrollY<=0)pullY=e.touches[0].clientY},{passive:true});window.addEventListener("touchmove",e=>{if(pullY==null||pullBusy)return;let d=e.touches[0].clientY-pullY;if(d>35){$("#pullRefresh").classList.add("on");$("#pullRefresh").textContent=d>80?"↻ Release to refresh":"↓ Pull to refresh"}},{passive:true});window.addEventListener("touchend",async e=>{if(pullY==null)return;let shown=$("#pullRefresh").classList.contains("on");pullY=null;if(!shown)return;pullBusy=true;$("#pullRefresh").textContent="↻ Refreshing…";try{const timelineOk=await setupSync();$("#pullRefresh").textContent=timelineOk?"✓ Timeline refreshed":"⚠️ Timeline not refreshed — saved entries retained";setTimeout(()=>$("#pullRefresh").classList.remove("on"),1800)}catch(x){console.warn("Pull refresh incomplete",x);$("#pullRefresh").textContent="⚠️ Refresh incomplete — saved entries retained";setTimeout(()=>$("#pullRefresh").classList.remove("on"),1800)}finally{pullBusy=false}}, {passive:true});
+$("#dismissSync").onclick=()=>{$("#authGate").style.display="none"};$("#careHead").onclick=()=>$("#careDock").classList.toggle("open");document.addEventListener("pointerdown",e=>{let d=$("#careDock");if(d?.classList.contains("open")&&!d.contains(e.target))d.classList.remove("open")});document.querySelectorAll(".careItem").forEach(x=>x.onclick=()=>{if(!$("#careDock").classList.contains("open"))$("#careDock").classList.add("open")});$("#carePoop").onclick=e=>{e.stopPropagation();if(!$("#careDock").classList.contains("open")){$("#careDock").classList.add("open");return}playPoopFun()};function openMenu(){window.closeLucaQuickActions?.();let f=a.filter(e=>e.oz).sort((x,y)=>new Date(y.at)-new Date(x.at))[0];$("#menuLastFeed").textContent=f?f.oz+" oz · "+new Date(f.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):"Nothing yet";$("#menuLastFeedWhy").textContent=f?"Logged "+new Date(f.at).toLocaleDateString([],{month:"short",day:"numeric"}):"Log Luca's next bottle and it will appear here.";$("#sideMenu").classList.add("open");$("#navMore")?.setAttribute("aria-expanded","true")}function closeMenu(){$("#sideMenu").classList.remove("open");$("#navMore")?.setAttribute("aria-expanded","false")}$("#sideShade").onclick=closeMenu;$("#closeMenu").onclick=closeMenu;$("#menuRecents").onclick=()=>{closeMenu();document.querySelector('[data-tab="history"]').click()};$("#menuInsights").onclick=()=>{closeMenu();document.querySelector('[data-tab="insights"]').click()};$("#menuSchedule").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#scheduleView").classList.add("active");(window.pullSchedule||pullSchedule)()};$("#menuLeaderboard").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#leaderboardView").classList.add("active");renderLeaderboard()};$("#lbWeek").onclick=()=>{lbRange="week";renderLeaderboard()};$("#lbAll").onclick=()=>{lbRange="all";renderLeaderboard()};$("#menuSupplies").onclick=()=>{closeMenu();document.querySelector('[data-tab="supplies"]').click()};$("#menuIdeas").onclick=()=>{closeMenu();document.querySelector('[data-tab="ideas"]').click()};$("#menuFamily").onclick=()=>{closeMenu();document.querySelector('[data-tab="profile"]').click()};$("#menuAchievements").onclick=()=>{closeMenu();document.querySelector('[data-tab="achievements"]').click()};$("#profileAchievements").onclick=()=>document.querySelector('[data-tab="achievements"]').click();$("#menuHistory").onclick=()=>{closeMenu();document.querySelector('[data-tab="history"]').click()};$("#navMore").onclick=()=>{$("#sideMenu").classList.contains("open")?closeMenu():openMenu()};function openDrawer(){closeMenu();$("#timelineDrawer").classList.add("open");window.dispatchEvent(new Event("luca:chat-peek"))}
+function closeDrawer(){$("#timelineDrawer").classList.remove("open")}
+$("#drawerShade").onclick=closeDrawer;$("#closeDrawer").onclick=closeDrawer;
+$("#chatPeekTab").onclick=openDrawer;
+$("#drawerOpenChat").onclick=()=>{closeDrawer();document.querySelector('nav button[data-tab="chat"]').click()};
+/* P86: deliberate edge swipes only; ordinary scrolling never opens drawers. */
+let edgeGesture=null;
+window.addEventListener("touchstart",e=>{
+ if(e.touches.length!==1||e.target.closest("input,textarea,select,[contenteditable],.drawerPanel,.sidePanel")){edgeGesture=null;return}
+ const t=e.touches[0],w=innerWidth;
+ edgeGesture={x:t.clientX,y:t.clientY,edge:t.clientX<=24?"left":t.clientX>=w-24?"right":null,openLeft:$("#sideMenu").classList.contains("open"),openRight:$("#timelineDrawer").classList.contains("open")};
+},{passive:true});
+window.addEventListener("touchend",e=>{
+ if(!edgeGesture||!e.changedTouches.length)return;
+ const g=edgeGesture;edgeGesture=null;const t=e.changedTouches[0],dx=t.clientX-g.x,dy=t.clientY-g.y;
+ if(Math.abs(dx)<75||Math.abs(dx)<Math.abs(dy)*1.6)return;
+ if(g.openLeft&&dx<0){closeMenu();return}
+ if(g.openRight&&dx>0){closeDrawer();return}
+ if(g.edge==="left"&&dx>0){openMenu();return}
+ if(g.edge==="right"&&dx<0){openDrawer()}
+},{passive:true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMenu();closeDrawer()}});$("#quickText")?.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();e.currentTarget.blur();$("#quickUnderstand")?.click()}});document.querySelectorAll("input").forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.currentTarget.blur()}}));/* One controller owns both anchored quick care pickers. */
+const quickActions=LucaQuickActions.mount({bottle:$("#quickBottlePicker"),poop:$("#quickPoopPicker"),save:saveCareEvent,toast,caregiver:deviceCaregiver,beforeOpen:()=>sleepEditor.close(),bottleSound:()=>safeAudio(bottleLogSound),poopFeedback:playPoopFun});
+window.closeLucaQuickActions=()=>quickActions.close();
+function openQuickBottle(trigger){quickActions.openBottle(trigger||$("#topQuickBottle"))}
+function openQuickPoop(trigger){quickActions.openPoop(trigger||$("#topQuickPoop"))}
+LucaPlayfulness.mount({click:()=>safeAudio(()=>tone(440,.025,.009,"sine"))});
+$("#starterCardTeaser").onclick=()=>document.querySelector('[data-tab="achievements"]').click();
+$("#profileShareDemo").onclick=async()=>{const link=new URL("./demo.html",location.href).href;try{await navigator.clipboard.writeText(link);toast("Practice link copied · sample data only")}catch{const field=$("#friendTestLink");field.hidden=false;field.value=link;field.select();toast("Copy this practice link to share")}};
+$("#topQuickBottle").onclick=()=>openQuickBottle($("#topQuickBottle"));
+$("#topQuickPoop").onclick=()=>openQuickPoop($("#topQuickPoop"));
+document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>{let value=b.dataset.quick;if(value==="poop"){openQuickPoop(b);return}if(value==="8 oz"){openQuickBottle(b);return}if(value==="nap"){openSleepEntry();return}$("#smartText").value=value;smartItems=smartParseText(value);renderSmart();$("#inlineItems").innerHTML=$("#smartItems").innerHTML;if(smartItems.length||smartSupplyItems.length){$("#inlineClarify").classList.add("show");$("#inlineClarify").scrollIntoView({behavior:"smooth",block:"nearest"})}else toast("Please describe this event using text entry");});$("#moreBtn").onclick=()=>{const form=$("#manualComposer");form.classList.toggle("hiddenOldComposer");if(!form.classList.contains("hiddenOldComposer"))form.scrollIntoView({behavior:"smooth"})};let quickBusy=false;$("#quickUnderstand").onclick=()=>{if(quickBusy)return;let t=$("#quickText").value.trim();if(!t)return toast("Tell me what happened");quickBusy=true;$("#quickUnderstand").disabled=true;try{$("#smartText").value=t;smartItems=smartParseText(t);renderSmart();$("#inlineItems").innerHTML=$("#smartItems").innerHTML;if(smartItems.length||smartSupplyItems.length){$("#inlineClarify").classList.add("show");$("#inlineClarify").scrollIntoView({behavior:"smooth",block:"nearest"})}else toast("I couldn’t understand that yet")}catch(err){console.error(err);toast("Entry parser reset — try again")}finally{setTimeout(()=>{quickBusy=false;$("#quickUnderstand").disabled=false},120)}};const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(SR){let rec=new SR();rec.lang="en-US";$("#voiceBtn").onclick=()=>{try{rec.start();$("#voiceBtn").textContent="●"}catch(e){}};rec.onresult=e=>{$("#quickText").value+=($("#quickText").value?" ":"")+e.results[0][0].transcript};rec.onend=()=>$("#voiceBtn").textContent="🎙️"}else $("#voiceBtn").onclick=()=>toast("Voice entry is not available here yet");document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));(b.classList.contains("navHidden")?$("#navMore"):b).classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#"+b.dataset.tab+"View").classList.add("active");render()});render();setTimeout(()=>{try{setupSync()}catch(e){console.error("Family Sync startup failed",e)}},800);
+</script><script type="module">
+import {mountAchievements} from "./agents/achievements-ui.js";
+mountAchievements({getContext:()=>({client:sb,family:syncFamily,user:syncUser,baby:syncBaby}),getEntries:()=>visibleCareEvents(a),host:document.getElementById("achievementsRoot")});
+</script><script type="module">
+import {mountFamilyProfiles} from "./agents/family-profiles.js";
+import {mountPersonality} from "./agents/personality.js";
+mountPersonality();
+let profileStarted=false,profileDispose=null,profileSession=null;
+function activateFamilyProfiles(){
+ const session=(typeof syncFamily==="object"?syncFamily?.id:syncFamily)+":"+syncUser?.id;
+ if(profileStarted&&profileSession!==session){profileDispose?.();profileStarted=false;profileDispose=null;}
+ if(profileStarted)return;
+ if(!sb||!syncFamily||!syncUser){document.querySelector("#profileStatus").textContent="Sign in to Family Sync, then reopen Family.";return;}
+ profileStarted=true;profileSession=session;
+ profileDispose=mountFamilyProfiles({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,list:document.querySelector("#familyProfileList"),name:document.querySelector("#profileName"),bio:document.querySelector("#profileBio"),avatar:document.querySelector("#profileAvatar"),save:document.querySelector("#profileSave"),status:document.querySelector("#profileStatus")});
+}
+document.querySelector('[data-tab="profile"]')?.addEventListener("click",activateFamilyProfiles);
+window.addEventListener("luca:family-session-ready",()=>{if(document.querySelector("#profileView")?.classList.contains("active"))activateFamilyProfiles()});
+</script><script type="module">
+import {mountFamilyChat} from "./agents/family-chat.js";
+const chatTab=document.querySelector('[data-tab="chat"]');
+let chatStarted=false,chatDispose=null,chatSession=null;
+function activateFamilyChat(){
+ const session=(typeof syncFamily==="object"?syncFamily?.id:syncFamily)+":"+syncUser?.id;
+ if(chatStarted&&chatSession!==session){chatDispose?.();chatStarted=false;chatDispose=null;}
+ if(!chatStarted&&!sb){document.querySelector("#familyChatStatus").textContent="Sign in to Family Sync to use chat.";return;}
+ if(!chatStarted&&(!syncFamily||!syncUser)){document.querySelector("#familyChatStatus").textContent="Finish Family Sync sign-in, then reopen Chat.";return;}
+ if(!chatStarted){chatStarted=true;chatSession=session;chatDispose=mountFamilyChat({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,feed:document.querySelector("#familyChatFeed"),input:document.querySelector("#familyChatText"),send:document.querySelector("#familyChatSend"),status:document.querySelector("#familyChatStatus"),mediaInput:document.querySelector("#familyChatMedia"),attachButton:document.querySelector("#familyChatAttach"),mediaPreview:document.querySelector("#familyChatMediaPreview")});}
+}
+chatTab?.addEventListener("click",activateFamilyChat);
+window.addEventListener("luca:family-session-ready",()=>{if(document.querySelector("#chatView")?.classList.contains("active"))activateFamilyChat();});
+</script><script type="module">
+/* P86: read-only chat peek; unread cursor is device-local metadata, never message content. */
+let peekFamilyKey=null,peekBusy=false;
+const peekFeed=document.querySelector("#drawerChatPreview"),peekBadge=document.querySelector("#chatUnreadBadge");
+const peekButton=document.querySelector("#chatPeekTab");
+const peekSession=()=>{let session={client:null,family:null,user:null};window.dispatchEvent(new CustomEvent("luca:chat-session-request",{detail:s=>{session={client:s.client,family:typeof s.family==="object"?s.family?.id:s.family,user:s.user}}}));return session};
+const seenKey=(f,u)=>"luca-chat-seen:"+f+":"+u;
+async function updateChatPeek(markSeen=false){
+ if(peekBusy)return;
+ const {client,family,user}=peekSession();
+ if(!client||!family||!user){peekFeed.textContent="Connecting to Family Chat…";peekBadge.hidden=true;return}
+ const key=seenKey(family,user);peekFamilyKey=key;peekBusy=true;
+ try{
+  const {data,error}=await client.from("family_chat_messages").select("id,sender_id,body,created_at,media_path,media_type").eq("family_id",family).order("created_at",{ascending:false}).limit(8);
+  if(error)throw error;
+  const current=peekSession();if(current.family!==family||current.user!==user)return;
+  const rows=data||[],lastSeen=localStorage.getItem(key)||"";
+  const senderIds=[...new Set(rows.map(m=>m.sender_id).filter(Boolean))];
+  const senderNames=new Map();
+  if(senderIds.length){
+   const {data:profiles,error:profileError}=await client.from("family_profiles").select("user_id,display_name").eq("family_id",family).in("user_id",senderIds);
+   if(!profileError)for(const profile of profiles||[])if(profile.display_name?.trim())senderNames.set(profile.user_id,profile.display_name.trim());
+  }
+  const unread=rows.filter(m=>m.sender_id!==user&&m.created_at>lastSeen).length;
+  peekBadge.hidden=!unread;peekBadge.textContent=unread>=8?"8+":String(unread);
+  peekButton.setAttribute("aria-label",unread?unread+" new family chat messages":"Peek at family chat");
+  peekFeed.replaceChildren();
+  if(!rows.length)peekFeed.textContent="No messages yet. Say hello in Family Chat.";
+  else{
+   for(const m of rows){
+    const card=document.createElement("div");card.className="chatPeekMessage";
+    const heading=document.createElement("strong");heading.textContent=m.sender_id===user?"You":(senderNames.get(m.sender_id)||"Family member");
+    const body=document.createElement("p");body.textContent=m.body||"Shared a "+(m.media_type||"message");
+    const time=document.createElement("small");time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+    card.append(heading,body,time);peekFeed.append(card);
+   }
+  }
+  if(markSeen&&rows[0]?.created_at){localStorage.setItem(key,rows[0].created_at);peekBadge.hidden=true;peekBadge.textContent="";}
+ }catch{peekFeed.textContent="Couldn't load chat preview. Open Family Chat to retry.";peekBadge.hidden=true}
+ finally{peekBusy=false}
+}
+window.addEventListener("luca:family-session-ready",()=>updateChatPeek(false));
+window.addEventListener("luca:chat-peek",()=>updateChatPeek(true));
+document.querySelector('nav button[data-tab="chat"]')?.addEventListener("click",()=>updateChatPeek(true));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateChatPeek(false)});
+setInterval(()=>{if(!document.hidden)updateChatPeek(false)},30000);
+updateChatPeek(false);
+</script><style>
+nav{overflow-x:auto;justify-content:space-around}nav button{min-width:62px}
+</style><style>
+.introBlocks{transition:opacity .5s ease 2.05s}.introToy .introBlocks{animation:blocksFade .55s 2.15s forwards}@keyframes blocksFade{to{opacity:.12;filter:blur(1px)}}
+</style><style>
+/* Professional nursery intro — readable BABY LUCA, quiet transition, no screen-smash */
+.introToy{animation:introGoneSoft .6s 3.65s cubic-bezier(.4,0,.2,1) forwards!important;background:radial-gradient(circle at 50% 42%,#eadfd2 0%,#d8cabb 52%,#cbb9a5 100%)!important}
+.introToy:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 47%,transparent 0 28%,#816b5510 72%,#6c584518 100%);z-index:0}
+.introCrack,.toyL{display:none!important}
+.introBlocks{animation:none!important;opacity:1!important;filter:none!important;transition:none!important;z-index:2!important}
+.introBlocks .word{width:60px!important;height:60px!important;top:-100px!important}
+.introBlocks .b1{left:18%!important;animation:softB1 1.55s .05s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .a1{left:35%!important;animation:softA1 1.58s .12s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .b2{left:52%!important;animation:softB2 1.62s .19s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .y1{left:69%!important;animation:softY1 1.66s .26s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .l1{left:18%!important;animation:softL1 1.7s .33s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .u1{left:35%!important;animation:softU1 1.73s .40s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .c1{left:52%!important;animation:softC1 1.76s .47s cubic-bezier(.16,.78,.22,1) both!important}
+.introBlocks .a2{left:69%!important;animation:softA2 1.8s .54s cubic-bezier(.16,.78,.22,1) both!important}
+@keyframes softB1{0%{transform:translate3d(-18px,-110px,35px) rotate(-24deg);opacity:0}68%{transform:translate3d(0,41vh,0) rotate(6deg);opacity:1}82%{transform:translate3d(0,38.5vh,0) rotate(-3deg)}100%{transform:translate3d(0,40vh,0) rotate(-4deg);opacity:1}}
+@keyframes softA1{0%{transform:translate3d(14px,-150px,25px) rotate(28deg);opacity:0}68%{transform:translate3d(0,41vh,0) rotate(-5deg);opacity:1}82%{transform:translate3d(0,38.7vh,0) rotate(3deg)}100%{transform:translate3d(0,40vh,0) rotate(2deg);opacity:1}}
+@keyframes softB2{0%{transform:translate3d(-12px,-185px,30px) rotate(-31deg);opacity:0}68%{transform:translate3d(0,41vh,0) rotate(7deg);opacity:1}82%{transform:translate3d(0,38.6vh,0) rotate(-3deg)}100%{transform:translate3d(0,40vh,0) rotate(-2deg);opacity:1}}
+@keyframes softY1{0%{transform:translate3d(20px,-125px,20px) rotate(23deg);opacity:0}68%{transform:translate3d(0,41vh,0) rotate(-7deg);opacity:1}82%{transform:translate3d(0,38.5vh,0) rotate(3deg)}100%{transform:translate3d(0,40vh,0) rotate(4deg);opacity:1}}
+@keyframes softL1{0%{transform:translate3d(-15px,-195px,28px) rotate(-27deg);opacity:0}68%{transform:translate3d(0,50vh,0) rotate(5deg);opacity:1}82%{transform:translate3d(0,47.5vh,0) rotate(-3deg)}100%{transform:translate3d(0,49vh,0) rotate(-3deg);opacity:1}}
+@keyframes softU1{0%{transform:translate3d(13px,-145px,22px) rotate(25deg);opacity:0}68%{transform:translate3d(0,50vh,0) rotate(-6deg);opacity:1}82%{transform:translate3d(0,47.6vh,0) rotate(3deg)}100%{transform:translate3d(0,49vh,0) rotate(2deg);opacity:1}}
+@keyframes softC1{0%{transform:translate3d(-18px,-175px,30px) rotate(-23deg);opacity:0}68%{transform:translate3d(0,50vh,0) rotate(6deg);opacity:1}82%{transform:translate3d(0,47.5vh,0) rotate(-3deg)}100%{transform:translate3d(0,49vh,0) rotate(-2deg);opacity:1}}
+@keyframes softA2{0%{transform:translate3d(16px,-210px,25px) rotate(29deg);opacity:0}68%{transform:translate3d(0,50vh,0) rotate(-5deg);opacity:1}82%{transform:translate3d(0,47.7vh,0) rotate(3deg)}100%{transform:translate3d(0,49vh,0) rotate(3deg);opacity:1}}
+/* BABY gently leaves; LUCA remains as the visual handoff */
+.introBlocks .b1,.introBlocks .a1,.introBlocks .b2,.introBlocks .y1{animation-composition:add;transition:opacity .48s ease 2.35s,filter .48s ease 2.35s!important}
+.introToy.introSettle .b1,.introToy.introSettle .a1,.introToy.introSettle .b2,.introToy.introSettle .y1{opacity:0!important;filter:blur(3px)}
+.introName{top:65%!important;font-size:24px!important;opacity:0!important;animation:brandReveal .55s 2.72s cubic-bezier(.2,.75,.25,1) forwards!important;letter-spacing:.005em!important}
+@keyframes brandReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes introGoneSoft{0%{opacity:1}100%{opacity:0;visibility:hidden;pointer-events:none}}
+</style><style>
+/* Cinematic nursery polish: longer BABY read, moving spotlight, richer 3D */
+.introToy{animation:introGoneSoft .72s 4.85s cubic-bezier(.4,0,.2,1) forwards!important;background:linear-gradient(180deg,#d8c9b8 0%,#cdb9a3 100%)!important}
+.introToy:after{background:radial-gradient(ellipse at 50% 46%,transparent 0 22%,#715a4217 62%,#5b463321 100%)!important}
+.introToy .introBlocks:before{content:"";position:absolute;width:210px;height:270px;left:-80px;top:16%;border-radius:50%;background:radial-gradient(ellipse,#fff8e9b8 0%,#fff2d86c 32%,transparent 70%);filter:blur(7px);mix-blend-mode:screen;transform:rotate(-14deg);animation:nurserySpot 3.65s .35s cubic-bezier(.3,.05,.2,1) both;pointer-events:none;z-index:8}
+@keyframes nurserySpot{0%{transform:translate3d(-40px,20px,0) rotate(-14deg) scale(.75);opacity:0}14%{opacity:.65}38%{transform:translate3d(38vw,9vh,0) rotate(4deg) scale(.92);opacity:.92}65%{transform:translate3d(67vw,26vh,0) rotate(13deg) scale(1.02);opacity:.8}88%{transform:translate3d(42vw,36vh,0) rotate(-4deg) scale(1.1);opacity:.55}100%{transform:translate3d(46vw,39vh,0) rotate(0) scale(1.18);opacity:0}}
+.introBlocks .word{border-radius:17px!important;border:1px solid #ffffffc7!important;box-shadow:inset 5px 5px 9px #ffffffa6,inset -7px -9px 13px #62442a4f,0 4px 0 #6b4b3433,0 18px 28px #55402d4f!important;transform-style:preserve-3d}
+.introBlocks .word:before{inset:8px!important;border-radius:11px!important;background:linear-gradient(145deg,#fffefb 0%,#f4efe7 48%,#ddd4c8 100%)!important;box-shadow:inset 3px 3px 4px #fff,inset -4px -5px 7px #9d908263,0 2px 3px #5e463238!important}
+.introBlocks .word:after{font-size:35px!important;text-shadow:0 1px 0 #fff,0 3px 2px #fff8,0 5px 7px #4d382a4d!important;filter:saturate(.92)}
+/* Give the audience time to actually read BABY LUCA */
+.introToy.introSettle .b1,.introToy.introSettle .a1,.introToy.introSettle .b2,.introToy.introSettle .y1{opacity:1!important;filter:none!important}
+.introToy.introFadeBaby .b1,.introToy.introFadeBaby .a1,.introToy.introFadeBaby .b2,.introToy.introFadeBaby .y1{opacity:0!important;filter:blur(2px)!important;transform:translateY(-5px) scale(.985)!important;transition:opacity .72s ease,filter .72s ease,transform .72s ease!important}
+.introName{top:66%!important;animation:brandReveal .68s 3.82s cubic-bezier(.2,.75,.25,1) forwards!important}
+</style><style>
+/* Rendered cinematic intro replaces the legacy CSS toy-block sequence */
+#introToy{display:none!important}
+#cinematicIntro{position:fixed;inset:0;z-index:9999;background:#1b1712;overflow:hidden;display:grid;place-items:center;opacity:1;transition:opacity .8s cubic-bezier(.4,0,.2,1);pointer-events:auto}
+#cinematicIntro.done{opacity:0;pointer-events:none}
+#cinematicIntro video{width:100%;height:auto;max-height:100%;object-fit:contain;object-position:center center;display:block;background:#1b1712}
+#cinematicIntro .cinematicBrand{position:absolute;left:0;right:0;bottom:calc(8% + env(safe-area-inset-bottom));text-align:center;color:#fff8ee;text-shadow:0 2px 18px #2b180dcc;opacity:0;transform:translateY(8px);transition:opacity .65s ease,transform .65s ease;pointer-events:none}
+#cinematicIntro.brand .cinematicBrand{opacity:1;transform:none}
+#cinematicIntro .cinematicBrand b{display:block;font-size:24px;letter-spacing:-.02em}
+#cinematicIntro .cinematicBrand span{display:block;margin-top:5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.78}
+#cinematicSkip{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));border:1px solid #ffffff38;background:#2b2118a6;color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+@media(prefers-reduced-motion:reduce){#cinematicIntro{transition:none}}
+</style>
+<script>
+(function(){
+ const w=document.getElementById("bootCinematic"); if(!w)return;
+ const vids=[...w.querySelectorAll("video")], skip=w.querySelector(".introSkip");
+ let closed=false,timer;
+ const close=()=>{if(closed)return;closed=true;clearTimeout(timer);w.classList.add("done");vids.forEach(v=>{try{v.pause()}catch(e){}});setTimeout(()=>w.remove(),650)};
+ skip.addEventListener("click",close);
+ vids.forEach(v=>{v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{})});
+ vids[1].addEventListener("ended",close,{once:true});
+ timer=setTimeout(close,11500);
+})();
+</script><script src="./family-pin.js?v=136"></script><script src="./sync-fix.js?v=136"></script><script type="module">
+import {mountAgentReportWidget} from "./agents/report-widget.js";
+const launch=document.createElement("button");
+launch.type="button";launch.textContent="⚑ Report a problem";
+launch.style.cssText="display:none;border:1px solid #b8d7e7;border-radius:16px;background:#123b54;color:#fff;-webkit-text-fill-color:#fff;padding:10px 12px;font-size:12px;font-weight:800;box-shadow:0 5px 16px #0008";
+document.getElementById("profileReportIssue")?.addEventListener("click",()=>launch.click());
+let panel;
+launch.addEventListener("click",()=>{
+ if(panel){panel.querySelector("section")?.dispatchEvent(new Event("luca:dispose"));panel.remove();panel=null;launch.textContent="⚑ Report a problem";return;}
+ const family=(typeof syncFamily!=="undefined"&&syncFamily)?(typeof syncFamily==="object"?syncFamily.id:syncFamily):null;
+ const client=(typeof sb!=="undefined")?sb:null;
+ if(!client||!family){alert("Sign in and join your family before reporting a problem.");return;}
+ panel=document.createElement("div");panel.style.cssText="position:fixed;inset:calc(8px + env(safe-area-inset-top)) 8px calc(90px + env(safe-area-inset-bottom));overflow:auto;z-index:32;background:#0a1827;border-radius:20px;padding:16px;box-shadow:0 10px 40px #000a";
+ const close=document.createElement("button");close.textContent="✕ Close";close.style.cssText="background:#224057;color:white;padding:9px;border:0;border-radius:10px";close.addEventListener("click",()=>launch.click());panel.append(close);
+ document.body.append(panel);mountAgentReportWidget({supabase:client,familyId:family,container:panel,getFamilyId:()=>typeof syncFamily==="object"?syncFamily?.id:syncFamily});launch.textContent="Close report";
+});
+</script><script type="module">
+import {mountIdeas} from "./agents/family-ideas.js";
+let dispose=null,session="";
+document.querySelector('[data-tab="ideas"]')?.addEventListener("click",()=>{
+ const key=(typeof syncFamily==="object"?syncFamily?.id:syncFamily)+":"+syncUser?.id;
+ if(dispose&&session===key)return;
+ dispose?.();session=key;dispose=mountIdeas({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,root:document.getElementById("familyIdeasRoot")});
+});
+</script><script>document.addEventListener("click",e=>{if(e.target.closest("[data-tag=poop]"))setTimeout(()=>{const selected=document.querySelector("[data-tag=poop]")?.classList.contains("on")||document.querySelector("[data-tag=poop]")?.classList.contains("active");document.getElementById("poopDetails").style.display=selected?"":"none"},0)});document.getElementById("poopSize")?.addEventListener("input",e=>{document.getElementById("poopSizeLabel").textContent=["","Smear","Small","Medium","Large","Diaper disaster"][Number(e.target.value)]});</script></body></html>
