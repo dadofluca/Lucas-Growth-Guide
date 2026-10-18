@@ -172,7 +172,8 @@ test("iPhone care dock opens from poop emoji and emergency shortcut stays clear 
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
   const dock=page.locator("#careDock");
-  await dock.locator("#carePoop .careEmoji").tap();
+  await expect(dock).toBeVisible();
+  await dock.locator("#carePoop .careEmoji").tap({timeout:5000});
   await expect(dock).toHaveClass(/open/);
   const sos=await page.locator("#lucaEmergencyLink").boundingBox();
   const nav=await page.locator("nav").boundingBox();
