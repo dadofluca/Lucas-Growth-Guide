@@ -23,6 +23,8 @@ jobs:
         run: node agents/synthetic-handoff.mjs
       - name: Run Spark UX audit
         run: node agents/spark-audit.mjs
+      - name: Review approved feedback exports only when explicitly supplied
+        run: node agents/feedback-review.mjs
       - name: Evaluate release readiness without production access
         run: node agents/release-readiness.mjs
       - name: Upload reviewable evidence
