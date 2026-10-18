@@ -346,7 +346,7 @@ test("P95 family authentication does not falsely claim timeline synchronization"
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
  const source=await page.locator("script").allTextContents();
  const app=source.join("\n");
- expect(app).toContain('const timelineLoaded=await pullShared()');
+ expect(app).toContain('timelineLoaded=await pullShared()');
  expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
  expect(app).toContain('render();return false}let remoteRows=');
 });
