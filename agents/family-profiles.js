@@ -1,3 +1,4 @@
+import {profileBanner} from "./flair-ui.js";
 import {bonusCharacters,bonusAvatarSvg} from "./avatar-characters.js";
 import {avatarArtwork,avatarCategories,avatarCategory,frameAvatarImage} from "./avatar-art.js";
 const presets={bear:"🧸",fox:"🦊",bunny:"🐰",duck:"🐥",owl:"🦉",lion:"🦁",panda:"🐼",koala:"🐨",penguin:"🐧",dino:"🦕",robot:"🤖",astronaut:"👨‍🚀",sun:"☀️",star:"⭐"};
@@ -18,6 +19,7 @@ const armory={
 };
 for(const [key,item] of Object.entries(armory)){presets[key]=item.symbol;palette[key]=item.colors;labels[key]=item.label;}
 for(const [key,item] of Object.entries(bonusCharacters)){presets[key]="★";palette[key]=item.colors;labels[key]=item.label;}
+export function avatarLabel(key){return labels[key]||"Family character";}
 function armorySvg(key){
  const a=armory[key],[dark,light]=a.colors;
  const crown=key==="diaperKing"||key==="napEmperor";
@@ -121,16 +123,16 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   const client=getClient(),family=getFamilyId(),user=getUser();
   if(!client||!family||!user){list.replaceChildren();say("Sign in to Family Sync to see profiles.");return;}
   let data,error;
-  try{({data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at").eq("family_id",family).order("display_name"));}catch{error=true;}
+  try{({data,error}=await client.from("family_profiles").select("user_id,display_name,bio,avatar_preset,last_active_at,flair").eq("family_id",family).order("display_name"));}catch{error=true;}
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){list.replaceChildren();say("Family session changed. Refresh profiles.");return;}
   if(error){list.replaceChildren();say("Profiles unavailable. Try again.");return;}
   list.replaceChildren();
   for(const p of data||[]){
-   const row=document.createElement("div");row.style.cssText="padding:12px;border-bottom:1px solid #ddd";
-   const title=document.createElement("strong");const deviceName=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"");title.textContent=(deviceName?"Family member":p.display_name)+(p.user_id===user.id?" (You)":"");row.style.display="flex";row.style.alignItems="center";row.style.gap="12px";row.append(avatarImage(p.avatar_preset,48));
+   const row=document.createElement("div");row.className="familyMember";
+   const title=document.createElement("strong");const deviceName=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"");title.textContent=(deviceName?"Family member":p.display_name)+(p.user_id===user.id?" (You)":"");row.append(avatarImage(p.avatar_preset,48));
    const seen=document.createElement("div");seen.className="muted";seen.textContent=lastSeen(p.last_active_at);
-   row.append(title,seen);list.append(row);
+   const copy=document.createElement("div");copy.className="familyMemberCopy";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(p.avatar_preset);copy.append(title,character);const banner=profileBanner(p.flair);if(banner)copy.append(banner);copy.append(seen);row.append(copy);list.append(row);
    if(p.user_id===user.id&&!dirty){name.value=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"")?"":p.display_name;bio.value=p.bio||"";avatar.value=presets[p.avatar_preset]?p.avatar_preset:"bear";savedPreset=avatar.value;paintSelection();}
   }
   say((data||[]).some(p=>p.user_id===user.id&&/^device-[a-f0-9-]{12,}$/i.test(p.display_name||""))?"Choose a display name and tap Save profile.":"");
@@ -150,7 +152,8 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   finally{save.disabled=false;}
  };
  save.addEventListener("click",onSave);
+ const onFlair=e=>{if(e.detail?.family===getFamilyId())void refresh();};window.addEventListener("luca:profile-flair",onFlair);
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();avatar.after(save,status);root.remove();for(const key of Object.keys({...armory,...bonusCharacters}))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);window.removeEventListener("luca:profile-flair",onFlair);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();avatar.after(save,status);root.remove();for(const key of Object.keys({...armory,...bonusCharacters}))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
 }

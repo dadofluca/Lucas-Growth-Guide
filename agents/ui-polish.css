@@ -140,3 +140,122 @@ body#lucaApp #sleepTrends .sleepMetric strong{color:var(--luca-ink)!important;-w
 
 body#lucaApp .kicker{color:#607367!important;-webkit-text-fill-color:#607367!important;font-weight:700}
 body#lucaApp:has(#ideasView.active) :is(#careDock,#chatPeekTab){display:none!important}
+
+/* Anchored quick care: one-hand-sized controls without moving the journal. */
+body#lucaApp .quickPopover{position:fixed!important;z-index:115;box-sizing:border-box;margin:0!important;padding:14px!important;border-radius:21px;background:#fffef9fa;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid #c6d6c9;box-shadow:0 12px 40px #2a42332a,0 2px 8px #2a423310;overflow-y:auto;overscroll-behavior:contain;isolation:isolate;color:var(--luca-ink);animation:lucaReveal .16s ease-out}
+.quickPopover[hidden],#quickPoopOther[hidden]{display:none!important}
+.quickBottleHeading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.quickBottleHeading strong{font-size:15px;letter-spacing:-.025em}
+body#lucaApp .quickPopover .pickerClose{min-width:36px;min-height:36px;padding:0!important;border-radius:50%;font-size:23px;line-height:1;background:#eef3e9!important;border-color:transparent!important}
+body#lucaApp #quickBottlePicker .quickBottleAmounts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:9px}
+body#lucaApp #quickBottlePicker .quickBottleAmounts button{padding:9px 2px!important;min-height:62px;border:1px solid #c9d8c3!important;border-radius:14px!important;background:#eaf1df!important;font-size:22px;font-weight:750;line-height:1.1}
+body#lucaApp #quickBottlePicker .quickBottleAmounts button span{display:block;font-size:10px;font-weight:650;margin-top:5px}
+.quickBottleCredit,.pickerFoot{display:block;font-size:11px;line-height:1.45;color:var(--luca-muted);margin:9px 0 0}
+.quickBottleCredit{font-weight:700;margin-top:12px}.pickerFoot{font-size:10px;margin-top:5px}
+#quickPoopForm{display:grid;gap:9px;margin:0}
+#quickPoopForm>label:not(.quickWet){font-size:12px;font-weight:650;margin-top:3px}
+body#lucaApp #quickPoopForm select,body#lucaApp #quickPoopForm input:not([type=range]):not([type=checkbox]){box-sizing:border-box;width:100%;min-height:44px;margin:0!important;font-size:15px!important}
+#quickPoopForm .quickWet{display:flex;gap:9px;align-items:center;font-size:14px;min-height:42px;margin:0}
+#quickPoopWet{width:21px;height:21px;accent-color:#5f876a;margin:0}
+.quickPoopScale{display:flex;justify-content:space-between;font-size:10px;color:var(--luca-muted);margin-top:-6px}
+body#lucaApp #quickPoopSave{margin:0!important;min-height:47px;width:100%;font-size:14px}
+body#lucaApp.quickPickerOpen :is(#careDock,#chatPeekTab){visibility:hidden!important}
+body#lucaApp .persistentTitle .titleL{min-width:31px;min-height:31px;width:31px;height:31px;padding:0!important;margin:0 7px 0 0;border:3px solid #c76d43!important;border-radius:8px!important;background:#fff9ee!important;color:#b05b35!important;-webkit-text-fill-color:#b05b35!important;font-family:Georgia,serif;font-size:23px;line-height:1;flex-shrink:0;font-weight:800}
+body#lucaApp .persistentTitle{gap:0}
+
+/* A staged thumb falls; the real accessible range keeps its value and hit area. */
+.poopMeter{position:relative;min-width:0;padding-bottom:17px}
+body#lucaApp .poopMeter input[type=range]{display:block;appearance:none;-webkit-appearance:none;width:100%;height:38px;margin:0;padding:0;background:transparent;accent-color:#aa714d;cursor:pointer}
+.poopMeter input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:6px;background:linear-gradient(90deg,#dcc8a5,#a66b4c)}
+.poopMeter input[type=range]::-moz-range-track{height:5px;border-radius:6px;background:linear-gradient(90deg,#dcc8a5,#a66b4c)}
+.poopMeter input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;height:27px;width:27px;border-radius:50%;margin-top:-11px;background:#fffef9;border:1px solid #b4c5b7;box-shadow:0 2px 6px #30423226}
+.poopMeter input[type=range]::-moz-range-thumb{height:27px;width:27px;border-radius:50%;background:#fffef9;border:1px solid #b4c5b7;box-shadow:0 2px 6px #30423226}
+.meterStunt{display:none;position:absolute;right:-2px;top:0;font-size:28px;pointer-events:none;z-index:2}
+.railBroken .meterStunt{display:block;animation:diaperGravity 1.55s cubic-bezier(.33,.1,.7,.6) both}
+.railBroken input::-webkit-slider-thumb{opacity:0}.railBroken input::-moz-range-thumb{opacity:0}
+.meterQuip{position:absolute;bottom:0;left:0;right:0;display:block;min-height:14px;font-size:10px!important;color:#80573c!important;-webkit-text-fill-color:#80573c!important;line-height:1.3}
+.lucaStunt{position:fixed;z-index:180;font-size:40px;pointer-events:none;user-select:none;max-width:80px}
+.bottleOrbit{animation:bottleEscape 1.5s cubic-bezier(.3,.1,.6,1) both}
+.blockParty{animation:blockConfetti 1.25s ease-out both;white-space:nowrap}
+.funStatus{position:fixed;z-index:180;left:50%;bottom:calc(105px + env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 40px);box-sizing:border-box;border-radius:14px;background:#e9efdff5;color:#354935;box-shadow:0 8px 28px #2b423324;font-size:12px;line-height:1.4;padding:11px 15px;pointer-events:none}
+.funStatus:empty{display:none}
+@keyframes diaperGravity{0%{transform:translate(0,0) rotate(0);opacity:1}32%{transform:translate(4px,0) rotate(20deg);opacity:1}74%{transform:translate(0,30px) rotate(125deg);opacity:.9}100%{transform:translate(-12px,47px) rotate(175deg);opacity:0}}
+@keyframes bottleEscape{0%{transform:translate(0,0) rotate(0);opacity:1}30%{transform:translate(-18px,-12px) rotate(-25deg);opacity:1}100%{transform:translate(-45px,-230px) rotate(35deg);opacity:0}}
+@keyframes blockConfetti{0%{transform:translateY(0) scale(.6);opacity:0}25%{transform:translateY(20px) scale(1.1);opacity:1}80%{opacity:1}100%{transform:translateY(70px) rotate(15deg);opacity:0}}
+
+/* History is a quiet care journal, with real edit/delete actions close at hand. */
+body#lucaApp #historyView .historyShell{padding:16px 14px!important;background:#fffdf8d9!important}
+.historyToolbar{padding:2px 0 13px;border-bottom:1px solid var(--luca-line);margin-bottom:6px}
+.historySearchLabel{display:block;font-size:12px;font-weight:700;margin:0 0 8px}
+.historySearchRow{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:7px}
+body#lucaApp .historySearchRow input,body#lucaApp .historySearchRow select{width:100%;box-sizing:border-box;font-size:13px!important;padding:10px!important;min-height:44px;margin:0!important}
+#historyCount{display:block;font-size:10px;margin-top:9px}
+body#lucaApp #history .historyDay{border:0!important;border-bottom:1px solid var(--luca-line)!important;border-radius:0;margin:0;padding:0;background:transparent;box-shadow:none}
+body#lucaApp #history .historyDay>summary{display:flex;align-items:center;gap:10px;list-style:none;padding:17px 0;min-height:54px;cursor:pointer;background:transparent;border:0}
+.historyDay>summary::-webkit-details-marker{display:none}
+.historyDayDate{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.historyDayDate b{font-size:16px;letter-spacing:-.025em;font-weight:750}
+body#lucaApp #history .historyDayDate small{font-size:10px;line-height:1.3}
+.historyDayTotals{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:122px;line-height:1.3}
+.historyDayTotals>span{font-size:10px;background:#ebf1e5;border-radius:7px;padding:4px 6px;white-space:nowrap}
+body#lucaApp #history .historyDayTotals>small{width:100%;text-align:right;font-size:10px;margin-top:1px}
+.historyChevron{font-size:20px;color:#617a65;transition:transform .16s ease;line-height:1}
+details[open]>.historyChevron,details[open]>summary .historyChevron{transform:rotate(180deg)}
+body#lucaApp #history .historyEvents{margin:0;padding:0 0 10px;border:0;list-style:none;display:grid;gap:9px}
+body#lucaApp #history .historyEvent{display:flex;align-items:flex-start;gap:10px;background:#fffefb;border:1px solid #dbe3d7!important;border-radius:17px;padding:13px 11px;margin:0;box-shadow:0 2px 6px #2a422305}
+.historyEventIcon{display:grid;place-items:center;flex:0 0 35px;min-height:35px;border-radius:11px;background:#eef0dd;font-size:21px;line-height:1}
+[data-care-kind=poop] .historyEventIcon{background:#f4e6dc}[data-care-kind=sleep] .historyEventIcon{background:#eeebf4;color:#73678a}
+.historyEventBody{flex:1;min-width:0}.historyEventHeading{display:flex;justify-content:space-between;gap:9px;align-items:baseline;flex-wrap:wrap}
+.historyEventHeading strong{font-size:14px;line-height:1.35;letter-spacing:-.015em;font-weight:700}
+.historyEventHeading time{font-size:10px;color:var(--luca-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.historyPeople{font-size:10px;font-weight:600;color:#6a7a65;margin:4px 0 0}
+body#lucaApp #history .historyNote{font-size:12px;line-height:1.5;color:#536553;margin:9px 0 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.historyEventActions{display:flex;gap:6px;margin-top:11px}
+body#lucaApp .historyEventActions button,body#lucaApp .actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:7px 10px!important;font-size:11px!important;font-weight:650;line-height:1;border-radius:10px!important;background:#f2f6ec!important;border-color:#dce6d5!important}
+.historyEventActions svg,.actions svg{height:14px;width:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+body#lucaApp .historyEventActions .historyDelete,body#lucaApp .actions .del{color:#8c5748!important;-webkit-text-fill-color:#8c5748!important;border-color:#ebd9cf!important;background:#fbf2ec!important}
+.historyEmpty{padding:35px 12px;text-align:center;display:grid;gap:8px;color:var(--luca-muted)}
+.historyEmpty>span{font-size:32px;color:#8b9d84}.historyEmpty>strong{font-size:15px}.historyEmpty p{font-size:12px;margin:0}
+
+/* A shared character name and earned banner travel with the portrait. */
+.familyMember{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--luca-line)}
+.familyMemberCopy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.familyMemberCopy>strong{font-size:15px}.familyMemberCopy>.muted{font-size:10px}
+.avatarCharacter{display:block;font-size:11px;font-weight:600;line-height:1.4;color:#6b745f;overflow-wrap:anywhere}
+.familyChatMessage{padding:15px;margin:9px 0;border-radius:18px;background:#f3f6ec;color:var(--luca-ink);overflow-wrap:anywhere;border:1px solid #e1e7da;font-size:14px;line-height:1.5}
+.chatMessageHeader{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.chatIdentity{display:flex;flex:1;min-width:0;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.3}
+.chatIdentity>strong{font-size:13px}.chatIdentity .avatarCharacter{font-size:10px}
+body#lucaApp #familyChatFeed .chatTimestamp{font-size:9px;margin-top:3px;color:#687862!important;-webkit-text-fill-color:#687862!important}
+.profileBanner{display:inline-flex;align-items:center;gap:5px;max-width:100%;box-sizing:border-box;border:1px solid #c8d5b9;border-radius:7px;padding:4px 7px;font-size:9px!important;font-weight:750!important;line-height:1.2;letter-spacing:.015em;white-space:normal;overflow-wrap:anywhere;color:#365030!important;-webkit-text-fill-color:#365030!important;background:#e4edda}
+.profileBanner>span:first-child{font-size:12px;line-height:1}
+.flair-gold{background:linear-gradient(120deg,#f4ebcc,#f8f1de);border-color:#ddce99;color:#69511f!important;-webkit-text-fill-color:#69511f!important}
+.flair-clay{background:linear-gradient(120deg,#f3e0d5,#f9ede5);border-color:#dfc2b0;color:#794b32!important;-webkit-text-fill-color:#794b32!important}
+.flair-lavender{background:linear-gradient(120deg,#e8e3f0,#f3eef7);border-color:#d0c6df;color:#5e4b75!important;-webkit-text-fill-color:#5e4b75!important}
+body#lucaApp .profileAchievementLink{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 14px!important;background:#edf2e4!important;font-size:13px;margin:0 0 20px;border-radius:13px}
+body#lucaApp:has(#achievementsView.active) :is(#careDock,#chatPeekTab){display:none!important}
+.achievementHero{display:flex;gap:14px;align-items:center;padding:3px 0 18px;border-bottom:1px solid var(--luca-line)}
+.achievementIdentity{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.achievementIdentity>strong{font-size:19px;letter-spacing:-.035em}.achievementIdentity .profileBanner{margin-top:4px}
+.achievementScore{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;margin:20px 0}
+.achievementScore strong{font-size:32px;font-weight:750;letter-spacing:-.05em;line-height:1}.achievementScore>span{font-size:12px;color:var(--luca-muted)}
+.achievementScore progress{display:block;width:100%;height:5px;accent-color:#7b986b;border:0;border-radius:5px;overflow:hidden;margin-top:9px}
+.achievementScore progress::-webkit-progress-bar{background:#eaf0e2}.achievementScore progress::-webkit-progress-value{background:#879d72}
+.weeklyHighlight{display:flex;flex-direction:column;gap:5px;background:#f4f0df;padding:14px 15px;border-radius:15px;border:1px solid #e3dcc0;margin-bottom:23px}
+.achievementEyebrow{font-size:9px;font-weight:750;letter-spacing:.12em;color:#766a45}.weeklyHighlight strong{font-size:16px;letter-spacing:-.025em}.weeklyHighlight small{font-size:11px}
+.achievementTools{display:flex;align-items:center;justify-content:space-between;gap:8px}.achievementTools h2{font-size:18px!important;margin:0}.achievementTools button{font-size:10px!important;min-height:38px!important;padding:7px 9px!important}
+.achievementFoot{font-size:11px;color:var(--luca-muted);line-height:1.5;margin:9px 0 16px}
+.achievementGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch}
+.achievementCard{min-width:0;border:1px solid #d9e2d1;border-radius:16px;padding:13px 11px;background:#fffef9;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.achievementIcon{display:grid;place-items:center;min-width:35px;min-height:35px;border-radius:11px;font-size:22px;background:#e8efdf;color:#48633a;line-height:1}
+body#lucaApp .achievementCard h3{font-size:13px;line-height:1.3;letter-spacing:-.02em;margin:1px 0 0}
+.achievementCard p{font-size:10px;line-height:1.5;margin:0;color:#63705c;flex:1}
+.achievementCard .profileBanner{font-size:8px!important;padding:4px 6px;gap:4px}
+body#lucaApp .achievementCard button{width:100%;margin-top:4px;min-height:40px;font-size:10px!important;padding:8px 5px!important;background:#edf3e5!important}
+.achievementProgress{font-size:10px;margin-top:2px;color:#64785b}
+.achievementCard.locked{background:#f6f8f1;border-style:dashed}.flair-locked{background:#e9eee3;color:#748068}
+.achievementCard.equipped{border-color:#93ab7e;box-shadow:0 0 0 1px #a3b58e55;background:#f2f7e9}
+.achievementStatus{font-size:11px;line-height:1.5;color:var(--luca-muted);margin:18px 0 10px}
+@media(max-width:350px){.historySearchRow{grid-template-columns:minmax(0,1fr) 92px}.historyEventHeading{gap:4px}.historyDayTotals{max-width:96px}.achievementCard{padding:12px 9px}.achievementCard .profileBanner{font-size:7px!important}.historyDayDate b{font-size:15px}}
+@media(min-width:650px){.achievementGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.quickPopover,.lucaStunt,.meterStunt{animation:none!important}.lucaStunt,.meterStunt{display:none!important}.railBroken input::-webkit-slider-thumb{opacity:1}.railBroken input::-moz-range-thumb{opacity:1}.historyChevron{transition:none!important}}

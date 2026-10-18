@@ -1,4 +1,5 @@
-import {avatarImage} from "./family-profiles.js";
+import {avatarImage,avatarLabel} from "./family-profiles.js";
+import {profileBanner} from "./flair-ui.js";
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status,mediaInput,attachButton,mediaPreview}){
  let busy=false,requestId=0,disposed=false,selectedFile=null;
@@ -7,15 +8,15 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   feed.replaceChildren();
   for(const m of rows){
    const line=document.createElement("div");
-   line.style.cssText="padding:10px;margin:7px 0;border-radius:12px;background:#f1e6d8;color:#373a38;overflow-wrap:anywhere";
+   line.className="familyChatMessage";
    const profile=profiles.get(m.sender_id)||{};
    const avatar=avatarImage(profile.avatar_preset||"bear",40);
    avatar.setAttribute("aria-label",(profile.display_name||"Family member")+" avatar");
    avatar.style.borderRadius="50%";avatar.style.border="2px solid #fff6e7";
    const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profile.display_name||"Family member");
-   const when=document.createElement("small");when.textContent=" · "+new Date(m.created_at).toLocaleString();
+   const when=document.createElement("small");when.className="chatTimestamp";when.textContent=new Date(m.created_at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
    const body=document.createElement("div");body.textContent=m.body;
-   const header=document.createElement("div");header.style.cssText="display:flex;gap:9px;align-items:center;margin-bottom:7px";const identity=document.createElement("div");identity.append(who,when);header.append(avatar,identity);line.append(header,body);
+   const header=document.createElement("div");header.className="chatMessageHeader";const identity=document.createElement("div");identity.className="chatIdentity";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(profile.avatar_preset);identity.append(who,character);const banner=profileBanner(profile.flair);if(banner)identity.append(banner);identity.append(when);header.append(avatar,identity);line.append(header,body);
    if(m.media_path&&["image","gif","video"].includes(m.media_type)){
     const sb=getClient();
     const media=document.createElement(m.media_type==="video"?"video":"img");
@@ -44,7 +45,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   const messages=(data||[]).slice().reverse();
   show(messages);say("");
   let people=[];
-  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset").eq("family_id",family));}catch{}
+  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset,flair").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p]));
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
@@ -87,5 +88,6 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  const timer=setInterval(refresh,12000);
  const tab=document.querySelector('[data-tab="chat"]');
  tab?.addEventListener("click",load);
- return ()=>{disposed=true;requestId++;clearInterval(timer);tab?.removeEventListener("click",load);send.removeEventListener("click",onSend);mediaInput?.removeEventListener("change",onChoose);attachButton?.removeEventListener("click",onAttach);feed.replaceChildren();};
+ const onFlair=e=>{if(e.detail?.family===getFamilyId())void load();};window.addEventListener("luca:profile-flair",onFlair);
+ return ()=>{disposed=true;requestId++;clearInterval(timer);window.removeEventListener("luca:profile-flair",onFlair);tab?.removeEventListener("click",load);send.removeEventListener("click",onSend);mediaInput?.removeEventListener("change",onChoose);attachButton?.removeEventListener("click",onAttach);feed.replaceChildren();};
 }

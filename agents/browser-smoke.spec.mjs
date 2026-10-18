@@ -457,20 +457,19 @@ test("P112: Today entry does not reserve 70vh",async({page})=>{
  expect(m.buttons).toBeGreaterThan(0);
 });
 
-test("P116: quick Poop opens editable poop-size and wet/messy confirmation",async({page})=>{
+test("P135: hero Poop opens a compact size and wet/messy picker",async({page})=>{
  await page.setViewportSize({width:390,height:750});
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
  await page.locator('.heroBtn[data-quick="poop"]').click();
- await expect(page.locator("#manualComposer")).toBeVisible();
- await expect(page.locator("#poopDetails")).toBeVisible();
- await expect(page.locator('#manualComposer [data-tag="poop"]')).toHaveClass(/on/);
- await expect(page.locator("#poopSize")).toHaveValue("3");
- await expect(page.locator("#poopWet")).not.toBeChecked();
- await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
+ await expect(page.locator("#manualComposer")).toBeHidden();
+ await expect(page.locator("#quickPoopPicker")).toBeVisible();
+ await expect(page.locator("#quickPoopSize")).toHaveValue("3");
+ await expect(page.locator("#quickPoopWet")).not.toBeChecked();
+ await expect(page.locator("#quickPoopSave")).toHaveText("Log diaper · now");
 });
 
-test("P119: top Poop button opens detailed size and wetness confirmation",async({page})=>{
+test("P135: top Poop opens compact confirmation without the full log",async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
@@ -480,9 +479,9 @@ test("P119: top Poop button opens detailed size and wetness confirmation",async(
  expect(box.width).toBeGreaterThanOrEqual(44);
  expect(box.height).toBeGreaterThanOrEqual(44);
  await page.locator("#topQuickPoop").click();
- await expect(page.locator("#manualComposer")).toBeVisible();
- await expect(page.locator("#poopDetails")).toBeVisible();
- await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
+ await expect(page.locator("#manualComposer")).toBeHidden();
+ await expect(page.locator("#quickPoopPicker")).toBeVisible();
+ await expect(page.locator("#quickPoopSave")).toHaveText("Log diaper · now");
 });
 
 test("P121: narrow phone keeps top quick actions and navigation tappable",async({page})=>{
@@ -538,18 +537,19 @@ async function syntheticCareBackend(page){
   const read=()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]');
   const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
   function query(table){
-   let op='read',payload=null,filters={},ignoreDuplicates=false;
-   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
+   let op='read',payload=null,filters={},ignoreDuplicates=false,countRequested=false;
+   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(columns,options){countRequested=!!options?.count;return q},eq(k,v){filters[k]=v;return q},in(){return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
     then(resolve,reject){return Promise.resolve().then(async()=>{
      if(table==='family_profiles'){
+      if(op==='update'&&payload?.flair&&window.syntheticProfileOffline)return {data:null,error:{code:'network'}};
       if(op==='upsert'&&window.syntheticProfileSaveDelay)await new Promise(resolve=>setTimeout(resolve,window.syntheticProfileSaveDelay));
       let profiles=JSON.parse(localStorage.getItem('qa-profiles')||'[]');
-      if(op==='upsert'&&!(ignoreDuplicates&&profiles.some(x=>x.user_id===payload.user_id))){profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push(payload);}
+      if(op==='upsert'&&!(ignoreDuplicates&&profiles.some(x=>x.user_id===payload.user_id))){const old=profiles.find(x=>x.user_id===payload.user_id)||{};profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push({...old,...payload});}
       if(op==='update')profiles=profiles.map(x=>Object.entries(filters).every(([k,v])=>x[k]===v)?{...x,...payload}:x);
       localStorage.setItem('qa-profiles',JSON.stringify(profiles));
       return {data:profiles.filter(x=>Object.entries(filters).every(([k,v])=>x[k]===v)),error:null};
      }
-     if(table==='family_chat_messages')return {data:JSON.parse(localStorage.getItem('qa-chat')||'[]'),error:null};
+     if(table==='family_chat_messages'){let rows=JSON.parse(localStorage.getItem('qa-chat')||'[]');if(op==='insert'){rows.push({...payload,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('qa-chat',JSON.stringify(rows));}rows=rows.filter(x=>!filters.sender_id||x.sender_id===filters.sender_id);return {data:countRequested?null:rows,count:countRequested?rows.length:null,error:null};}
      if(table!=='baby_events')return {data:[],error:null};
      if(window.syntheticOffline)return {data:null,error:{code:'network'}};
      const rows=read();
@@ -593,9 +593,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P134');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P135');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P134');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P135');
 });
 
 
@@ -714,4 +714,81 @@ test('P134: refined actions have readable text and light surfaces across drawers
  await page.locator('#navMore').click();await contrast('#menuFamily');await page.screenshot({animations:'disabled',path:'test-results/p134-menu-390.png'});
  await page.locator('#menuIdeas').click();await contrast('#familyIdeasRoot button[type="submit"]');await page.locator('#familyIdeasRoot').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p134-ideas-390.png'});
  await page.locator('nav [data-tab="today"]').click();await page.locator('#chatPeekTab').click();await contrast('#drawerOpenChat');await page.screenshot({animations:'disabled',path:'test-results/p134-chat-peek-390.png'});
+});
+
+for(const width of [320,390])test('P135: anchored quick care works without moving the page at '+width+'px',async({page})=>{
+ await page.setViewportSize({width,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ const before=await page.locator('.quickhome').boundingBox();
+ await page.locator('#topQuickBottle').click();await expect(page.locator('#quickBottlePicker')).toBeVisible();
+ const box=await page.locator('#quickBottlePicker').boundingBox(),after=await page.locator('.quickhome').boundingBox();
+ expect(Math.abs(before.y-after.y)).toBeLessThan(2);expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);
+ expect(box.y+box.height).toBeLessThan(756);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(0);
+ await page.screenshot({animations:'disabled',path:'test-results/p135-bottle-popout-'+width+'.png'});
+ await page.keyboard.press('Escape');await expect(page.locator('#quickBottlePicker')).toBeHidden();await expect(page.locator('#topQuickBottle')).toBeFocused();
+ await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopPicker')).toBeVisible();await expect(page.locator('#manualComposer')).toBeHidden();
+ const poop=await page.locator('#quickPoopPicker').boundingBox();expect(poop.x).toBeGreaterThanOrEqual(0);expect(poop.x+poop.width).toBeLessThanOrEqual(width);expect(poop.y+poop.height).toBeLessThan(756);
+ await page.locator('#quickPoopCaregiver').selectOption('Yolanda');await page.locator('#quickPoopWet').check();
+ await page.locator('#quickPoopSize').fill('5');await page.screenshot({animations:'disabled',path:'test-results/p135-diaper-popout-'+width+'.png'});
+ await page.evaluate(()=>window.syntheticOffline=true);await page.locator('#quickPoopSave').click();
+ await expect(page.locator('#quickPoopPicker')).toBeHidden();await expect(page.locator('#poops')).toHaveText('1');
+ await page.evaluate(()=>window.syntheticOffline=false);await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].caregivers).toEqual(['Yolanda']);expect(rows[0].details.poop).toEqual({size:5,wet:true});
+ await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopSize')).toHaveValue('3');await expect(page.locator('#quickPoopWet')).not.toBeChecked();await page.locator('#quickPoopCancel').click();
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(1);
+});
+
+test('P135: hidden click discovery equips a banner that survives reload and appears beside Dada’s Dude in chat',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-profiles'))localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Synthetic caregiver',bio:'',avatar_preset:'dadasDude',flair:{}}]));localStorage.setItem('qa-chat',JSON.stringify([{id:'qa-message',sender_id:'qa-user',body:'Synthetic family message',created_at:new Date().toISOString()}]));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair?.visits?.length)).toBe(1);
+ for(let i=0;i<7;i++)await page.locator('.persistentTitle .titleL').click();
+ await page.locator('#navMore').click();await page.locator('#menuAchievements').click();await expect(page.locator('#achievementsView')).toHaveClass(/active/);
+ const badge=page.locator('[data-achievement="block-party"]');await expect(badge).toHaveClass(/unlocked/);await badge.locator('[data-equip-banner]').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('block-party');
+ await page.evaluate(()=>scrollTo(0,0));await page.screenshot({animations:'disabled',path:'test-results/p135-achievements-390.png'});
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="chat"]').click();
+ await expect(page.locator('#familyChatFeed .avatarCharacter')).toHaveText("Dada's Dude");await expect(page.locator('#familyChatFeed .profileBanner')).toContainText('Block Party');
+ await expect(page.locator('#familyChatFeed [data-avatar-key="dadasDude"] img')).toHaveAttribute('src',/avatar-armory-original.png/);await page.screenshot({animations:'disabled',path:'test-results/p135-chat-banner-390.png'});
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();await expect(page.locator('#familyProfileList .profileBanner')).toContainText('Block Party');
+});
+
+test('P135: a rare falling slider is decorative, unlocks a banner and leaves the confirmed diaper unchanged',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))?.[0]?.flair?.visits?.length)).toBe(1);
+ await page.locator('#topQuickPoop').click();await page.evaluate(()=>Math.random=()=>.1);await page.locator('#quickPoopSize').fill('5');
+ await expect(page.locator('#quickPoopSize')).toHaveValue('5');await expect(page.locator('#quickPoopSizeLabel')).toHaveText('Diaper disaster');await expect(page.locator('#quickPoopPicker .poopMeter')).toHaveClass(/railBroken/);
+ await page.locator('#quickPoopWet').check();await page.locator('#quickPoopSave').click();await expect(page.locator('#poops')).toHaveText('1');
+ await page.locator('#navMore').click();await page.locator('#menuAchievements').click();await expect(page.locator('[data-achievement="off-the-rails"]')).toHaveClass(/unlocked/);await expect(page.locator('[data-achievement="code-brown"]')).toHaveClass(/unlocked/);
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].details.poop).toEqual({size:5,wet:true});
+});
+
+test('P135: History filters the real journal and edit/delete controls preserve care integrity',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption('Lindsay');await page.locator('#quickPoopSave').click();
+ await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await expect(page.locator('.historyEvent')).toHaveCount(2);
+ await page.screenshot({animations:'disabled',path:'test-results/p135-history-390.png'});
+ await page.locator('#historySearch').fill('Lindsay');await expect(page.locator('.historyEvent')).toHaveCount(1);await expect(page.locator('.historyEvent')).toContainText('Lindsay');
+ await page.locator('#historySearch').fill('');await page.locator('#historyKind').selectOption('bottle');await expect(page.locator('.historyEvent')).toHaveCount(1);
+ await page.locator('[data-history-edit]').click();await expect(page.locator('#manualComposer')).toBeVisible();await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#saveEntry').click();
+ await page.locator('nav [data-tab="history"]').click();await expect(page.locator('.historyEvent')).toContainText('7 oz bottle');
+ page.once('dialog',dialog=>dialog.dismiss());await page.locator('[data-history-delete]').click();await expect(page.locator('.historyEvent')).toHaveCount(1);
+ page.once('dialog',dialog=>dialog.accept());await page.locator('[data-history-delete]').click();await expect(page.locator('.historyEvent')).toHaveCount(0);
+ await page.locator('#historyKind').selectOption('all');await expect(page.locator('.historyEvent')).toHaveCount(1);await expect(page.locator('.historyEvent')).toContainText('Lindsay');
+});
+
+test('P135: surprise opt-out and quiet clicks persist, while an offline banner retries after reload',async({page})=>{
+ await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="4"]').click();
+ await page.locator('#navMore').click();await page.locator('#menuAchievements').click();const badge=page.locator('[data-achievement="first-watch"]');await expect(badge).toHaveClass(/unlocked/);
+ await page.evaluate(()=>window.syntheticProfileOffline=true);await badge.locator('[data-equip-banner]').click();await expect(page.locator('#achievementStatus')).toContainText('Reconnect');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('first-watch');
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();await page.locator('#profileSurprises').selectOption('off');await page.locator('#profileClicks').selectOption('off');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>{window.qaAudioStarts=0;window.AudioContext=class{constructor(){window.qaAudioStarts++;throw new Error('Quiet audio');}};Math.random=()=>0;});
+ await page.locator('#topQuickPoop').click();await page.locator('#quickPoopSize').fill('5');await expect(page.locator('#quickPoopPicker .poopMeter')).not.toHaveClass(/railBroken/);
+ await page.keyboard.press('Escape');expect(await page.evaluate(()=>window.qaAudioStarts)).toBe(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
