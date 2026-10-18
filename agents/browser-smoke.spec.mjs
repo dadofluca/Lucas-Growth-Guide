@@ -253,3 +253,26 @@ test("P89 iPhone visual guard: drawer labels are readable and bottom dock fits",
   await expect(row).toBeVisible();
  }finally{await context.close();}
 });
+
+
+test("P89 accessibility: magnified phone and larger text keep menu accessible",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:320,height:690},isMobile:true,hasTouch:true,deviceScaleFactor:3,reducedMotion:"reduce"});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.addStyleTag({content:"html{font-size:125%!important}"});
+  await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  for(const selector of ["#menuInsights","#menuFamily"]){
+   const el=page.locator(selector);await expect(el).toBeVisible();
+   const rect=await el.boundingBox();expect(rect.width).toBeGreaterThan(120);
+   expect(rect.x).toBeGreaterThanOrEqual(0);expect(rect.x+rect.width).toBeLessThanOrEqual(321);
+   const size=await el.evaluate(node=>parseFloat(getComputedStyle(node).fontSize));
+   expect(size).toBeGreaterThanOrEqual(16);
+  }
+  await page.locator("#menuFamily").click();
+  await expect(page.locator("#profileView")).toHaveClass(/active/);
+  await expect(page.locator("#profileName")).toBeVisible();
+ }finally{await context.close();}
+});
