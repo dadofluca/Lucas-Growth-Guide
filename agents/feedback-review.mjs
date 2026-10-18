@@ -5,10 +5,16 @@ if(!file){console.log("No approved feedback export provided; skipping family fee
 const rows=JSON.parse(readFileSync(file,"utf8"));
 if(!Array.isArray(rows))throw Error("Expected array");
 const allowed=new Set(["idea","bug","design","question"]);
-const strip=s=>String(s??"").replace(/https?:\/\/\S+/g,"[link]").replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,"[email]").replace(/\b\d{3}[-.)\s]*\d{3}[-.\s]*\d{4}\b/g,"[phone]").slice(0,400);
+const strip=s=>String(s??"")
+ .replace(/(?:https?:\/\/|www\.)\S+/gi,"[link]")
+ .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,"[email]")
+ .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]*\d{3}[-.\s]*\d{4}\b/g,"[phone]")
+ .replace(/\b(?:sk-[\w-]{12,}|sb_secret_[\w-]+|gh[pousr]_[\w-]+|github_pat_[\w-]+|Bearer\s+[\w.-]{12,})\b/gi,"[secret]")
+ .replace(/\b(?:\d[ -]*?){13,19}\b/g,"[number]")
+ .replace(/[\r\n\t]+/g," ").slice(0,400);
 const seen=new Map(),queue=[];
 for(const x of rows.slice(0,250)){
- if(!x||x.agent_review_approved!==true||!allowed.has(x.category))continue;
+ if(!x||x.agent_review_approved!==true||!allowed.has(x.category)||x.status==="deleted"||x.status==="archived")continue;
  const title=strip(x.title).slice(0,100),details=strip(x.details);
  if(!title.trim())continue;
  const fingerprint=(x.category+":"+title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,55));
