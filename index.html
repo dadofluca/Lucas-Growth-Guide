@@ -796,6 +796,12 @@ async function updateChatPeek(markSeen=false){
   if(error)throw error;
   const current=peekSession();if(current.family!==family||current.user!==user)return;
   const rows=data||[],lastSeen=localStorage.getItem(key)||"";
+  const senderIds=[...new Set(rows.map(m=>m.sender_id).filter(Boolean))];
+  const senderNames=new Map();
+  if(senderIds.length){
+   const {data:profiles,error:profileError}=await client.from("family_profiles").select("user_id,display_name").eq("family_id",family).in("user_id",senderIds);
+   if(!profileError)for(const profile of profiles||[])if(profile.display_name?.trim())senderNames.set(profile.user_id,profile.display_name.trim());
+  }
   const unread=rows.filter(m=>m.sender_id!==user&&m.created_at>lastSeen).length;
   peekBadge.hidden=!unread;peekBadge.textContent=unread>=8?"8+":String(unread);
   peekButton.setAttribute("aria-label",unread?unread+" new family chat messages":"Peek at family chat");
@@ -804,7 +810,7 @@ async function updateChatPeek(markSeen=false){
   else{
    for(const m of rows){
     const card=document.createElement("div");card.className="chatPeekMessage";
-    const heading=document.createElement("strong");heading.textContent=m.sender_id===user?"You":"Family member";
+    const heading=document.createElement("strong");heading.textContent=m.sender_id===user?"You":(senderNames.get(m.sender_id)||"Family member");
     const body=document.createElement("p");body.textContent=m.body||"Shared a "+(m.media_type||"message");
     const time=document.createElement("small");time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
     card.append(heading,body,time);peekFeed.append(card);
