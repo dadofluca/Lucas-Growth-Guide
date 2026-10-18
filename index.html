@@ -450,6 +450,10 @@ nav button,body:has(#todayView.active) nav button{min-height:48px!important;padd
 nav button b,body:has(#todayView.active) nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
 nav button.active,body:has(#todayView.active) nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
 nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
+/* P113: compact, unobtrusive edge affordances; no controls over form text. */
+#chatPeekTab{top:auto!important;bottom:calc(95px + env(safe-area-inset-bottom))!important;min-width:40px!important;width:40px!important;min-height:44px!important;border-radius:14px 0 0 14px!important;font-size:18px!important;box-shadow:0 3px 10px #33291c24!important}
+.careDock:not(.open){top:auto!important;bottom:calc(148px + env(safe-area-inset-bottom))!important;right:6px!important;width:44px!important;border-radius:16px!important}
+.careDock:not(.open) .careHead{min-height:44px!important}
 /* P103: iPhone editor contrast, including native date/time controls. */
 #manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
 #manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
