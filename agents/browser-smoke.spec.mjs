@@ -162,3 +162,19 @@ test("phone layout keeps family forms full width and care dock out of the way",a
   }
  }finally{await context.close();}
 });
+
+
+test("edited event displays saved description and keeps original message collapsible",async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem("luca-log-v2",JSON.stringify([{id:"synthetic-edit-1",at:new Date().toISOString(),oz:null,tags:["sleep"],people:["Sam"],notes:"Nap ended at 6:15 PM",sourceText:"Currently went down for a nap at 5:10",source:"smart"}])));
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const card=page.locator(".entry").filter({hasText:"Nap ended at 6:15 PM"}).first();
+ await expect(card).toBeVisible();
+ await expect(card.locator(".note").first()).toContainText("Nap ended at 6:15 PM");
+ await expect(card.locator("details summary")).toContainText("Original message");
+ await expect(card.locator("details")).not.toHaveAttribute("open",/./);
+ await card.locator("details summary").click();
+ await expect(card.locator("details")).toContainText("Currently went down for a nap at 5:10");
+ await page.reload();
+ await expect(page.locator(".entry").filter({hasText:"Nap ended at 6:15 PM"}).first()).toBeVisible();
+});
