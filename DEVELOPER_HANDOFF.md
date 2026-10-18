@@ -164,3 +164,6 @@ At the end of every meaningful development session, update this README with:
 - Build source: `#buildVersion` P132 in index.html; compatibility runtime reads that element. Script URLs and service-worker shell cache advance with the release. New `care-sync.js` must be included in preview/release packaging.
 - Tests: 165 Node checks passed before PR. Added synthetic authenticated browser flow for Quick Bottle -> History Edit -> offline edit -> retry -> reload, plus visible-version consistency. CI/deployment results must be appended after confirmation. No real care events were changed by QA.
 - Remaining validation: actual signed-in iPhone Safari, a second family device, and Muse ingestion. Avoid treating synthetic Chromium success as confirmation of those. Broader schedule/chat/avatar refactoring is outside this care-persistence pass.
+
+- Browser QA root cause found: `render()` still called removed `renderDrawer()`. Its ReferenceError stopped the initial script before automatic `setupSync()` and service-worker registration. Removed the obsolete call and added a startup-status assertion. The first synthetic run exposed this; passing source-shape tests had missed it.
+- Phone dock regression: the relocated chat-peek button overlapped the collapsed Teddy button. Moved it above the dock and hide it while the dock is expanded, preserving both real tap targets.

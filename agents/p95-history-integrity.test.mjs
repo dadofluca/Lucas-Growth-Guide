@@ -7,7 +7,7 @@ test("History renders before optional sleep, drawer and leaderboard panels",()=>
  const end=html.indexOf("\n$(\"#emailLogin\")",start);
  assert.ok(start>=0&&end>start);
  const render=html.slice(start,end);
- for(const name of ["renderSleepCheckin()","renderSleepTrends()","renderDrawer()","renderLeaderboard()"]){
+ for(const name of ["renderSleepCheckin()","renderSleepTrends()","renderLeaderboard()"]){
   assert.ok(render.indexOf("renderHistory()")>=0);
   assert.ok(render.indexOf("renderHistory()")<render.indexOf(name),name+" must not block History");
  }

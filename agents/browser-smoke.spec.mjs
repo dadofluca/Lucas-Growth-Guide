@@ -5,6 +5,7 @@ test("app loads and core tabs are reachable without a signed-in session",async({
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
  await expect(page.locator("body")).toBeVisible();
+ await expect(page.locator("#syncDot")).not.toHaveText("Checking family sync…");
  await expect(page.locator('nav button[data-tab="chat"]')).toBeVisible();
  await page.locator('nav button[data-tab="chat"]').click();
  await expect(page.locator("#chatView")).toHaveClass(/active/);
@@ -528,6 +529,8 @@ test("P126: quick Bottle logs immediately when choosing 4–8 oz",async({page})=
 });
 // A synthetic authenticated backend exercises the real UI and care queue without family data.
 async function syntheticCareBackend(page){
+ page.on("pageerror",error=>console.log("SYNTHETIC PAGE ERROR:",error.message));
+ page.on("console",message=>{if(message.type()==="error")console.log("SYNTHETIC CONSOLE:",message.text())});
  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',route=>route.fulfill({contentType:'application/javascript',body:'window.supabase={createClient:()=>window.syntheticClient};'}));
  await page.addInitScript(()=>{
   window.syntheticOffline=false;
@@ -561,7 +564,7 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
  await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();
  await expect(page.locator('#quickBottlePicker')).toBeHidden();await expect(page.locator('#oz')).toHaveText('6');
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
- await page.locator('nav button[data-tab="history"]').click();await page.locator('#historyView [data-edit]').first().click();
+ await page.locator('nav button[data-tab="history"]').click();await page.locator('#historyView details summary').first().click();await page.locator('#historyView [data-history-edit]').first().click();
  await expect(page.locator('#manualComposer')).toBeVisible();await expect(page.locator('#composerTitle')).toHaveText('Editing entry');
  await expect(page.locator('#manualComposer')).toHaveAttribute('data-editing','true');
  await expect(page.locator('#chatPeekTab')).toBeHidden();await expect(page.locator('#careDock')).toBeHidden();
