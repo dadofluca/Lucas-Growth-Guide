@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current candidate:** **P132** (2026-10-18); baseline main P130. See the current release note below; older Pxx notes are historical.
+**Current release:** **P132** (2026-10-18); previous baseline main P130. See the current release note below; older Pxx notes are historical.
 
 ## Product intent
 
@@ -171,3 +171,11 @@ At the end of every meaningful development session, update this README with:
 - After startup resumed, browser QA exposed the obsolete P48 History decorator replacing the current accessible History UI. Removed that duplicate renderer and its old bulk-delete path. History now has one renderer and shared event edit/delete controls; the existing P99/P100 browser tests cover them.
 
 - Visual QA after startup restoration showed the old P41 “Luca Now” card duplicating the current daily totals/next-feed section. Removed that decorator and its timer; retain the compact home and one next-feed prediction. The loaded-version browser gate asserts the obsolete card stays absent.
+
+
+## P132 release verification
+- Tested application/source commit: `eb82d35c50dfc61b84ea509f9f56be5697b7124a`.
+- GitHub Actions: code checks run `39134789933` SUCCESS (166 checks); browser run `39134789797` SUCCESS (2 care/version checks plus 40 regression checks).
+- Final handoff commit changes README/this document only; tested application code is unchanged. Release PR: https://github.com/dadofluca/Lucas-Growth-Guide/pull/82. Inspect that PR for the final merge SHA and its Pages deployment.
+- Production: https://dadofluca.github.io/Lucas-Growth-Guide/ with visible P132. Source publication and actual phone-loaded code must be distinguished; do not instruct users to clear storage to get an update, because unsynced logs may be present.
+- Remaining external validation: the user's actual signed-in iPhone and a second family device. Synthetic Chromium checks do not prove real device-to-device delivery, and Muse ingestion remains a separate task.
