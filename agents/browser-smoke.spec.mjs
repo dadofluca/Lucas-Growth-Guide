@@ -507,6 +507,7 @@ test("P125: capture phone-sized Today and History views for review",async({page}
  for(const width of [320,390]){
   await page.setViewportSize({width,height:780});
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
   await page.screenshot({path:testInfo.outputPath("today-"+width+".png"),fullPage:true});
   await page.locator('nav button[data-tab="history"]').click();
   await page.screenshot({path:testInfo.outputPath("history-"+width+".png"),fullPage:true});
@@ -560,6 +561,7 @@ async function syntheticCareBackend(page){
 test('P132: quick bottle survives refresh, History editing, offline retry and reload without duplication',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());
  await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();
  await expect(page.locator('#quickBottlePicker')).toBeHidden();await expect(page.locator('#oz')).toHaveText('6');
