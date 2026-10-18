@@ -125,3 +125,14 @@ test("P78 bottle confirmation includes glug audio and preserves sound opt-out",(
  assert.match(html,/!editId&&Number\(e\.oz\)>0/);
  assert.match(html,/function safeAudio\(fn\)\{try\{if\(lucaSoundEnabled\(\)\)/);
 });
+
+test("P80 Avatar Armory adds illustrated dark-humor portraits and preserves saved preset values",()=>{
+ assert.match(js,/const armory=\{/);
+ for(const key of ["teddyTrooper","formulaCommando","diaperDoom","poopMeteor","wipeTornado","diaperKing","napEmperor","bottleSupreme","evilDuck","sleepDeprived"])assert.match(js,new RegExp(key+":"));
+ assert.match(js,/function armorySvg\(key\)/);
+ assert.match(js,/avatar\.append\(option\)/);
+ assert.match(js,/avatar_preset:preset/);
+ const migration=readFileSync(new URL("../supabase/migrations/20261018_avatar_armory.sql",import.meta.url),"utf8");
+ assert.match(migration,/family_profiles_avatar_preset_check/);
+ assert.match(migration,/sleepDeprived/);
+});
