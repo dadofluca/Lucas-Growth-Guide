@@ -367,8 +367,8 @@ const LUCA_RUNTIME={version:'P71',schedule:{coveragePeople:['Nona','Boppa','Jay'
   if(!syncUser)return toast("Connect Family Sync first");
   const chat=document.getElementById("teddyChat");chat.insertAdjacentHTML("beforeend",'<div class="teddyBubble me">'+esc(q)+'</div>');input.value="";chat.scrollTop=chat.scrollHeight;
   const wait=document.createElement("div");wait.className="teddyBubble ai";wait.textContent="Teddy is thinking…";chat.appendChild(wait);
-  const {data,error}=await sb.functions.invoke("teddy-chat",{body:{message:q}});
-  wait.textContent=error?"Teddy couldn't answer just now.":(data?.answer||data?.error||"Teddy couldn't answer just now.");chat.scrollTop=chat.scrollHeight;
+  let data=null,error=null;try{const result=await sb.functions.invoke("teddy-chat",{body:{message:q}});data=result.data;error=result.error;if(error?.context?.json){try{const body=await error.context.json();if(body?.error)data={error:body.error}}catch{}}}catch(e){error=e}
+  wait.textContent=error?(data?.error||"Teddy could not reach the AI service. Check Family Sync and try again."):(data?.answer||data?.error||"Teddy received the message but no answer was returned.");chat.scrollTop=chat.scrollHeight;
  };
  document.querySelector('nav button[data-tab="insights"]')?.addEventListener("click",()=>setTimeout(load,150));
  setTimeout(load,1200);
