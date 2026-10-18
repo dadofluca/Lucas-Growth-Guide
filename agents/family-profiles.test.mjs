@@ -78,3 +78,12 @@ test("Spark scheduled audit and feedback reviewer require approval",()=>{
  assert.match(review,/agent_review_approved!==true/);
  assert.match(review,/autoMerge:false,autoDeploy:false/);
 });
+
+test("P71 Ideas form is responsive, Teddy dock collapses and new poops trigger sound",()=>{
+ assert.match(html,/#familyIdeasRoot form\{display:grid/);
+ assert.match(html,/#familyIdeasRoot textarea\{min-height:116px/);
+ assert.match(html,/\.careDock:not\(\.open\) \.careItems\{display:none!important\}/);
+ assert.match(html,/if\(!editId&&e.tags.includes\("poop"\)\)playPoopFun\(\)/);
+ assert.match(html,/function fart\(\)\{let x=ac\(\)/);
+ assert.match(html,/x\.createBuffer\(1,/);
+});
