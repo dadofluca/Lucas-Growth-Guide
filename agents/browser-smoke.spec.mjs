@@ -276,3 +276,25 @@ test("P89 accessibility: magnified phone and larger text keep menu accessible",a
   await expect(page.locator("#profileName")).toBeVisible();
  }finally{await context.close();}
 });
+
+
+test("P90 Watchdog: mobile nav and drawers remain usable across phone widths",async({browser})=>{
+ for(const width of [320,375,390,430]){
+  const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true,reducedMotion:"reduce"});
+  const page=await context.newPage();
+  try{
+   await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+   await page.locator("#navMore").click();
+   await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+   for(const selector of ["#menuInsights","#menuFamily"]){
+    const rect=await page.locator(selector).boundingBox();
+    expect(rect).not.toBeNull();
+    expect(rect.x).toBeGreaterThanOrEqual(-1);
+    expect(rect.x+rect.width).toBeLessThanOrEqual(width+1);
+   }
+   await page.locator("#closeMenu").click();
+   await expect(page.locator("#sideMenu")).not.toHaveClass(/open/);
+  }finally{await context.close();}
+ }
+});
