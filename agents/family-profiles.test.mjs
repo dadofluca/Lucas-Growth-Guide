@@ -136,3 +136,15 @@ test("P80 Avatar Armory adds illustrated dark-humor portraits and preserves save
  assert.match(migration,/family_profiles_avatar_preset_check/);
  assert.match(migration,/sleepDeprived/);
 });
+
+test("P81 game-inspired bonus avatar roster is wired to family profile picker and persistence",()=>{
+ const bonus=readFileSync(new URL("./avatar-characters.js",import.meta.url),"utf8");
+ const roster=[...bonus.matchAll(/^ ([a-zA-Z]+):\{label:/gm)].map(x=>x[1]);
+ assert.equal(roster.length,35);
+ for(const key of ["fartKnight","bottleBandit","poopMeteor","napNinja","pacifierPirate","diaperDragon","zombieBaby","firecracker"])assert.match(js+bonus,new RegExp(key));
+ assert.match(js,/import \{bonusCharacters,bonusAvatarSvg\}/);
+ assert.match(js,/if\(bonusCharacters\[key\]\)return bonusAvatarSvg\(key\)/);
+ assert.match(js,/\.\.\.armory,\.\.\.bonusCharacters/);
+ const migration=readFileSync(new URL("../supabase/migrations/20261018_avatar_armory_expansion.sql",import.meta.url),"utf8");
+ for(const key of roster)assert.ok(migration.includes("'"+key+"'"),key+" must be allowed by DB");
+});
