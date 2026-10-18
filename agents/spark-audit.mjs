@@ -9,6 +9,9 @@ const signals=[
  {id:"animation",pattern:/@keyframes/g,theme:"motion",idea:"Create reduced-motion-safe microinteraction guidelines and a consistent motion scale",priority:"medium"},
  {id:"sound",pattern:/safeAudio\(/g,theme:"audio",idea:"Audit optional sounds for volume, accessibility and per-device mute",priority:"medium"}
 ];
+signals.push({id:"release-badge",pattern:/id="patchBadge"/g,theme:"release clarity",idea:"Verify visible patch badge matches runtime version on iPhone and across cached pages",priority:"high"});
+signals.push({id:"poop-size-control",pattern:/id="poopSize"/g,theme:"care logging",idea:"Validate poop slider size, wetness and editing without duplicate entries",priority:"high"});
+signals.push({id:"teddy-feedback",pattern:/Teddy could not reach the AI service/g,theme:"assistant",idea:"Confirm Teddy reports backend errors clearly; never fabricate an AI answer",priority:"high"});
 const findings=signals.map(s=>({id:s.id,theme:s.theme,priority:s.priority,observedMatches:[...html.matchAll(s.pattern)].length,recommendation:s.idea,requiresHumanReview:true,autoMerge:false,autoDeploy:false}));
 const report={agent:"Spark",mode:"read-only-source-audit",verifiedProduction:false,createdAt:new Date().toISOString(),scope:"repository index.html only; no user data, external sources or iPhone verification",findings,proposedNextSteps:["Review design findings","Ask Builder to implement one scoped improvement on a separate branch","Have Scout and Guardian validate before release"]};
 mkdirSync("artifacts",{recursive:true});writeFileSync("artifacts/spark-design-audit.json",JSON.stringify(report,null,2)+"\n");
