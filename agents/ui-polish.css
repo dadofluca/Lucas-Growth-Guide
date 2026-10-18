@@ -137,3 +137,6 @@ body#lucaApp:has(#sleepComposer:not([hidden])) :is(#careDock,#chatPeekTab){displ
 
 body#lucaApp #sleepTrends .sleepMetric strong{color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important}
 @media(prefers-reduced-motion:reduce){.sidePanel,.drawerPanel,.sideMenu,.drawer{transition:none!important;animation:none!important}}
+
+body#lucaApp .kicker{color:#607367!important;-webkit-text-fill-color:#607367!important;font-weight:700}
+body#lucaApp:has(#ideasView.active) :is(#careDock,#chatPeekTab){display:none!important}
