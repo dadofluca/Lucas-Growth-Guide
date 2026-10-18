@@ -1,3 +1,4 @@
+import {bonusCharacters,bonusAvatarSvg} from "./avatar-characters.js";
 const presets={bear:"🧸",fox:"🦊",bunny:"🐰",duck:"🐥",owl:"🦉",lion:"🦁",panda:"🐼",koala:"🐨",penguin:"🐧",dino:"🦕",robot:"🤖",astronaut:"👨‍🚀",sun:"☀️",star:"⭐"};
 const palette={bear:["#b98362","#f3d8bb"],fox:["#d46b40","#ffe3b5"],bunny:["#b8a2ca","#fff0e9"],duck:["#f3c65b","#fff0b2"],owl:["#8974a8","#e3d4f4"],lion:["#d49a3c","#f8df95"],panda:["#6c8190","#e8f0ee"],koala:["#8399aa","#dae5eb"],penguin:["#547c9b","#e0effa"],dino:["#4a9e85","#b5ebce"],robot:["#697fae","#bde3f1"],astronaut:["#697fae","#d6e4ff"],sun:["#e8a649","#fff0ae"],star:["#9b7bbd","#f2e2ff"]};
 const labels={bear:"Bear",fox:"Fox",bunny:"Bunny",duck:"Duck",owl:"Owl",lion:"Lion",panda:"Panda",koala:"Koala",penguin:"Penguin",dino:"Dinosaur",robot:"Robot",astronaut:"Astronaut",sun:"Sunshine",star:"Star"};
@@ -15,6 +16,7 @@ const armory={
  sleepDeprived:{label:"Sleep-Deprived Hero",colors:["#546078","#b6bfd2"],symbol:"☕",detail:"Fueled by coffee and spite"}
 };
 for(const [key,item] of Object.entries(armory)){presets[key]=item.symbol;palette[key]=item.colors;labels[key]=item.label;}
+for(const [key,item] of Object.entries(bonusCharacters)){presets[key]="★";palette[key]=item.colors;labels[key]=item.label;}
 function armorySvg(key){
  const a=armory[key],dark=a.colors[0],light=a.colors[1];
  const crown=key==="diaperKing"||key==="napEmperor"?'<path d="M23 37 L20 16 36 26 50 11 64 26 80 16 77 37Z" fill="#f9c84d" stroke="#7b5930" stroke-width="3"/>':"";
@@ -28,6 +30,7 @@ function armorySvg(key){
  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
 function avatarSvg(key){
+ if(bonusCharacters[key])return bonusAvatarSvg(key);
  if(armory[key])return armorySvg(key);
  const [dark,light]=palette[key]||palette.bear;
  const ears=key==="bunny"?'\x3cellipse cx="30" cy="25" rx="10" ry="25" fill="'+dark+'"/\x3e\x3cellipse cx="70" cy="25" rx="10" ry="25" fill="'+dark+'"/\x3e':key==="fox"||key==="bear"||key==="panda"||key==="koala"||key==="lion"?'\x3ccircle cx="26" cy="30" r="16" fill="'+dark+'"/\x3e\x3ccircle cx="74" cy="30" r="16" fill="'+dark+'"/\x3e':"";
@@ -51,7 +54,7 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
  const markDirty=()=>{dirty=true;};
  const gallery=document.createElement("div");gallery.className="avatarGallery";gallery.setAttribute("role","group");gallery.setAttribute("aria-label","Illustrated avatar choices");
  avatar.insertAdjacentElement("afterend",gallery);avatar.style.display="none";
- for(const [key,item] of Object.entries(armory)){const option=document.createElement("option");option.value=key;option.textContent=item.label;avatar.append(option);}
+ for(const [key,item] of Object.entries({...armory,...bonusCharacters})){const option=document.createElement("option");option.value=key;option.textContent=item.label;avatar.append(option);}
  const heading=document.createElement("div");heading.textContent="⚔️ Avatar Armory — diaper warfare and exhausted-parent legends";heading.style.cssText="font-weight:800;margin:14px 0 8px;color:inherit";gallery.before(heading);
  const avatarButtons=new Map();
  for(const key of Object.keys(presets)){
@@ -101,5 +104,5 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
  save.addEventListener("click",onSave);
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();gallery.remove();heading.remove();for(const key of Object.keys(armory))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();gallery.remove();heading.remove();for(const key of Object.keys({...armory,...bonusCharacters}))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
 }
