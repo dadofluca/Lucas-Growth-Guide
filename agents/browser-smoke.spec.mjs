@@ -219,3 +219,37 @@ test("P71 poop row tap opens care dock on iPhone",async({browser})=>{
   await expect(page.locator("#careDock")).toHaveClass(/open/);
  }finally{await context.close()}
 });
+
+
+test("P89 iPhone visual guard: drawer labels are readable and bottom dock fits",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:3});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  const nav=page.locator("nav[aria-label='Main navigation']");
+  const navBox=await nav.boundingBox();
+  expect(navBox).not.toBeNull();
+  expect(navBox.height).toBeLessThan(125);
+  expect(navBox.x).toBeGreaterThanOrEqual(0);
+  expect(navBox.x+navBox.width).toBeLessThanOrEqual(391);
+  const visibleNav=nav.locator("button:visible");
+  await expect(visibleNav).toHaveCount(5);
+  for(const button of await visibleNav.all()){
+   const rect=await button.boundingBox();
+   expect(rect.x).toBeGreaterThanOrEqual(navBox.x-1);
+   expect(rect.x+rect.width).toBeLessThanOrEqual(navBox.x+navBox.width+1);
+  }
+  await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  const row=page.locator("#menuInsights");
+  const colors=await row.evaluate(el=>({fg:getComputedStyle(el).color,bg:getComputedStyle(el).backgroundColor,fill:getComputedStyle(el).webkitTextFillColor}));
+  const parse=color=>{const m=color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
+  const fg=parse(colors.fill==="currentcolor"?colors.fg:colors.fill)||parse(colors.fg),bg=parse(colors.bg);
+  expect(fg).not.toBeNull();expect(bg).not.toBeNull();
+  const luminance=rgb=>rgb.map(v=>{v/=255;return v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4}).reduce((sum,v,i)=>sum+v*[0.2126,0.7152,0.0722][i],0);
+  const a=luminance(fg),b=luminance(bg);
+  expect((Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)).toBeGreaterThanOrEqual(4.5);
+  await expect(row).toBeVisible();
+ }finally{await context.close();}
+});
