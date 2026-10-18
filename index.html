@@ -792,8 +792,8 @@ document.querySelectorAll("#quickBottlePicker [data-quick-oz]").forEach(button=>
  const amount=Number(button.dataset.quickOz);
  const e={id:Date.now()+"-"+Math.random(),at:new Date().toISOString(),oz:amount,tags:[],people:[deviceCaregiver()],notes:"",source:"quick-bottle"};
  try{
-  a.push(e);persist();render();
   $("#quickBottlePicker").hidden=true;
+  a.push(e);persist();render();
   toast(amount+" oz bottle logged ✓");
   safeAudio(bottleLogSound);
   try{
