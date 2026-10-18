@@ -566,7 +566,7 @@ async function syntheticCareBackend(page){
   }
   const channel={on(){return channel},subscribe(){return channel}};
   window.syntheticClient={auth:{getUser:async()=>({data:{user:{id:'qa-user',email:'synthetic@example.invalid'}}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},rpc:async()=>({data:[{baby_id:'qa-baby',family_id:'qa-family'}]}),from:query,channel:()=>channel,removeChannel:async()=>{}};
-  localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
+  if(!localStorage.getItem('luca-caregiver'))localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
  });
 }
 
@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P138');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P139');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P138');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P139');
 });
 
 
@@ -912,6 +912,33 @@ test('P138: removing an unresolved bottle and correcting a draft cannot leave a 
  await page.locator('#quickText').fill('Nona gave banana at 12:50 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineSave')).toBeEnabled();
  const corrected='Nona gave chicken and broccoli at 12:55 pm';await page.locator('#quickText').fill(corrected);await expect(page.locator('#inlineClarify')).toBeHidden();await expect(page.locator('#inlineSave')).toBeDisabled();await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartMealNote')).toHaveText(corrected);await page.locator('#inlineSave').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(2);const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.amount_oz==null&&r.tags.includes('solids'))).toBe(true);expect(rows.find(r=>r.note===corrected).event_time).toBe('2026-10-18T12:55:00.000Z');expect(rows.some(r=>r.note==='Nona gave banana at 12:50 pm')).toBe(false);
+});
+
+test('P139: a new phone can reopen family sign-in, correct a code and stay connected after reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ const remote=[];page.on('request',r=>{if(r.url().includes('.supabase.co/'))remote.push(r.url());});
+ await page.addInitScript(()=>{
+  const client=window.syntheticClient,verified=client.auth.getUser;
+  client.auth.getUser=async()=>localStorage.getItem('qa-device-connected')?verified():{data:{user:null},error:{name:'AuthSessionMissingError',message:'Auth session missing!',status:400}};
+  window.qaJoinCalls=[];window.qaPasswordCalls=0;
+  client.functions={invoke:async(name,{body})=>{window.qaJoinCalls.push({name,body});return body.code==='QA-FAMILY'?{data:{email:'qa-device@example.invalid',password:'synthetic-password'},error:null}:{data:null,error:{name:'FunctionsHttpError',message:'Invalid test code'}};}};
+  client.auth.signInWithPassword=async credentials=>{window.qaPasswordCalls++;if(credentials.email!=='qa-device@example.invalid'||credentials.password!=='synthetic-password')return {error:{message:'Invalid test credentials'}};localStorage.setItem('qa-device-connected','1');return {data:{user:{id:'qa-user'}},error:null};};
+ });
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());
+ await expect(page.locator('#syncDot')).toContainText('connect family sync');await expect(page.locator('#syncDot')).not.toContainText('unavailable');
+ await page.locator('#openFamilySync').click();await expect(page.locator('#deviceFamilyCode')).toBeVisible();await page.locator('#dismissSync').click();await expect(page.locator('#authGate')).toBeHidden();
+ await page.locator('#syncDot').click();await expect(page.locator('#deviceFamilyCode')).toBeVisible();await expect(page.locator('#authStatus')).toContainText('family code');await page.locator('#dismissSync').click();
+ await page.locator('#navMore').click();await page.locator('#menuSync').click();await expect(page.locator('#sideMenu')).not.toHaveClass(/open/);await expect(page.locator('#deviceFamilyCode')).toBeVisible();
+ await page.locator('#deviceCaregiver').selectOption('Nona');await page.locator('#deviceFamilyCode').fill('QA-FAMILY');await page.locator('#authGate').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p139-family-signin-390.png'});
+ await page.locator('#deviceFamilyCode').fill('WRONG-TEST-CODE');await page.locator('#deviceJoin').click();await expect(page.locator('#authStatus')).toContainText("Couldn't connect");await expect(page.locator('#deviceJoin')).toBeEnabled();expect(await page.evaluate(()=>window.qaPasswordCalls)).toBe(0);
+ await page.locator('#deviceFamilyCode').fill('QA-FAMILY');await page.locator('#deviceJoin').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#authGate')).toBeHidden();
+ const join=await page.evaluate(()=>({calls:window.qaJoinCalls,passwordCalls:window.qaPasswordCalls,caregiver:localStorage.getItem('luca-caregiver')}));expect(join.calls[1]).toEqual({name:'join-family-device',body:{code:'QA-FAMILY',caregiver:'Nona'}});expect(join.passwordCalls).toBe(1);expect(join.caregiver).toBe('Nona');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');expect(await page.evaluate(()=>localStorage.getItem('luca-caregiver'))).toBe('Nona');expect(remote).toEqual([]);
+});
+
+test('P139: a failed connection check still leaves family sign-in reachable',async({page})=>{
+ await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.addInitScript(()=>{window.syntheticClient.auth.getUser=async()=>{throw {name:'AuthRetryableFetchError',code:'network'};};});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toContainText('Family sync unavailable');await page.locator('#openFamilySync').click();await expect(page.locator('#deviceFamilyCode')).toBeVisible();await expect(page.locator('#deviceJoin')).toBeEnabled();
 });
 
 test('P136: offline practice navigation never falls back to real family data cached by the service worker',async({browser})=>{
