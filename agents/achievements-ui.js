@@ -20,7 +20,7 @@ export function mountAchievements({getContext,getEntries,host}){
  }
  function paint(){
   const oldPortrait=host.querySelector('.achievementHero .avatarPortrait');
-  host.replaceChildren();const c=context();const teaser=document.getElementById('starterCardTeaser');if(teaser){teaser.hidden=!self||!!flair.banner||!result?.unlocked.length;teaser.textContent='✦ '+(result?.unlocked.length||1)+' calling card(s) ready · choose yours ↗';}
+  host.replaceChildren();const c=context();const teaser=document.getElementById('starterCardTeaser');if(teaser){teaser.hidden=!self||!!flair.banner||!result?.unlocked.length;const count=result?.unlocked.length||1;teaser.textContent='✦ '+count+' calling card'+(count===1?'':'s')+' ready · choose yours ↗';}
   if(!session||key(c)!==session){host.append(element('p','muted','Sign in to Family Sync to collect achievements.'));return;}
   if(!self){host.append(element('p','muted',notice||'Opening your trophy cabinet…'));return;}
   const hero=element('div','achievementHero');

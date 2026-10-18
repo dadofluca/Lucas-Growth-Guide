@@ -45,3 +45,10 @@ test('practice storage fails closed when storage isolation is unavailable',()=>{
  const context={sessionStorage:storage(),document:{addEventListener(){}}};Object.defineProperty(context,'localStorage',{value:storage(),configurable:false});context.window=context;
  runInNewContext(source,context);assert.equal(context.LucaDemo.ready,false);assert.equal(context.localStorage.length,0);
 });
+
+test('offline practice navigation cannot consult or return the cached production app',async()=>{
+ const listeners=new Map();let cacheReads=0,response;
+ runInNewContext(readFileSync(new URL('../sw.js',import.meta.url),'utf8'),{URL,Response,self:{location:{origin:'https://example.test'},addEventListener:(type,callback)=>listeners.set(type,callback)},fetch:()=>Promise.reject(new Error('Synthetic offline')),caches:{match(){cacheReads++;return Promise.resolve(new Response('REAL APP SENTINEL'));}}});
+ listeners.get('fetch')({request:{url:'https://example.test/Lucas-Growth-Guide/demo.html',method:'GET',mode:'navigate'},respondWith:promise=>response=promise});
+ const body=await (await response).text();assert.match(body,/Practice mode is offline/);assert.doesNotMatch(body,/REAL APP SENTINEL/);assert.equal(cacheReads,0);
+});

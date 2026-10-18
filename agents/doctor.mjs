@@ -53,5 +53,5 @@ if(process.argv[1]&&resolve(process.argv[1])===new URL(import.meta.url).pathname
  const notes=['# Next assistant handoff','',`Build: ${report.version} · commit: ${report.commit}`,`Verdict: ${report.verdict}`,'','Read DEVELOPER_HANDOFF.md first. Care writes belong to care-sync.js. Fix the owning implementation; do not add another compatibility wrapper.','',...report.checks.map(c=>`- ${c.id}: ${c.status} — ${c.detail}`),'',`Unit evidence: ${report.unit.status}. Browser evidence: ${report.browser.map(b=>b.status).join(', ')||'not supplied'}.`,...report.nextTasks.flatMap(t=>['',`## ${t.symptom}`,`Area: ${t.area}`,`Files: ${t.files.join(', ')}`,`Reproduce: \`${t.reproduce}\``,t.next]),'','External device/account checks remain unverified until independently tested. This report does not authorize deployment.'];
  writeFileSync(join(out,'NEXT_AGENT.md'),notes.join('\n')+'\n');if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,notes.join('\n')+'\n');
  console.log(`${report.version}: ${report.verdict}. ${report.checks.filter(c=>c.status==='passed').length}/${report.checks.length} static/fixture checks passed. See artifacts/doctor/health.json and NEXT_AGENT.md.`);
- if(report.nextTasks.length)process.exitCode=1;
+ if(report.nextTasks.length||(args.includes('--run')&&report.unit.status!=='passed'))process.exitCode=1;
 }

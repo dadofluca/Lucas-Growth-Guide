@@ -40,3 +40,10 @@ test('a single clear start-and-wake narrative counts its nap, while open-ended w
  const entries=[e('bed','2026-10-17T22:15:00Z','Down for the night'),e('wake','2026-10-18T07:18:00Z','Slept last night until 7 am, wakeups: 6+')];
  assert.equal(sleep.session(entries[1],entries,now).wakeups,null);
 });
+
+test('a confirmed window for another baby cannot fill or override a partial note',()=>{
+ const partial=e(123,'2026-10-17T22:15:00Z','Down for the night at 10:15');
+ const confirmed={...e(456,'2026-10-17T22:30:00Z',''),babyId:'another',details:{sleep:sleep.build({start:'2026-10-17T22:30:00Z',end:'2026-10-18T07:00:00Z',kind:'night',now})}};
+ assert.equal(sleep.session(partial,[partial,confirmed],now).complete,false);
+ const wake=e('wake','2026-10-18T07:18:00Z','Slept last night until 7 am');assert.equal(sleep.session(wake,[partial,wake,confirmed],now).minutes,525);
+});

@@ -50,21 +50,22 @@
  }
  function resolve(entries,{baseSession,now=Date.now()}={}){
   now=time(now);const result=new Map(),events=new Map(entries.map(e=>[id(e),e]));
+  const sameBaby=(a,b)=>{const x=events.get(String(a.id))?.babyId,y=events.get(String(b.id))?.babyId;return !x||!y||x===y;};
   for(const e of entries){const s=fromNote(e,baseSession(e),now);if(s)result.set(id(e),s);}
   const complete=[...result.values()].filter(s=>s.complete&&!s.legacy),used=new Set();
   const starts=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.start)).sort((a,b)=>b.start-a.start);
   const wakes=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.end)).sort((a,b)=>a.end-b.end);
   for(const wake of wakes){
    if(wake.end>now+minute)continue;
-   const start=starts.find(s=>!used.has(s.id)&&s.start<wake.end&&wake.end-s.start<=18*3600000&&(!events.get(s.id)?.babyId||!events.get(wake.id)?.babyId||events.get(s.id).babyId===events.get(wake.id).babyId));
+   const start=starts.find(s=>!used.has(s.id)&&s.start<wake.end&&wake.end-s.start<=18*3600000&&sameBaby(s,wake));
    if(!start)continue;used.add(start.id);
-   const explicit=complete.find(s=>s.kind==='night'&&Math.abs(s.start-start.start)<=3*3600000&&Math.abs(s.end-wake.end)<=3*3600000);
+   const explicit=complete.find(s=>s.kind==='night'&&sameBaby(s,start)&&Math.abs(s.start-start.start)<=3*3600000&&Math.abs(s.end-wake.end)<=3*3600000);
    const session=explicit||{...wake,start:start.start,minutes:(wake.end-start.start)/minute,complete:true,inferred:true,basis:'bedtime-and-wake-notes',evidenceIds:[start.id,wake.id]};
    if(session.awake!=null&&session.awake>session.minutes)session.awake=null;
    result.set(start.id,{...session,id:start.id});result.set(wake.id,{...session,id:wake.id});
   }
   // A confirmed manual window supersedes a nearby partial note without double-counting it.
-  for(const [key,s] of result)if(!s.complete){const confirmed=complete.find(c=>c.kind===s.kind&&((Number.isFinite(s.start)&&Math.abs(c.start-s.start)<=30*minute)||(Number.isFinite(s.end)&&Math.abs(c.end-s.end)<=30*minute)));if(confirmed)result.set(key,{...confirmed,id:key});}
+  for(const [key,s] of result)if(!s.complete){const confirmed=complete.find(c=>c.kind===s.kind&&sameBaby(c,s)&&((Number.isFinite(s.start)&&Math.abs(c.start-s.start)<=30*minute)||(Number.isFinite(s.end)&&Math.abs(c.end-s.end)<=30*minute)));if(confirmed)result.set(key,{...confirmed,id:key});}
   return result;
  }
  root.LucaSleepInference={resolve};if(typeof module==='object'&&module.exports)module.exports={resolve};

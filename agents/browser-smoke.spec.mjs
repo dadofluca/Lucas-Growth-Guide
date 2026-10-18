@@ -821,8 +821,8 @@ test('P136: clear bedtime, wake and abbreviated nap notes count once, and inferr
   {id:'context-nap',baby_id:'qa-baby',created_by:'qa-user',event_time:'2026-10-18T08:00:00Z',event_type:'sleep',tags:['sleep'],caregivers:['Nona'],note:'Napped 8–9',details:{}}
  ]));});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
- await expect(page.locator('.entry').filter({hasText:'Napped 8–9'})).toContainText('Nap · 1h · inferred');
- await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('8h 45m');await expect(page.locator('#sleepTrends')).toContainText('1h');await expect(page.locator('.sleepStatsFoot')).toContainText('2 sleep window(s) inferred');await expect(page.locator('.sleepMissing')).toHaveCount(0);
+ await expect(page.locator('.entry').filter({hasText:'Napped 8–9'})).toContainText('Nap · 1h · inferred');await expect(page.locator('.entry').filter({hasText:'Slept last night until 7 am'})).toContainText('Night sleep · 8h 45m · inferred');
+ await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('8h 45m');await expect(page.locator('#sleepTrends')).toContainText('1h');await expect(page.locator('.sleepStatsFoot')).toContainText('2 sleep windows inferred');await expect(page.locator('.sleepMissing')).toHaveCount(0);
  await page.locator('#sleepTrends').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p136-contextual-sleep-390.png'});
  await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await page.locator('[data-history-edit="context-wake"]').click();
  await expect(page.locator('#sleepStart')).toHaveValue('2026-10-17T22:15');await expect(page.locator('#sleepEnd')).toHaveValue('2026-10-18T07:00');await expect(page.locator('#sleepEntryWakeups')).toHaveValue('');await expect(page.locator('.sleepEditorFoot')).toContainText('inferred from your notes');
@@ -831,8 +831,9 @@ test('P136: clear bedtime, wake and abbreviated nap notes count once, and inferr
  const data=await page.evaluate(()=>({stats:sleepStats(a),rows:JSON.parse(localStorage.getItem('qa-remote-events'))}));expect(data.stats.nightCount).toBe(1);expect(data.stats.partialCount).toBe(0);expect(data.rows).toHaveLength(3);expect(data.rows.find(r=>r.id==='context-bed').note).toBe('Down for the night at 10:15');expect(data.rows.find(r=>r.id==='context-wake').note).toContain('maybe 3 wakeups');
 });
 
-test('P136: an immediate starter card, classified click discoveries and mastery previews are discoverable on phones',async({page})=>{
+test('P136: an immediate starter card and classified click discoveries are discoverable on phones',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-profiles'))localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Synthetic caregiver',bio:'',avatar_preset:'dadasDude',flair:{}}]));});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await expect(page.locator('#starterCardTeaser')).toBeVisible();await page.locator('#starterCardTeaser').click();await expect(page.locator('[data-achievement="first-checkin"]')).toHaveClass(/unlocked/);
  await page.locator('[data-card-category="starter"]').click();await expect(page.locator('.achievementCard')).toHaveCount(4);await page.locator('[data-achievement="first-checkin"] [data-equip-banner]').click();
@@ -865,7 +866,7 @@ test('P136: friend playground edits, deletes, chats, profiles and resets without
 
 test('P136: practice schedule changes persist locally and revert removes only sample coverage',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
- await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);await page.locator('.scheduleDay48').filter({hasText:'Sam'}).first().click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await page.locator('.save57').click();
+ await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);await page.locator('.scheduleDay48').filter({hasText:'Sam'}).first().click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
  await page.locator('.scheduleDay48').filter({hasText:'Nona'}).first().click();page.once('dialog',dialog=>dialog.accept());await page.locator('.revertMgr63').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).length)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).every(r=>r.kind==='work'))).toBe(true);
 });
@@ -873,6 +874,6 @@ test('P136: practice schedule changes persist locally and revert removes only sa
 test('P136: offline practice navigation never falls back to real family data cached by the service worker',async({browser})=>{
  const context=await browser.newContext({serviceWorkers:'allow'}),page=await context.newPage();try{
   await page.route('https://**/*',route=>route.abort());await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(async()=>{await navigator.serviceWorker.register('./sw.js');await navigator.serviceWorker.ready;});await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller!==null)).toBe(true);
-  await context.setOffline(true);await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('h1')).toHaveText('Practice mode is offline');await expect(page.locator('#timeline')).toHaveCount(0);await expect(page.locator('#syncDot')).toHaveCount(0);
+  await context.serviceWorkers()[0].evaluate(()=>{self.fetch=()=>Promise.reject(new TypeError('Synthetic network unavailable'));});await context.setOffline(true);await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('h1')).toHaveText('Practice mode is offline');await expect(page.locator('#timeline')).toHaveCount(0);await expect(page.locator('#syncDot')).toHaveCount(0);
  }finally{await context.close();}
 });
