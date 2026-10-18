@@ -14,11 +14,11 @@ if(!html.includes(startup))throw Error("Sync startup changed; refusing unsafe pr
 html=html.replace(startup,"");
 const csp='<meta http-equiv="Content-Security-Policy" content="connect-src \'none\'; form-action \'none\'">';
 const banner='<div role="status" style="position:sticky;top:0;z-index:99999;background:#442f19;color:#fff;padding:12px;text-align:center;font:700 14px system-ui">PREVIEW ONLY · Demo on this device · Family Sync disabled · Do not enter real baby information</div>';
-html=html.replace("<head>","<head>"+csp).replace("<body>","<body>"+banner);
+html=html.replace("<head>","<head>"+csp).replace(/<body[^>]*>/,match=>match+banner);
 if(!html.includes(banner))throw Error("Preview banner injection failed");
 writeFileSync(join(out,"index.html"),html);
 let emergency=readFileSync(join(root,"emergency.html"),"utf8");
-emergency=emergency.replace("<head>","<head>"+csp).replace("<body>","<body>"+banner);
+emergency=emergency.replace("<head>","<head>"+csp).replace(/<body[^>]*>/,match=>match+banner);
 writeFileSync(join(out,"emergency.html"),emergency);
 for(const name of ["manifest.webmanifest","family-pin.js","sync-fix.js","care-sync.js"])cpSync(join(root,name),join(out,name));
 cpSync(join(root,"agents"),join(out,"agents"),{recursive:true});
