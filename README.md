@@ -1,13 +1,14 @@
-## Current release: P136 — 2026-10-18
+## Current release: P137 — 2026-10-18
 
-[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Release PR #86](https://github.com/dadofluca/Lucas-Growth-Guide/pull/86)
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Release PR #87](https://github.com/dadofluca/Lucas-Growth-Guide/pull/87)
 
 - Muted stone/sage light surfaces and readable controls; compact quick care and searchable History stay on the shared care queue.
 - Clear bedtime/wake narratives and abbreviated naps count as labeled, editable inferred sleep windows. Source notes remain intact; confirmed times take precedence and linked windows count once.
 - Original portrait artwork and character names in chat/profiles, 23 calling cards, four easy starters, mastery, classified discoveries and optional soft clicks/surprises.
 - Friend playground opens as Test Pilot with sample records. Care edits/deletes, chat, profiles and schedules stay in isolated browser storage. Reset clears only practice data. Copy its link from Profiles → Tools & support → Friend test link; no family password is needed.
-- `node agents/doctor.mjs --run` produces machine-readable health and next-assistant instructions. Existing scheduled checks upload exact failures, test locations, owning files, screenshots and reproduction commands. Start with AGENTS.md, DEVELOPER_HANDOFF.md and docs/AGENT_PLAYBOOK.md.
-- **201 Node + 60 Chromium checks passed**, with zero failures, skips or flakes, on `09c55177a1cd26caaf0c00158b683a428cdc55ee`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39143781511) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39143781444). Public P136 app/demo and 20 file SHA-256 comparisons matched the tested release.
+- Schedule day cards use actual calendar keys, so translated labels and weeks spanning New Year open and save the correct day. Work rows remain separate from editable coverage.
+- `node agents/doctor.mjs --run` produces machine-readable health and next-assistant instructions. Browser reports must match the checked-out commit and a clean tracked worktree; missing, invalid, stale or empty supplied evidence is actionable, never a pass. Existing scheduled checks upload exact failures, test locations, owning files, screenshots and reproduction commands. Start with AGENTS.md, DEVELOPER_HANDOFF.md and docs/AGENT_PLAYBOOK.md.
+- **204 Node + 62 Chromium checks passed**, with zero failures, skips or flakes, for source `2e7a7874becbe8e8c1ce40791ed767008f085da8` (CI merge checkout `8852d4b4179bbd8c519ae1ed4df0af53ef2b65d9`). [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39147289271) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39147289255). Public P137 app/demo and 20 file SHA-256 comparisons matched the tested release. Source, tested checkout and release merge have identical trees.
 - No production family records or access policies changed. Actual signed-in iPhone Safari, a second production family device and Muse ingestion remain external checks. Older release notes below are historical.
 
 ## P132 care-sync release — 2026-10-18
