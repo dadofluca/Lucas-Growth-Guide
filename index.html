@@ -450,6 +450,11 @@ nav button,body:has(#todayView.active) nav button{min-height:48px!important;padd
 nav button b,body:has(#todayView.active) nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
 nav button.active,body:has(#todayView.active) nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
 nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
+/* P112: compact Today quick entry; remove forced 70vh height. */
+#todayView .quickhome{min-height:0!important;height:auto!important;padding-bottom:12px!important}
+#todayView .heroNext{padding-bottom:8px!important}
+#todayView .heroInput textarea{min-height:76px!important}
+#todayView .heroBtn{min-height:64px!important}
 /* P103: iPhone editor contrast, including native date/time controls. */
 #manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
 #manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
