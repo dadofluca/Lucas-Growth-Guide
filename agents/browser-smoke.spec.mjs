@@ -350,3 +350,14 @@ test("P95 family authentication does not falsely claim timeline synchronization"
  expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
  expect(app).toContain('render();return false}let remoteRows=');
 });
+
+test("P96 bottom navigation highlights History and de-emphasizes Today",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.locator('nav [data-tab="history"]').click();
+ await expect(page.locator('nav [data-tab="history"]')).toHaveClass(/active/);
+ await expect(page.locator('nav [data-tab="today"]')).not.toHaveClass(/active/);
+ const styles=await page.evaluate(()=>({history:getComputedStyle(document.querySelector('nav [data-tab="history"]')).backgroundColor,today:getComputedStyle(document.querySelector('nav [data-tab="today"]')).backgroundColor}));
+ expect(styles.history).not.toBe(styles.today);
+});
