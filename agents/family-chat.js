@@ -1,3 +1,4 @@
+import {avatarSvg} from "./family-profiles.js";
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status,mediaInput,attachButton,mediaPreview}){
  let busy=false,requestId=0,disposed=false,selectedFile=null;
@@ -7,10 +8,16 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   for(const m of rows){
    const line=document.createElement("div");
    line.style.cssText="padding:10px;margin:7px 0;border-radius:12px;background:#f1e6d8;color:#373a38;overflow-wrap:anywhere";
-   const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profiles.get(m.sender_id)||"Family member");
+   const profile=profiles.get(m.sender_id)||{};
+   const avatar=document.createElement("img");
+   avatar.src=avatarSvg(profile.avatar_preset||"bear");
+   avatar.alt=(profile.display_name||"Family member")+" avatar";
+   avatar.width=40;avatar.height=40;
+   avatar.style.cssText="width:40px;height:40px;flex:none;border-radius:50%;object-fit:cover;border:2px solid #fff6e7;box-shadow:0 2px 7px #0002";
+   const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profile.display_name||"Family member");
    const when=document.createElement("small");when.textContent=" · "+new Date(m.created_at).toLocaleString();
    const body=document.createElement("div");body.textContent=m.body;
-   line.append(who,when,body);
+   const header=document.createElement("div");header.style.cssText="display:flex;gap:9px;align-items:center;margin-bottom:7px";const identity=document.createElement("div");identity.append(who,when);header.append(avatar,identity);line.append(header,body);
    if(m.media_path&&["image","gif","video"].includes(m.media_type)){
     const sb=getClient();
     const media=document.createElement(m.media_type==="video"?"video":"img");
@@ -36,8 +43,8 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   if(error){feed.replaceChildren();say("Chat is unavailable right now. Please try again.");return;}
   let people=[];
-  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name").eq("family_id",family));}catch{}
-  const names=new Map((people||[]).map(p=>[p.user_id,p.display_name]));
+  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset").eq("family_id",family));}catch{}
+  const names=new Map((people||[]).map(p=>[p.user_id,p]));
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   show((data||[]).reverse(),names);say("");
