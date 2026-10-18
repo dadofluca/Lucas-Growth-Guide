@@ -67,3 +67,14 @@ test("Family Ideas board has explicit privacy and server-enforced family scope",
  assert.match(sql,/from public.family_members/);assert.match(sql,/revoke all on public.family_ideas from anon/);
  assert.match(ideas,/Private — only me/);assert.match(ideas,/getClient\(\)\.from\("family_ideas"\)/);
 });
+
+test("Spark scheduled audit and feedback reviewer require approval",()=>{
+ const workflow=readFileSync(new URL("../.github/workflows/safe-agent-schedule.yml",import.meta.url),"utf8");
+ const spark=readFileSync(new URL("./spark-audit.mjs",import.meta.url),"utf8");
+ const review=readFileSync(new URL("./feedback-review.mjs",import.meta.url),"utf8");
+ assert.match(workflow,/node agents\/spark-audit\.mjs/);
+ assert.match(workflow,/artifacts\/spark-design-audit\.json/);
+ assert.match(spark,/autoDeploy:false/);
+ assert.match(review,/agent_review_approved!==true/);
+ assert.match(review,/autoMerge:false,autoDeploy:false/);
+});
