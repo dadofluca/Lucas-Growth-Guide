@@ -881,7 +881,7 @@ for(const locale of ['en-US','es-DO'])test('P137: practice schedule keeps the se
   ]));});
   await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
   const card=page.locator('[data-schedule-day="2027-01-01"]');await expect(card).toBeVisible();await card.locator('.scheduleDayTop48 b').click();await expect(page.locator('.workMgr63')).toHaveCount(2);
-  await page.locator('.closeMgr63').click();await card.locator('.manage62').click();await expect(page.locator('.workMgr63')).toHaveCount(2);
+  await page.locator('.closeMgr63').click();await card.locator('.scheduleDayTop48').click();await expect(page.locator('.workMgr63')).toHaveCount(2);
   await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
   await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);
   const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')));expect(rows.filter(r=>r.kind==='work')).toHaveLength(2);expect(rows.find(r=>r.kind==='coverage')).toMatchObject({person:'Nona',start_at:'2027-01-01T07:00:00.000Z',end_at:'2027-01-01T15:00:00.000Z'});
