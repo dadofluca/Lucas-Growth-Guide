@@ -50,13 +50,8 @@ test("P68 family chat has compact composer and send control",()=>{
  assert.match(html,/id="familyChatSend"/);
 });
 
-test("app HTML and compatibility runtime agree on release badge",()=>{
- const runtime=readFileSync(new URL("../sync-fix.js",import.meta.url),"utf8");
- const htmlBadge=html.match(/id="patchBadge"[^>]*>\s*(P\d+)\s*<\/div>/);
- const runtimeBadge=runtime.match(/const LUCA_RUNTIME=\{version:'(P\d+)'/);
- assert.ok(htmlBadge,"main HTML must declare a visible patch badge");
- assert.ok(runtimeBadge,"runtime must declare its version");
- assert.equal(htmlBadge[1],runtimeBadge[1],"runtime patch must not override HTML with an older version");
+test("obsolete patch badge is absent from the family UI",()=>{
+ assert.doesNotMatch(html,/id="patchBadge"/);
 });
 
 test("Family Ideas board has explicit privacy and server-enforced family scope",()=>{
