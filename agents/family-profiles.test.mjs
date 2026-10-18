@@ -104,3 +104,13 @@ test("P73 offers explicit recorded fart preview for iPhone sound checks",()=>{
  assert.match(html,/await audio\.play\(\)/);
  assert.match(html,/Sound blocked\. Check silent mode/);
 });
+
+test("P79 illustrated avatars are selectable without emoji-only profile rows",()=>{
+ const profiles=readFileSync(new URL("./family-profiles.js",import.meta.url),"utf8");
+ assert.match(profiles,/function avatarSvg\(key\)/);
+ assert.match(profiles,/data:image\/svg\+xml/);
+ assert.match(profiles,/aria-pressed/);
+ assert.match(profiles,/avatar\.dispatchEvent\(new Event\("input"/);
+ assert.match(profiles,/avatar_preset:preset/);
+ assert.match(html,/\.avatarGallery\{/);
+});
