@@ -21,6 +21,8 @@ jobs:
         run: node --test agents/*.test.mjs
       - name: Exercise synthetic Watchdog and Builder handoff
         run: node agents/synthetic-handoff.mjs
+      - name: Run Spark UX audit
+        run: node agents/spark-audit.mjs
       - name: Evaluate release readiness without production access
         run: node agents/release-readiness.mjs
       - name: Upload reviewable evidence
@@ -29,6 +31,7 @@ jobs:
         with:
           name: safe-agent-evidence
           path: |
+            artifacts/spark-design-audit.json
             artifacts/synthetic-agent-qa.json
             artifacts/release-readiness.json
           if-no-files-found: warn
