@@ -398,26 +398,11 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  shortcutRoute();
 })();
 
-/* P48 — expandable history days + weekly childcare coverage board */
+/* Weekly childcare coverage board; History uses the canonical renderer in index.html. */
 (function(){
 
  const st=document.createElement("style");
  st.textContent=`
- /* History */
- #historyView .card{padding:10px!important;background:transparent!important;border:0!important;box-shadow:none!important}
- .historyDay48{background:rgba(255,250,242,.34);border:1px solid rgba(255,255,255,.72);border-radius:24px;margin:0 0 12px;overflow:hidden;box-shadow:0 8px 24px rgba(60,48,36,.07)}
- .historyHead48{width:100%;border:0;background:transparent!important;color:#31453b!important;-webkit-text-fill-color:#31453b!important;padding:20px 18px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
- .historyHead48 .summary48{font-size:15px;color:#607067!important;-webkit-text-fill-color:#607067!important;font-weight:500;margin-top:4px}
- .historyChevron48{font-size:22px;transition:transform .2s ease}
- .historyDay48.open .historyChevron48{transform:rotate(180deg)}
- .historyBody48{display:none;padding:0 14px 16px}
- .historyDay48.open .historyBody48{display:block}
- .historyEvent48{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:13px;margin:8px 0}
- .historyEvent48 .eventLine48{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
- .historyDeleteDay48{width:100%;margin-top:12px;border:1px solid #b46b5a!important;background:rgba(180,107,90,.08)!important;color:#8b4335!important;-webkit-text-fill-color:#8b4335!important;border-radius:14px;padding:11px;font-weight:750}
- .historyEvent48 button{color:#f8f3e9!important;-webkit-text-fill-color:#f8f3e9!important;background:#294b61!important}
- .historyEvent48 button.del{background:#8d4e43!important}
-
  /* Schedule */
  #scheduleView .card{padding:12px!important}
  #scheduleView .scheduleNav{align-items:center}
@@ -442,41 +427,6 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  .assign48{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
  .assign48 button{padding:7px 9px;border-radius:11px;border:0;background:#294b61!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:750}
  `;document.head.appendChild(st);
-
- function niceDay(d){return d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})}
- function historyEventMarkup(e){
-   const c=typeof chips==="function"?chips(e):[];
-   return '<div class="historyEvent48"><div class="eventLine48"><b>'+new Date(e.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+'</b><span class="muted">'+esc((e.people||[]).join(", "))+'</span></div>'+
-   '<div class="chips">'+c.map(x=>'<span class="chip">'+esc(x)+'</span>').join("")+'</div>'+
-   (e.sourceText?'<div class="note"><span class="muted" style="font-size:11px">Original message</span><br>'+esc(e.sourceText)+'</div>':(e.notes?'<div class="note">'+esc(e.notes)+'</div>':""))+
-   '<div class="actions"><button class="tiny" data-h48edit="'+e.id+'">Edit</button><button class="tiny del" data-h48del="'+e.id+'">Delete</button></div></div>';
- }
- function renderHistory48(){
-   const el=document.getElementById("history");if(!el||typeof a==="undefined")return;
-   const groups={};
-   a.forEach(e=>{const k=day(e.at);(groups[k]??=[]).push(e)});
-   const ordered=Object.entries(groups).sort((x,y)=>Math.max(...y[1].map(e=>+new Date(e.at)))-Math.max(...x[1].map(e=>+new Date(e.at))));
-   el.innerHTML=ordered.map(([k,v],idx)=>{
-     v.sort((x,y)=>new Date(y.at)-new Date(x.at));
-     const feeds=v.filter(e=>e.oz),poops=v.filter(e=>(e.tags||[]).includes("poop")||e.event_type==="poop"),date=new Date(v[0].at);
-     return '<section class="historyDay48" data-h48day="'+encodeURIComponent(k)+'"><button class="historyHead48" type="button"><span><b>'+niceDay(date)+'</b><div class="summary48">'+feeds.reduce((s,e)=>s+(+e.oz||0),0)+' oz · '+feeds.length+' bottle'+(feeds.length===1?"":"s")+' · '+poops.length+' poop'+(poops.length===1?"":"s")+' · '+v.length+' entr'+(v.length===1?"y":"ies")+'</div></span><span class="historyChevron48">⌄</span></button><div class="historyBody48">'+v.map(historyEventMarkup).join("")+'<button class="historyDeleteDay48" data-h48deleteday="'+encodeURIComponent(k)+'">Delete entire day</button></div></section>';
-   }).join("")||'<div class="muted">No history yet.</div>';
-   el.querySelectorAll(".historyHead48").forEach(b=>b.onclick=()=>b.closest(".historyDay48").classList.toggle("open"));
-   el.querySelectorAll("[data-h48edit]").forEach(b=>b.onclick=()=>{
-     document.querySelector('nav [data-tab="today"]')?.click();
-     setTimeout(()=>edit(b.dataset.h48edit),80);
-   });
-   el.querySelectorAll("[data-h48del]").forEach(b=>b.onclick=async()=>{await del(b.dataset.h48del);renderHistory48()});
-   el.querySelectorAll("[data-h48deleteday]").forEach(b=>b.onclick=async()=>{
-     const key=decodeURIComponent(b.dataset.h48deleteday),items=a.filter(e=>day(e.at)===key);
-     if(!items.length||!confirm("Delete all "+items.length+" entries from "+niceDay(new Date(items[0].at))+"? This cannot be undone."))return;
-     for(const e of items){if(e.remote)try{await deleteRemote(e.id)}catch(err){console.error(err)}}
-     a=a.filter(e=>day(e.at)!==key);persist();render();toast("Day deleted");renderHistory48();
-   });
- }
- const oldRender48=window.render;
- if(typeof oldRender48==="function")window.render=function(){oldRender48();renderHistory48()};
- renderHistory48();
 
  function sunStart(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-x.getDay());return x}
  function dateKey48(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}

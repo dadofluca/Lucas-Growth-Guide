@@ -43,7 +43,7 @@ jobs:
       - name: Verify care persistence and loaded version first
         run: npx playwright test --config=playwright.config.mjs --grep 'P132:'
       - name: Run remaining browser smoke checks
-        run: npx playwright test --config=playwright.config.mjs --grep-invert 'P132:' 
+        run: npx playwright test --config=playwright.config.mjs --grep-invert 'P132:'
       - name: Upload phone screenshots
         if: always()
         uses: actions/upload-artifact@v4
