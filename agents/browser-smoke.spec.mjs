@@ -203,7 +203,7 @@ test("P87 runtime version agrees with displayed badge",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
  await expect(page.locator("#patchBadge")).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P132");
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe(await page.locator("#buildVersion").innerText());
 });
 
 
@@ -538,12 +538,13 @@ async function syntheticCareBackend(page){
   const read=()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]');
   const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
   function query(table){
-   let op='read',payload=null,filters={};
-   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v){op='upsert';payload=v;return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
-    then(resolve,reject){return Promise.resolve().then(()=>{
+   let op='read',payload=null,filters={},ignoreDuplicates=false;
+   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
+    then(resolve,reject){return Promise.resolve().then(async()=>{
      if(table==='family_profiles'){
+      if(op==='upsert'&&window.syntheticProfileSaveDelay)await new Promise(resolve=>setTimeout(resolve,window.syntheticProfileSaveDelay));
       let profiles=JSON.parse(localStorage.getItem('qa-profiles')||'[]');
-      if(op==='upsert'){profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push(payload);}
+      if(op==='upsert'&&!(ignoreDuplicates&&profiles.some(x=>x.user_id===payload.user_id))){profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push(payload);}
       if(op==='update')profiles=profiles.map(x=>Object.entries(filters).every(([k,v])=>x[k]===v)?{...x,...payload}:x);
       localStorage.setItem('qa-profiles',JSON.stringify(profiles));
       return {data:profiles.filter(x=>Object.entries(filters).every(([k,v])=>x[k]===v)),error:null};
@@ -643,4 +644,21 @@ test('P133: personality preferences persist, quiet mode stays silent, and reduce
  await expect(page.locator('#toast')).toContainText('saved on this phone');await expect(page.locator('#toast .toastQuip')).toHaveCount(0);
  expect(await page.locator('#todayView').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+
+test('P133: avatar changes during a slow save remain a visible unsaved draft',async({page})=>{
+ await syntheticCareBackend(page);
+ await page.addInitScript(()=>localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Synthetic caregiver',bio:'',avatar_preset:'bear'}])));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();
+ await page.getByRole('searchbox',{name:'Find an avatar'}).fill('Teddy');await page.getByRole('button',{name:'Teddy Trooper',exact:true}).click();
+ await page.evaluate(()=>window.syntheticProfileSaveDelay=1500);await page.locator('#profileSave').click();
+ await page.getByRole('searchbox',{name:'Find an avatar'}).fill('Diaper Doom');await page.getByRole('button',{name:'Diaper Doom',exact:true}).click();
+ await expect(page.locator('#profileStatus')).toContainText('newer changes are still unsaved');
+ await expect(page.locator('.armoryPreview')).toContainText('Diaper Doom');
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].avatar_preset)).toBe('teddyTrooper');
+ await page.evaluate(()=>window.syntheticProfileSaveDelay=0);await page.locator('#profileSave').click();await expect(page.locator('#profileStatus')).toHaveText('Profile saved.');
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].avatar_preset)).toBe('diaperDoom');
 });

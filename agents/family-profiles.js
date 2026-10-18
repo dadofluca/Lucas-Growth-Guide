@@ -71,8 +71,8 @@ function lastSeen(iso){
  return `Last active ${Math.floor(minutes/1440)} days ago`;
 }
 export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio,avatar,save,status}){
- let disposed=false,requestId=0,dirty=false;
- const markDirty=()=>{dirty=true;};
+ let disposed=false,requestId=0,dirty=false,draftRevision=0;
+ const markDirty=()=>{dirty=true;draftRevision++;};
  let savedPreset=avatar.value||"bear",category="all";
  const root=document.createElement("div");root.className="armory";
  avatar.insertAdjacentElement("afterend",root);avatar.style.display="none";
@@ -138,12 +138,12 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   if(disposed||!client||!family||!user)return say("Sign in first.");
   const display_name=name.value.trim(),description=bio.value.trim(),preset=avatar.value;
   if(!display_name||display_name.length>40||description.length>160||!presets[preset])return say("Check your name, bio and avatar.");
-  save.disabled=true;
+  const savingRevision=draftRevision;save.disabled=true;
   try{
    if(disposed||getFamilyId()!==family||getUser()?.id!==user.id)return say("Family session changed. Reopen profiles.");
    const {error}=await client.from("family_profiles").upsert({family_id:family,user_id:user.id,display_name,bio:description,avatar_preset:preset,updated_at:new Date().toISOString()},{onConflict:"family_id,user_id"});
    if(error)throw error;
-   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){dirty=false;await heartbeat();await refresh();say("Profile saved.");}
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){savedPreset=preset;dirty=draftRevision!==savingRevision;await heartbeat();await refresh();paintSelection();say(dirty?"Profile saved. Your newer changes are still unsaved.":"Profile saved.");}
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
  };
