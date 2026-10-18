@@ -339,3 +339,14 @@ test("P95 history always displays an explicit result, never a blank panel",async
  await expect(page.locator("#history")).not.toBeEmpty();
  await expect(page.locator("#history")).toContainText(/No history yet|entries|Loading history/);
 });
+
+
+test("P95 family authentication does not falsely claim timeline synchronization",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const source=await page.locator("script").allTextContents();
+ const app=source.join("\n");
+ expect(app).toContain('const timelineLoaded=await pullShared()');
+ expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
+ expect(app).toContain('toast("Sync couldn\\\'t refresh");render();return false');
+});
