@@ -374,3 +374,20 @@ test("P97 bottom navigation has the same surface on Today and History",async({pa
  await expect(page.locator('nav [data-tab="history"]')).toHaveClass(/active/);
  await expect(page.locator('nav [data-tab="today"]')).not.toHaveClass(/active/);
 });
+
+
+test("P99 History day opens and shows individual event details",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.evaluate(()=>{a=[{id:"qa-feed",at:"2026-10-17T09:00:00",oz:8,tags:[],people:["Sam"],notes:"Morning bottle",remote:false},{id:"qa-poop",at:"2026-10-17T09:20:00",oz:null,tags:["poop"],people:["Maddie"],notes:"Big diaper",remote:false}];renderHistory()});
+ await page.locator('nav [data-tab="history"]').click();
+ const d=page.locator('#history details.historyDay').first();
+ await expect(d).toContainText("2 entries");
+ await d.locator("summary").click();
+ await expect(d).toHaveAttribute("open","");
+ await expect(d).toContainText("8 oz bottle");
+ await expect(d).toContainText("Morning bottle");
+ await expect(d).toContainText("Maddie");
+ await expect(d).toContainText("Big diaper");
+});
