@@ -48,3 +48,27 @@ This is an implementation plan, **not a deployed autonomous agent fleet**.
 - Agent reports never expose secrets or personal details in public repositories.
 
 The existing ChatGPT daily audit is a separate scheduled read-only review; it is not the app's autonomous runtime.
+
+## 2026-10-17 review: why the agents missed the P87 mobile regressions
+
+**Observed gap:** Existing Watchdog checks are pure synthetic flow assessments, not a running iPhone/browser monitor. Browser smoke covered tab navigation and emergency backups, but did **not** assert computed text contrast, five-item dock fit, drawer geometry, delayed Family Sync or service-worker version consistency. The README contains historical agent milestones that are not proof of autonomous deployment. CI only runs on matching PR/push events; it does not proactively open PRs from periodic checks.
+
+### Ownership and escalation rules (proposed, not yet autonomous)
+- **Watchdog (QA lead):** run viewport matrix (375x812, 390x844, 430x932), inspect contrast >= 4.5:1 for normal text, navigation bounding boxes and overflow, drawer open/close, delayed-auth states, and offline/reload version consistency. Never touch real care events. Emit evidence + stable fingerprints.
+- **Guardian (security/reliability):** verify RLS and auth isolation, service-worker/cache behavior, failed Supabase requests and chat initialization latency. Do not bypass authentication or log tokens/message bodies.
+- **Atlas (data):** check event persistence, duplicate writes and caregiver attribution using synthetic fixtures; production data remains read-only and family-scoped.
+- **Scout (schedule):** verify coverage edit/revert and conflicts with synthetic calendars.
+- **Teddy (insights):** check recommendations against verified history and sparse-data uncertainty; never fabricate care events.
+- **Spark (design):** own contrast, typography, safe-area spacing, avatar fidelity and screenshot comparisons; propose design fixes with before/after evidence.
+- **Builder (engineering):** create narrowly scoped branches/PRs and regression tests; no unattended production merge.
+- **Conductor (triage):** dedupe and prioritize findings, distinguish confirmed failures from untested cases, assign owner and track fix -> CI -> review -> deploy -> device verification. Escalate auth/data/security and persistent visual regressions.
+
+### Incremental implementation
+1. **Implemented in P89 branch:** automated Chromium regression guard for iPhone-size navigation bounds and computed drawer text contrast, plus CSS correction. This runs on future relevant PRs and catches the same regression before merge.
+2. **Next:** add signed-out, delayed-session and signed-in synthetic chat preview scenarios; assert no premature 'sign in' message while auth is pending, no leak of prior family messages, and a bounded status transition.
+3. **Next:** add deterministic screenshots/visual baselines for main views and drawers at three phone sizes; artifact on failure, no personal data.
+4. **Next:** schedule read-only CI QA (daily or twice daily) on a dedicated workflow, reporting sanitized failures to a private review queue. GitHub Actions schedules can be delayed and cannot guarantee always-on monitoring.
+5. **Next:** build a guarded staging preview deployment and an opt-in device verification checklist; do not claim Chromium emulates iOS Safari perfectly.
+6. **Only after secure backend design:** authenticated periodic Guardian/Atlas jobs with bounded retries, isolation and alerts; no production corrections, silent data mutations or automatic deployment.
+
+**Acceptance:** a deliberately dark-on-dark drawer and an oversized/overflowing nav must fail CI; no report should claim a passed test that never ran. Any automated remediation stays in a PR until CI and appropriate review. Synthetic QA must never contaminate family totals.
