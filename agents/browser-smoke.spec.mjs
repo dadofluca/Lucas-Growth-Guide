@@ -328,3 +328,15 @@ test("P91 chat history renders even when profile lookup stalls",async({page})=>{
  });
  expect(result).toContain("Synthetic QA hello");
 });
+
+
+test("P96 bottom navigation highlights History and de-emphasizes Today",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.locator('nav [data-tab="history"]').click();
+ await expect(page.locator('nav [data-tab="history"]')).toHaveClass(/active/);
+ await expect(page.locator('nav [data-tab="today"]')).not.toHaveClass(/active/);
+ const styles=await page.evaluate(()=>({history:getComputedStyle(document.querySelector('nav [data-tab="history"]')).backgroundColor,today:getComputedStyle(document.querySelector('nav [data-tab="today"]')).backgroundColor}));
+ expect(styles.history).not.toBe(styles.today);
+});
