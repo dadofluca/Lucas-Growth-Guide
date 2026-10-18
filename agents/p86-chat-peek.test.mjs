@@ -22,8 +22,8 @@ test("P87 edge gestures only open from 24px edge with strong horizontal intent",
  assert.match(html,/if\(g\.edge==="right"&&dx<0\)\{openDrawer\(\)\}/);
 });
 test("P87 chat peek uses family-scoped authenticated reads, no stored message bodies",()=>{
- assert.match(html,/\.from\("family_chat_messages"\)\.select\("id,sender_id,body,created_at"\)\.eq\("family_id",family\)/);
+ assert.match(html,/\.from\("family_chat_messages"\)\.select\("id,sender_id,body,created_at,media_path,media_type"\)\.eq\("family_id",family\)/);
  assert.match(html,/seenKey=\(f,u\)=>"luca-chat-seen:"\+f\+":"\+u/);
- assert.match(html,/body\.textContent=m\.body/);
+ assert.match(html,/body\.textContent=m\.body\|\|/);
  assert.match(html,/peekBadge\.hidden=!unread/);
 });
