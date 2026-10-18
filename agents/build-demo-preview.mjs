@@ -20,7 +20,7 @@ writeFileSync(join(out,"index.html"),html);
 let emergency=readFileSync(join(root,"emergency.html"),"utf8");
 emergency=emergency.replace("<head>","<head>"+csp).replace("<body>","<body>"+banner);
 writeFileSync(join(out,"emergency.html"),emergency);
-for(const name of ["manifest.webmanifest","family-pin.js","sync-fix.js"])cpSync(join(root,name),join(out,name));
+for(const name of ["manifest.webmanifest","family-pin.js","sync-fix.js","care-sync.js"])cpSync(join(root,name),join(out,name));
 cpSync(join(root,"agents"),join(out,"agents"),{recursive:true});
 for(const name of readdirSync(root)){
  if(/\.(?:png|jpe?g|svg|ico|webp|mov|mp3|mp4)$/i.test(name)&&existsSync(join(root,name)))cpSync(join(root,name),join(out,name));

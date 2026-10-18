@@ -5,7 +5,7 @@ const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
 const runtime=readFileSync(new URL("../sync-fix.js",import.meta.url),"utf8");
 test("compatibility runtime remains without obsolete badge",()=>{
  assert.doesNotMatch(html,/id="patchBadge"/);
- assert.match(runtime,/version:'P87'/);
+ assert.match(runtime,/version:document\.getElementById\("buildVersion"\)/);
 });
 test("P87 right drawer is family chat preview, not redundant timeline",()=>{
  assert.match(html,/id="drawerChatPreview"/);

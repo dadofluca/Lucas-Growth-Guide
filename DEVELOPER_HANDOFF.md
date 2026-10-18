@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current runtime at handoff:** **P66** (2026-10-04)
+**Current release:** **P132** (2026-10-18); previous baseline main P130. See the current release note below; older Pxx notes are historical.
 
 ## Product intent
 
@@ -154,3 +154,28 @@ At the end of every meaningful development session, update this README with:
 - Sam/Maddie work rows should become editable with the same polished time-range interaction used for coverage. Preserve an original/base schedule separately enough that Revert can restore intended work schedule rather than destroying it.
 - Next schedule architecture work should favor one canonical schedule repository/editor and one Teddy parser/preview interface rather than separate parsing logic for each input source.
 \n\n## P64 schedule + Teddy text input\n- Sam/Maddie work rows in Day Manager are now tappable/editable and reuse the time-range editor; work edits update the existing work row and do not expose coverage removal.\n- Day Manager now includes Tell Teddy text entry. It parses explicit person + time-range statements into work/coverage proposals, previews them with checkboxes, and requires Approve & save before writes.\n- Existing same-person/same-kind rows for the day are updated; otherwise new rows are inserted.\n- This is the first local schedule-text parser/preview layer, not yet the full AI/vision ingestion system. Photo/screenshot and imported-message ingestion should feed the same preview contract later.\n- Full sync-fix.js parse check passed. P64 awaiting iPhone verification.\n\n\n## P65 routing fix\n- P64 features were absent because P63 day cards captured the private P63 open() function in their onclick closures. Replacing window.lucaOpenDayManager in P64 therefore did not affect existing card clicks.\n- P65 changes day-card/manage-button handlers to dynamically call window.lucaOpenDayManager at click time, so later/current manager enhancements (editable work + Teddy) execute.\n- Full parse check passed. Awaiting iPhone verification.\n\n\n## P66 iPhone-feedback fixes\n- P65 iPhone verification confirmed work editor opens. User reported work person could not change/remove, Teddy was not discoverable, and gap caregiver button text remained dark on blue.\n- Work editor now allows Sam/Maddie selection, time changes, and Remove this work day.\n- Schedule view now has a visible `🧸 Tell Teddy your schedule` launcher; it opens the current day manager and focuses/scrolls to Teddy schedule text input.\n- Added higher-specificity schedule gap button contrast rule to beat legacy `#scheduleView #scheduleList *` color rule.\n- Full parse passed. Awaiting iPhone verification.\n
+
+## Current care-sync handoff — 2026-10-18 P132
+- Canonical care persistence: `care-sync.js` loaded before the classic main script. `saveCareEvent()` is the only UI save entrypoint; `pullShared()` delegates to its single-flight refresh. Do not restore the removed P34/P37/P38 event-write overrides.
+- Every local create gets a persisted `syncId` UUID before upload; the insert uses it as the PostgreSQL primary key. A 23505 retry reads the same row under the selected baby filter. Do not generate a new ID per retry or use blind upsert over an edited event.
+- Local remote edits have `pendingUpdate`; failed reads/edits retain the local queue. The repository uses revision checks to handle editing while an insert/update is running. Merge current queue after read completion, preserve recently acknowledged writes, and suppress confirmed deleted IDs for the current page.
+- `details.original_event` stores original edit provenance. Updates preserve `created_by`; caregiver credit remains in `caregivers`. Undo reuses the remote identity, including a snapshot taken before initial sync.
+- `setupSync()` has a shared promise and bounded auth/family lookup. It returns a boolean to pull refresh; widgets do not block core timeline readiness. Auth callbacks defer network work using setTimeout.
+- Build source: `#buildVersion` P132 in index.html; compatibility runtime reads that element. Script URLs and service-worker shell cache advance with the release. New `care-sync.js` must be included in preview/release packaging.
+- Tests: 166 Node checks passed before PR. Added synthetic authenticated browser flow for Quick Bottle -> History Edit -> offline edit -> retry -> reload, plus visible-version consistency. CI/deployment results must be appended after confirmation. No real care events were changed by QA.
+- Remaining validation: actual signed-in iPhone Safari, a second family device, and Muse ingestion. Avoid treating synthetic Chromium success as confirmation of those. Broader schedule/chat/avatar refactoring is outside this care-persistence pass.
+
+- Browser QA root cause found: `render()` still called removed `renderDrawer()`. Its ReferenceError stopped the initial script before automatic `setupSync()` and service-worker registration. Removed the obsolete call and added a startup-status assertion. The first synthetic run exposed this; passing source-shape tests had missed it.
+- Phone dock regression: the relocated chat-peek button overlapped the collapsed Teddy button. Moved it above the dock and hide it while the dock is expanded, preserving both real tap targets.
+
+- After startup resumed, browser QA exposed the obsolete P48 History decorator replacing the current accessible History UI. Removed that duplicate renderer and its old bulk-delete path. History now has one renderer and shared event edit/delete controls; the existing P99/P100 browser tests cover them.
+
+- Visual QA after startup restoration showed the old P41 “Luca Now” card duplicating the current daily totals/next-feed section. Removed that decorator and its timer; retain the compact home and one next-feed prediction. The loaded-version browser gate asserts the obsolete card stays absent.
+
+
+## P132 release verification
+- Tested application/source commit: `eb82d35c50dfc61b84ea509f9f56be5697b7124a`.
+- GitHub Actions: code checks run `39134789933` SUCCESS (166 checks); browser run `39134789797` SUCCESS (2 care/version checks plus 40 regression checks).
+- Final handoff commit changes README/this document only; tested application code is unchanged. Release PR: https://github.com/dadofluca/Lucas-Growth-Guide/pull/82. Inspect that PR for the final merge SHA and its Pages deployment.
+- Production: https://dadofluca.github.io/Lucas-Growth-Guide/ with visible P132. Source publication and actual phone-loaded code must be distinguished; do not instruct users to clear storage to get an update, because unsynced logs may be present.
+- Remaining external validation: the user's actual signed-in iPhone and a second family device. Synthetic Chromium checks do not prove real device-to-device delivery, and Muse ingestion remains a separate task.

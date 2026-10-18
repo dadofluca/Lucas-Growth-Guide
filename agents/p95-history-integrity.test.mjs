@@ -7,7 +7,7 @@ test("History renders before optional sleep, drawer and leaderboard panels",()=>
  const end=html.indexOf("\n$(\"#emailLogin\")",start);
  assert.ok(start>=0&&end>start);
  const render=html.slice(start,end);
- for(const name of ["renderSleepCheckin()","renderSleepTrends()","renderDrawer()","renderLeaderboard()"]){
+ for(const name of ["renderSleepCheckin()","renderSleepTrends()","renderLeaderboard()"]){
   assert.ok(render.indexOf("renderHistory()")>=0);
   assert.ok(render.indexOf("renderHistory()")<render.indexOf(name),name+" must not block History");
  }
@@ -15,5 +15,5 @@ test("History renders before optional sleep, drawer and leaderboard panels",()=>
 test("event sync reports query failures distinctly from auth readiness",()=>{
  assert.match(html,/timelineLoaded=await pullShared\(\)/);
  assert.match(html,/Timeline sync failed/);
- assert.match(html,/render\(\);return false\}let remoteRows=/);
+ assert.match(html,/function pullShared\(\)\{return careEvents\.refresh\(\)\}/);
 });

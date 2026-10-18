@@ -8,6 +8,7 @@ on:
       - 'sw.js'
       - 'family-pin.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
   push:
@@ -21,6 +22,7 @@ on:
       - 'sw.js'
       - 'family-pin.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
 permissions:
@@ -38,8 +40,10 @@ jobs:
         run: npm install --no-save --no-package-lock @playwright/test@1.56.1
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run local browser smoke checks
-        run: npx playwright test --config=playwright.config.mjs
+      - name: Verify care persistence and loaded version first
+        run: npx playwright test --config=playwright.config.mjs --grep 'P132:'
+      - name: Run remaining browser smoke checks
+        run: npx playwright test --config=playwright.config.mjs --grep-invert 'P132:'
       - name: Upload phone screenshots
         if: always()
         uses: actions/upload-artifact@v4

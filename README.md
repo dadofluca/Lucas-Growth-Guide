@@ -1,3 +1,12 @@
+## P132 care-sync release — 2026-10-18
+- Previous baseline: main P130 (`95526b57c674622965b150564b2b467651eaed7b`). This candidate incorporates the tested P131 Quick Bottle work and P129 form-obstruction rules without merging obsolete conflicting branches.
+- One `care-sync.js` repository now handles manual, Smart Entry, quick/dock bottle and morning sleep writes. Stable UUID primary keys make a retry recover the same row after a lost response. Pending edits remain in local storage and retry against the original shared row.
+- Refresh uses one shared in-flight operation and merges against the queue after the response. New logs, in-flight edits and confirmed deletes are protected against stale read responses. Request deadlines release failed operations for retry.
+- Quick Bottle: 4/5/6/7/8 oz logs the current time immediately; no native text prompt or separate time dialog. History Edit opens the visible Today composer, with ounces/time/caregiver fields and Undo. Poop size/wetness restore while editing.
+- The visible P132 marker supplies `window.LUCA_PATCH`; runtime no longer hard-codes P87. Worker and script cache identities advance together. Tap the timeline status to retry; reconnecting or reopening refreshes automatically.
+- Verification before PR: **166 Node checks passed**, including 17 behavioral repository tests for lost responses, offline edits/retry, simultaneous refresh/save, restart, family switching, Undo and delete races. Safe preview packaging and asset checks passed. Authenticated browser tests use a synthetic backend; no tests write real family records.
+- **Verified:** 166 Node checks and all 42 Chromium browser checks passed on `eb82d35c50dfc61b84ea509f9f56be5697b7124a`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39134789933) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39134789797). The final release-handoff commit changes documentation only. [Release PR #82](https://github.com/dadofluca/Lucas-Growth-Guide/pull/82) records the final merge and publication state; GitHub Pages publishes main at https://dadofluca.github.io/Lucas-Growth-Guide/. Actual signed-in iPhone Safari and two-device family validation remain unverified. No schema, family records, schedules or messages were edited.
+
 ## P89 release milestone — 2026-10-17
 - PR #35 squash-merged into main at `1ed07729d125bfb381911ae41416d5b671e83c9d` after green agent prototype and Chromium browser smoke checks.
 - Restored high-contrast left menu and compact five-button mobile navigation, plus enlarged-text / Display Zoom-like viewport regression coverage and reduced-motion handling.
@@ -118,3 +127,10 @@ Run Atlas unit tests, inspect how the static PWA is deployed, and design the pro
 - Supabase project `znhqaqvocexjsnklnqre` checked ACTIVE_HEALTHY; RLS enabled on public tables. Read-only inspection showed 141 baby events, 89 schedule records, 3 family chat messages, 2 family profiles. **Do not publish real family content.** Security advisors flag callable SECURITY DEFINER functions and other advisories; investigate before modifying permissions.
 - **Not verified:** deployment propagation, iPhone PWA service worker/cache, signed-in multi-user chat, rich-media playback on device. Do not equate merged code with confirmed live device behavior.
 - **Next:** investigate build/version showing P75, test live deployment and mobile cache, then implement richer character artwork and right-side Family Chat quick-view/unread indicators. Continue tests and README updates.
+
+- Browser QA root cause found: `render()` still called removed `renderDrawer()`. Its ReferenceError stopped the initial script before automatic `setupSync()` and service-worker registration. Removed the obsolete call and added a startup-status assertion. The first synthetic run exposed this; passing source-shape tests had missed it.
+- Phone dock regression: the relocated chat-peek button overlapped the collapsed Teddy button. Moved it above the dock and hide it while the dock is expanded, preserving both real tap targets.
+
+- After startup resumed, browser QA exposed the obsolete P48 History decorator replacing the current accessible History UI. Removed that duplicate renderer and its old bulk-delete path. History now has one renderer and shared event edit/delete controls; the existing P99/P100 browser tests cover them.
+
+- Visual QA after startup restoration showed the old P41 “Luca Now” card duplicating the current daily totals/next-feed section. Removed that decorator and its timer; retain the compact home and one next-feed prediction. The loaded-version browser gate asserts the obsolete card stays absent.

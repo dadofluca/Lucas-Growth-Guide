@@ -76,7 +76,7 @@ test("P71 Ideas form is responsive, Teddy dock collapses and new poops trigger s
  assert.match(html,/#familyIdeasRoot form\{display:grid/);
  assert.match(html,/#familyIdeasRoot textarea\{min-height:116px/);
  assert.match(html,/\.careDock:not\(\.open\) \.careItems\{display:none!important\}/);
- assert.match(html,/if\(!editId&&e.tags.includes\("poop"\)\)playPoopFun\(\)/);
+ assert.match(html,/if\(!wasEditing&&e.tags.includes\("poop"\)\)playPoopFun\(\)/);
  assert.match(html,/function fart\(\)\{\s*if\(!lucaSoundEnabled\(\)\)return/);
  assert.match(html,/const poopAudioPool=realPoopSounds\.map/);
 });
@@ -115,7 +115,7 @@ test("P78 bottle confirmation includes glug audio and preserves sound opt-out",(
  assert.match(html,/id="profileGlugTest"/); 
  assert.match(html,/id="profileRefreshTest"/); 
  assert.match(html,/bottleSoundLast===\"glug\"/);
- assert.match(html,/!editId&&Number\(e\.oz\)>0/);
+ assert.match(html,/!wasEditing&&Number\(e\.oz\)>0/);
  assert.match(html,/function safeAudio\(fn\)\{try\{if\(lucaSoundEnabled\(\)\)/);
 });
 
