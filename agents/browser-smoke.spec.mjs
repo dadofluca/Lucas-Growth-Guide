@@ -739,6 +739,10 @@ for(const width of [320,390])test('P135: anchored quick care works without movin
  const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].caregivers).toEqual(['Yolanda']);expect(rows[0].details.poop).toEqual({size:5,wet:true});
  await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopSize')).toHaveValue('3');await expect(page.locator('#quickPoopWet')).not.toBeChecked();await page.locator('#quickPoopCancel').click();
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(1);
+ await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await page.locator('[data-history-edit]').first().click();
+ await expect(page.locator('#poopSize')).toHaveValue('5');await expect(page.locator('#poopWet')).toBeChecked();await page.locator('#poopSize').fill('2');await page.locator('#poopWet').uncheck();await page.locator('#saveEntry').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events'))[0].details.poop)).toEqual({size:2,wet:false});
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await page.locator('[data-history-edit]').first().click();await expect(page.locator('#poopSize')).toHaveValue('2');await expect(page.locator('#poopWet')).not.toBeChecked();
 });
 
 test('P135: hidden click discovery equips a banner that survives reload and appears beside Dada’s Dude in chat',async({page})=>{
