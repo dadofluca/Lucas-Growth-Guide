@@ -500,3 +500,13 @@ test("P121: narrow phone keeps top quick actions and navigation tappable",async(
   expect(b.x+b.width).toBeLessThanOrEqual(m.viewport+2);
  }
 });
+
+test("P124: chat peek hides during detailed Poop entry",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#topQuickPoop").click();
+ await expect(page.locator("#manualComposer")).toBeVisible();
+ await expect(page.locator("#chatPeekTab")).toBeHidden();
+ await expect(page.locator("#careDock")).toBeHidden();
+});

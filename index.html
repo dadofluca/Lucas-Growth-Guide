@@ -460,6 +460,10 @@ nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){
 #todayView .todayTopQuick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:56px;min-height:56px;padding:6px 8px;border-radius:16px;border:1px solid #d6b99e;background:#f0dfce;color:#37453d!important;-webkit-text-fill-color:#37453d!important;font-size:23px;box-shadow:0 3px 10px #6b4c2920}
 #todayView .todayTopQuick button small{font-size:11px;font-weight:750}
 @media(max-width:350px){#todayView .todayTopQuick{gap:5px}#todayView .todayTopQuick button{min-width:49px;padding:5px}}
+/* P124: keep floating controls away from detailed baby-care input. */
+#chatPeekTab{top:auto!important;bottom:calc(104px + env(safe-area-inset-bottom))!important;right:0!important;min-height:48px!important;min-width:42px!important;border-radius:14px 0 0 14px!important}
+body:has(#chatView.active) #chatPeekTab,body:has(#manualComposer:not(.hiddenOldComposer)) #chatPeekTab{display:none!important}
+body:has(#manualComposer:not(.hiddenOldComposer)) #careDock{display:none!important}
 /* P103: iPhone editor contrast, including native date/time controls. */
 #manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
 #manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
