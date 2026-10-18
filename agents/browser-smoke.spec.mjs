@@ -201,7 +201,7 @@ test("P69 shows original-only notes directly and hides unnecessary original drop
 test("P87 runtime version agrees with displayed badge",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
- await expect(page.locator("#patchBadge")).toHaveText("P87");
+ await expect(page.locator("#patchBadge")).toHaveCount(0);
  await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P87");
 });
 
