@@ -414,6 +414,13 @@ nav .navHome{min-height:64px!important}
 #sideMenu .sidePanel{overflow-y:auto!important;overscroll-behavior:contain}
 @media(max-width:350px){nav button{font-size:11px!important;letter-spacing:-.15px!important}nav button b{font-size:18px!important}nav{gap:0!important}}
 
+
+/* P97: one navigation surface across every tab, including Today. */
+nav,body:has(#todayView.active) nav{background:#17232c!important;border:1px solid #34454d!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;left:50%!important;bottom:0!important;width:min(520px,100%)!important;box-shadow:0 -5px 24px #0002!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+nav button,body:has(#todayView.active) nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
+nav button.active,body:has(#todayView.active) nav button.active{background:#e5c88b!important;color:#233a35!important;-webkit-text-fill-color:#233a35!important;box-shadow:0 3px 12px #0003!important}
+nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){background:transparent!important;color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important;box-shadow:none!important}
+@media(max-width:390px){nav,body:has(#todayView.active) nav{width:100%!important}}
 </style></head><body><div id="bootCinematic" aria-label="Luca's Growth Guide intro">
 <video class="introBlur" muted playsinline preload="auto"><source src="./E9DA13A0-0FD4-4A73-8E0C-793CC4ECAE70.mov" type="video/mp4"></video>
 <video class="introMain" muted playsinline preload="auto"><source src="./E9DA13A0-0FD4-4A73-8E0C-793CC4ECAE70.mov" type="video/mp4"></video>
