@@ -10,6 +10,7 @@ on:
       - 'sync-fix.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
+      - '.github/workflows/scheduled-ui-audit.yml'
   push:
     branches:
       - feature/agent-operations-v1
@@ -23,6 +24,7 @@ on:
       - 'sync-fix.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
+      - '.github/workflows/scheduled-ui-audit.yml'
 permissions:
   contents: read
 jobs:
