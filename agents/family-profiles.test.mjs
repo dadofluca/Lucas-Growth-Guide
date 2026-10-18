@@ -87,3 +87,12 @@ test("P71 Ideas form is responsive, Teddy dock collapses and new poops trigger s
  assert.match(html,/function fart\(\)\{if\(!lucaSoundEnabled\(\)\)return/);
  assert.match(html,/new Audio\(pick.src\)/);
 });
+
+test("Feedback review approval is author controlled and revocable",()=>{
+ const sql=readFileSync(new URL("../supabase/migrations/20261018_agent_feedback_approval.sql",import.meta.url),"utf8");
+ const ui=readFileSync(new URL("./family-ideas.js",import.meta.url),"utf8");
+ assert.match(sql,/agent_review_approved boolean not null default false/);
+ assert.match(sql,/grant update\(agent_review_approved\)/);
+ assert.match(sql,/author_id=\(select auth.uid\(\)\)/);
+ assert.match(ui,/data-agent-review/);assert.match(ui,/agent_review_approved:approved/);
+});
