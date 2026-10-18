@@ -483,3 +483,20 @@ test("P119: top Poop button opens detailed size and wetness confirmation",async(
  await expect(page.locator("#poopDetails")).toBeVisible();
  await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
 });
+
+test("P121: narrow phone keeps top quick actions and navigation tappable",async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const m=await page.evaluate(()=>{
+  const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}};
+  return {title:box(".persistentTitle"),heading:box("#todayView .top"),nav:box("nav"),poop:box("#topQuickPoop"),bottle:box("#topQuickBottle"),viewport:innerWidth};
+ });
+ expect(m.title.bottom).toBeLessThanOrEqual(m.heading.y+2);
+ expect(m.nav.height).toBeLessThan(115);
+ for(const b of [m.poop,m.bottle]){
+  expect(b.width).toBeGreaterThanOrEqual(44);
+  expect(b.height).toBeGreaterThanOrEqual(44);
+  expect(b.x+b.width).toBeLessThanOrEqual(m.viewport+2);
+ }
+});
