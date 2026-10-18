@@ -40,6 +40,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run local browser smoke checks
         run: npx playwright test --config=playwright.config.mjs
+      - name: Upload phone screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-layout-screenshots
+          path: test-results/**/*.png
+          retention-days: 7
       - name: Upload browser failure report
         if: failure()
         uses: actions/upload-artifact@v4

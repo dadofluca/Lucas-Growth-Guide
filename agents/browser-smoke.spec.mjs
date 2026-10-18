@@ -500,3 +500,14 @@ test("P121: narrow phone keeps top quick actions and navigation tappable",async(
   expect(b.x+b.width).toBeLessThanOrEqual(m.viewport+2);
  }
 });
+
+test("P125: capture phone-sized Today and History views for review",async({page},testInfo)=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ for(const width of [320,390]){
+  await page.setViewportSize({width,height:780});
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.screenshot({path:testInfo.outputPath("today-"+width+".png"),fullPage:true});
+  await page.locator('nav button[data-tab="history"]').click();
+  await page.screenshot({path:testInfo.outputPath("history-"+width+".png"),fullPage:true});
+ }
+});
