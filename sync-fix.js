@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P69',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P70',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
@@ -470,7 +470,7 @@ const LUCA_RUNTIME={version:'P69',schedule:{coveragePeople:['Nona','Boppa','Jay'
    if(p&&pop){p.onclick=e=>{e.preventDefault();e.stopPropagation();const r=p.getBoundingClientRect();pop.style.top=(r.bottom+8)+"px";pop.style.right=Math.max(8,innerWidth-r.right)+"px";pop.classList.toggle("on")}}
  }
  // Disable P45's side-dock quick-poop interception; side dock goes back to status/fun.
- const side=document.getElementById("carePoop");if(side){const clone=side.cloneNode(true);side.parentNode.replaceChild(clone,side)}
+ const side=document.getElementById("carePoop");if(side){const clone=side.cloneNode(true);side.parentNode.replaceChild(clone,side);clone.onclick=e=>{e.stopPropagation();const dock=document.getElementById("careDock");if(!dock.classList.contains("open"))dock.classList.add("open");else if(typeof playPoopFun==="function")playPoopFun()}}
 
  // iOS intro: use ONE visible video layer. A second simultaneous decode was freezing on frame 1.
  const intro=document.getElementById("bootCinematic");

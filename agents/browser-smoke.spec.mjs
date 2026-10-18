@@ -191,9 +191,22 @@ test("P69 shows original-only notes directly and hides unnecessary original drop
 });
 
 
-test("P69 runtime version agrees with displayed badge",async({page})=>{
+test("P70 runtime version agrees with displayed badge",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
- await expect(page.locator("#patchBadge")).toHaveText("P69");
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P69");
+ await expect(page.locator("#patchBadge")).toHaveText("P70");
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P70");
+});
+
+
+test("P70 poop row tap opens care dock on iPhone",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+  await page.locator("#carePoop").tap();
+  await expect(page.locator("#careDock")).toHaveClass(/open/);
+ }finally{await context.close()}
 });
