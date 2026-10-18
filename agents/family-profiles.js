@@ -61,7 +61,7 @@ export function avatarImage(key,size=54,lazy=false){
  const portrait=document.createElement("span");portrait.className="avatarPortrait";portrait.dataset.avatarKey=key;
  portrait.setAttribute("role","img");portrait.setAttribute("aria-label",labels[key]||"Avatar");
  portrait.style.cssText="position:relative;display:inline-block;overflow:hidden;width:"+size+"px;height:"+size+"px;border-radius:22%;box-shadow:0 3px 9px #3c4c5630;flex-shrink:0";
- const image=document.createElement("img");frameAvatarImage(image,key,avatarSvg(key));image.loading=lazy?"lazy":"eager";portrait.append(image);return portrait;
+ const image=document.createElement("img");frameAvatarImage(image,key,avatarSvg(key));image.loading=lazy?"lazy":"eager";image.decoding=lazy?"async":"sync";portrait.append(image);return portrait;
 }
 function lastSeen(iso){
  if(!iso)return "Activity not available";
