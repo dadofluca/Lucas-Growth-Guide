@@ -1,0 +1,48 @@
+/* One bounded presentation layer; persistence stays in care-sync.js. */
+.armory{margin:16px 0 20px;min-width:0}
+.armoryHeader{margin:0 0 12px;font-size:23px;letter-spacing:-.04em;color:#293e38}
+.armoryPreview{display:flex;gap:14px;align-items:center;padding:15px;border:1px solid #b99b6570;border-radius:22px;background:linear-gradient(135deg,#263b3c,#152b36);color:#fff4de;box-shadow:0 8px 24px #26362e20}
+.armoryPreview strong{display:block;font-size:19px;line-height:1.2;color:#fff5df;-webkit-text-fill-color:#fff5df}
+.armoryPreview small{display:block;line-height:1.4;margin-top:6px;color:#dfceb3;-webkit-text-fill-color:#dfceb3}
+.armoryPreview .avatarPortrait{border:2px solid #e8c681;box-shadow:0 4px 15px #0004}
+.armorySearch{display:block;width:100%;min-width:0;min-height:46px;margin:14px 0 9px!important;border-radius:14px!important;background:#fffbf4!important;color:#293e38!important;-webkit-text-fill-color:#293e38!important;border:1px solid #bdae99!important;padding:11px 13px;font-size:16px!important}
+.armoryFilters{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:3px 2px 10px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.armoryFilters button{flex:0 0 auto;width:auto;min-height:43px;border:1px solid #c8b79d;border-radius:24px;padding:9px 13px;background:#fff9ef;color:#35483e!important;-webkit-text-fill-color:#35483e!important;font-size:13px;font-weight:750;touch-action:manipulation}
+.armoryFilters button[aria-pressed="true"]{background:#314d43;color:#fff6e6!important;-webkit-text-fill-color:#fff6e6!important;border-color:#314d43;box-shadow:0 2px 6px #23433725}
+.armoryCount{font-size:12px;color:#556558;min-height:18px;margin:0 0 8px}
+.armory .avatarGallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0}
+.armory .avatarChoice{position:relative;min-width:0;min-height:0;padding:6px 6px 10px;border-radius:17px;gap:8px;border:2px solid #c5b393;background:#fff8eb;box-shadow:0 3px 8px #55452912;color:#2b4036!important;-webkit-text-fill-color:#2b4036!important}
+.armory .avatarChoice .avatarPortrait{width:100%!important;height:auto!important;aspect-ratio:1;border-radius:11px!important;box-shadow:none!important}
+.armory .avatarChoice>span:last-child{min-height:30px;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+.armory .avatarChoice[aria-pressed="true"]{border-color:#326c59;background:#e2efdf;box-shadow:0 0 0 2px #54926b40}
+.armory .avatarChoice[aria-pressed="true"]::after{content:"✓";position:absolute;right:7px;top:7px;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#f5d28a;color:#203b32;font-size:15px;box-shadow:0 2px 8px #0004}
+.avatarChoice[hidden]{display:none!important}
+.avatarPortrait{vertical-align:middle;background:#32463d;isolation:isolate}
+.armoryEmpty{padding:22px 8px;text-align:center;color:#536153}
+#profilePersonality{width:100%;min-height:48px;font-size:16px;margin-top:7px}
+#personalityPreview{font-size:13px;line-height:1.45;margin:8px 0 18px;color:#526256}
+#toast .toastQuip{display:block;font-size:12px;font-weight:500;line-height:1.4;margin-top:6px;opacity:.85}
+#toast{max-width:min(390px,calc(100vw - 32px));overflow-wrap:anywhere}
+#toast.on{animation:lucaToastIn .19s ease-out}
+.view.active{animation:lucaViewIn .18s ease-out}
+#quickBottlePicker:not([hidden]),#inlineClarify.show{animation:lucaReveal .2s ease-out}
+button:disabled{cursor:wait;opacity:.65}
+button:focus-visible{outline:3px solid #568f79;outline-offset:3px}
+.avatarChoice,.armoryFilters button{transition:transform .14s ease,box-shadow .18s ease,border-color .18s ease}
+.avatarChoice:active{transform:scale(.96)}
+@media(hover:hover){.armory .avatarChoice:hover{transform:translateY(-2px);box-shadow:0 6px 14px #34433225}}
+@keyframes lucaToastIn{from{opacity:0;translate:0 6px}to{opacity:1;translate:0 0}}
+@keyframes lucaViewIn{from{opacity:.65;translate:0 4px}to{opacity:1;translate:0 0}}
+@keyframes lucaReveal{from{opacity:.5;translate:0 -5px}to{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.view.active,#toast.on,#quickBottlePicker:not([hidden]),#inlineClarify.show{animation:none!important}.avatarChoice,.armoryFilters button{transition:none!important}.avatarChoice:active,.armory .avatarChoice:hover{transform:none!important}}
+
+.armorySave{position:sticky;top:8px;z-index:4;background:#f9f0e3;padding:8px 0;border-radius:14px;margin:7px 0}
+.armorySave #profileSave{margin:0;min-height:46px;width:100%}
+.armorySave #profileStatus:empty{display:none}
+.armorySave #profileStatus{margin-top:6px;font-size:13px}
+/* Respect the profile form's existing layout rules and the dark preview surface. */
+#profileView #profileAvatar,#profileView label[for="profileAvatar"]{display:none!important}
+#profileView .armoryPreview small{color:#dfceb3!important;-webkit-text-fill-color:#dfceb3!important}
+#profileView .armoryFilters button[aria-pressed="true"]{color:#fff6e6!important;-webkit-text-fill-color:#fff6e6!important}
+#profileView #profileName,#profileView #profileBio{border:1px solid #bdae99;border-radius:14px;padding:12px 13px;min-height:46px;box-shadow:none}
+#profileView #profileBio{min-height:86px;line-height:1.4;resize:vertical}

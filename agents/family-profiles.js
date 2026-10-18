@@ -1,4 +1,5 @@
 import {bonusCharacters,bonusAvatarSvg} from "./avatar-characters.js";
+import {avatarArtwork,avatarCategories,avatarCategory,frameAvatarImage} from "./avatar-art.js";
 const presets={bear:"🧸",fox:"🦊",bunny:"🐰",duck:"🐥",owl:"🦉",lion:"🦁",panda:"🐼",koala:"🐨",penguin:"🐧",dino:"🦕",robot:"🤖",astronaut:"👨‍🚀",sun:"☀️",star:"⭐"};
 const palette={bear:["#b98362","#f3d8bb"],fox:["#d46b40","#ffe3b5"],bunny:["#b8a2ca","#fff0e9"],duck:["#f3c65b","#fff0b2"],owl:["#8974a8","#e3d4f4"],lion:["#d49a3c","#f8df95"],panda:["#6c8190","#e8f0ee"],koala:["#8399aa","#dae5eb"],penguin:["#547c9b","#e0effa"],dino:["#4a9e85","#b5ebce"],robot:["#697fae","#bde3f1"],astronaut:["#697fae","#d6e4ff"],sun:["#e8a649","#fff0ae"],star:["#9b7bbd","#f2e2ff"]};
 const labels={bear:"Bear",fox:"Fox",bunny:"Bunny",duck:"Duck",owl:"Owl",lion:"Lion",panda:"Panda",koala:"Koala",penguin:"Penguin",dino:"Dinosaur",robot:"Robot",astronaut:"Astronaut",sun:"Sunshine",star:"Star"};
@@ -54,7 +55,12 @@ export function avatarSvg(key){
  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="'+light+'"/><stop offset="1" stop-color="'+dark+'"/></linearGradient></defs><circle cx="50" cy="50" r="49" fill="url(#g)"/>'+ears+'<ellipse cx="50" cy="56" rx="35" ry="36" fill="'+light+'"/>'+detail+eye+'<ellipse cx="50" cy="68" rx="6" ry="4" fill="'+dark+'"/><path d="M43 77 Q50 83 57 77" stroke="#684b4c" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="28" cy="66" r="5" fill="#e98d8d" opacity=".38"/><circle cx="72" cy="66" r="5" fill="#e98d8d" opacity=".38"/></svg>';
  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
-function avatarImage(key,size=54){const image=document.createElement("img");image.src=avatarSvg(key);image.alt=labels[key]||"Avatar";image.width=size;image.height=size;image.style.cssText="width:"+size+"px;height:"+size+"px;border-radius:50%;box-shadow:0 3px 9px #3c4c5630;flex-shrink:0";return image;}
+export function avatarImage(key,size=54,lazy=false){
+ const portrait=document.createElement("span");portrait.className="avatarPortrait";portrait.dataset.avatarKey=key;
+ portrait.setAttribute("role","img");portrait.setAttribute("aria-label",labels[key]||"Avatar");
+ portrait.style.cssText="position:relative;display:inline-block;overflow:hidden;width:"+size+"px;height:"+size+"px;border-radius:22%;box-shadow:0 3px 9px #3c4c5630;flex-shrink:0";
+ const image=document.createElement("img");frameAvatarImage(image,key,avatarSvg(key));image.loading=lazy?"lazy":"eager";portrait.append(image);return portrait;
+}
 function lastSeen(iso){
  if(!iso)return "Activity not available";
  const minutes=Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/60000));
@@ -65,20 +71,47 @@ function lastSeen(iso){
  return `Last active ${Math.floor(minutes/1440)} days ago`;
 }
 export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio,avatar,save,status}){
- let disposed=false,requestId=0,dirty=false;
- const markDirty=()=>{dirty=true;};
+ let disposed=false,requestId=0,dirty=false,draftRevision=0;
+ const markDirty=()=>{dirty=true;draftRevision++;};
+ let savedPreset=avatar.value||"bear",category="all";
+ const root=document.createElement("div");root.className="armory";
+ avatar.insertAdjacentElement("afterend",root);avatar.style.display="none";
+ const heading=document.createElement("h3");heading.className="armoryHeader";heading.textContent="Avatar Armory";
+ const preview=document.createElement("div");preview.className="armoryPreview";
+ const search=document.createElement("input");search.type="search";search.className="armorySearch";search.placeholder="Find your alter ego…";search.setAttribute("aria-label","Find an avatar");
+ const filters=document.createElement("div");filters.className="armoryFilters";filters.setAttribute("role","group");filters.setAttribute("aria-label","Avatar categories");
+ const count=document.createElement("div");count.className="armoryCount";count.setAttribute("role","status");
  const gallery=document.createElement("div");gallery.className="avatarGallery";gallery.setAttribute("role","group");gallery.setAttribute("aria-label","Illustrated avatar choices");
- avatar.insertAdjacentElement("afterend",gallery);avatar.style.display="none";
+ const empty=document.createElement("div");empty.className="armoryEmpty";empty.textContent="No recruits found. Try another name.";empty.hidden=true;
+ const saveRow=document.createElement("div");saveRow.className="armorySave";saveRow.append(save,status);
+ root.append(heading,preview,saveRow,search,filters,count,gallery,empty);
  for(const [key,item] of Object.entries({...armory,...bonusCharacters})){const option=document.createElement("option");option.value=key;option.textContent=item.label;avatar.append(option);}
- const heading=document.createElement("div");heading.textContent="⚔️ Avatar Armory — diaper warfare and exhausted-parent legends";heading.style.cssText="font-weight:800;margin:14px 0 8px;color:inherit";gallery.before(heading);
- const avatarButtons=new Map();
- for(const key of Object.keys(presets)){
-  if(armory[key]&&!gallery.dataset.armoryHeading){gallery.dataset.armoryHeading="yes";}
-  const button=document.createElement("button");button.type="button";button.className="avatarChoice";button.setAttribute("aria-label",labels[key]);button.setAttribute("aria-pressed","false");button.append(avatarImage(key,56));const caption=document.createElement("span");caption.textContent=labels[key];button.append(caption);
+ const avatarButtons=new Map(),filterButtons=new Map();
+ for(const [key,label] of avatarCategories){
+  const button=document.createElement("button");button.type="button";button.textContent=label;button.dataset.avatarCategory=key;button.setAttribute("aria-pressed",String(key===category));
+  button.addEventListener("click",()=>{category=key;paintFilter();});filters.append(button);filterButtons.set(key,button);
+ }
+ const ordered=[...Object.keys(avatarArtwork),...Object.keys(presets).filter(key=>!avatarArtwork[key])];
+ for(const key of ordered){
+  const button=document.createElement("button");button.type="button";button.className="avatarChoice";button.dataset.avatarKey=key;button.setAttribute("aria-label",labels[key]);button.setAttribute("aria-pressed","false");button.append(avatarImage(key,72,true));const caption=document.createElement("span");caption.textContent=labels[key];button.append(caption);
   button.addEventListener("click",()=>{avatar.value=key;avatar.dispatchEvent(new Event("input",{bubbles:true}));paintSelection()});gallery.append(button);avatarButtons.set(key,button);
  }
- function paintSelection(){for(const [key,button] of avatarButtons)button.setAttribute("aria-pressed",String(key===avatar.value));}
- paintSelection();
+ function paintFilter(){
+  const query=search.value.trim().toLowerCase();let shown=0;
+  for(const [key,button] of avatarButtons){const match=(category==="all"||avatarCategory(key)===category)&&((labels[key]+" "+(armory[key]?.detail||"")).toLowerCase().includes(query));button.hidden=!match;if(match)shown++;}
+  for(const [key,button] of filterButtons)button.setAttribute("aria-pressed",String(key===category));
+  count.textContent=shown+" character"+(shown===1?"":"s")+" · change anytime";empty.hidden=shown>0;
+ }
+ function paintSelection(){
+  for(const [key,button] of avatarButtons)button.setAttribute("aria-pressed",String(key===avatar.value));
+  const copy=document.createElement("div"),title=document.createElement("strong"),detail=document.createElement("small");
+  title.textContent=labels[avatar.value]||"Choose your character";
+  detail.textContent=avatar.value===savedPreset?"Your current character · ready for duty":"New recruit selected · tap Save profile to share";
+  const current=preview.querySelector(".avatarPortrait");
+  const portrait=current?.dataset.avatarKey===avatar.value?current:avatarImage(avatar.value,84);
+  copy.append(title,detail);preview.replaceChildren(portrait,copy);
+ }
+ search.addEventListener("input",paintFilter);paintFilter();paintSelection();
  for(const field of [name,bio,avatar])field.addEventListener("input",markDirty);
  const say=t=>{if(!disposed)status.textContent=t;};
  async function heartbeat(){if(disposed)return;const client=getClient(),family=getFamilyId(),user=getUser();if(!client||!family||!user||document.visibilityState!=="visible")return;try{await client.from("family_profiles").update({last_active_at:new Date().toISOString()}).eq("family_id",family).eq("user_id",user.id);}catch{}}
@@ -98,7 +131,7 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
    const title=document.createElement("strong");const deviceName=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"");title.textContent=(deviceName?"Family member":p.display_name)+(p.user_id===user.id?" (You)":"");row.style.display="flex";row.style.alignItems="center";row.style.gap="12px";row.append(avatarImage(p.avatar_preset,48));
    const seen=document.createElement("div");seen.className="muted";seen.textContent=lastSeen(p.last_active_at);
    row.append(title,seen);list.append(row);
-   if(p.user_id===user.id&&!dirty){name.value=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"")?"":p.display_name;bio.value=p.bio||"";avatar.value=presets[p.avatar_preset]?p.avatar_preset:"bear";paintSelection();}
+   if(p.user_id===user.id&&!dirty){name.value=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"")?"":p.display_name;bio.value=p.bio||"";avatar.value=presets[p.avatar_preset]?p.avatar_preset:"bear";savedPreset=avatar.value;paintSelection();}
   }
   say((data||[]).some(p=>p.user_id===user.id&&/^device-[a-f0-9-]{12,}$/i.test(p.display_name||""))?"Choose a display name and tap Save profile.":"");
  }
@@ -107,17 +140,17 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   if(disposed||!client||!family||!user)return say("Sign in first.");
   const display_name=name.value.trim(),description=bio.value.trim(),preset=avatar.value;
   if(!display_name||display_name.length>40||description.length>160||!presets[preset])return say("Check your name, bio and avatar.");
-  save.disabled=true;
+  const savingRevision=draftRevision;save.disabled=true;
   try{
    if(disposed||getFamilyId()!==family||getUser()?.id!==user.id)return say("Family session changed. Reopen profiles.");
    const {error}=await client.from("family_profiles").upsert({family_id:family,user_id:user.id,display_name,bio:description,avatar_preset:preset,updated_at:new Date().toISOString()},{onConflict:"family_id,user_id"});
    if(error)throw error;
-   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){dirty=false;await heartbeat();await refresh();say("Profile saved.");}
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){savedPreset=preset;dirty=draftRevision!==savingRevision;await heartbeat();await refresh();paintSelection();say(dirty?"Profile saved. Your newer changes are still unsaved.":"Profile saved.");}
   }catch{say("Couldn't save your profile. Please retry.");}
   finally{save.disabled=false;}
  };
  save.addEventListener("click",onSave);
  refresh();heartbeat();
  const timer=setInterval(()=>{heartbeat();if(document.querySelector("#profileView")?.classList.contains("active"))refresh();},60000);
- return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();gallery.remove();heading.remove();for(const key of Object.keys({...armory,...bonusCharacters}))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);save.removeEventListener("click",onSave);for(const field of [name,bio,avatar])field.removeEventListener("input",markDirty);list.replaceChildren();avatar.after(save,status);root.remove();for(const key of Object.keys({...armory,...bonusCharacters}))avatar.querySelector(`option[value="${key}"]`)?.remove();avatar.style.display="";};
 }

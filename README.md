@@ -134,3 +134,7 @@ Run Atlas unit tests, inspect how the static PWA is deployed, and design the pro
 - After startup resumed, browser QA exposed the obsolete P48 History decorator replacing the current accessible History UI. Removed that duplicate renderer and its old bulk-delete path. History now has one renderer and shared event edit/delete controls; the existing P99/P100 browser tests cover them.
 
 - Visual QA after startup restoration showed the old P41 “Luca Now” card duplicating the current daily totals/next-feed section. Removed that decorator and its timer; retain the compact home and one next-feed prediction. The loaded-version browser gate asserts the obsolete card stays absent.
+
+
+## 2026-10-18 P133 candidate — original avatars and UI polish
+P132 is merged and the public app served P132 in an HTTP check. P133 restores the exact detailed 42-character artwork from the original Avatar Armory, preserving saved preset keys. The picker adds category filters, search, a current-character preview and a reachable Save profile action; chat uses the same artwork. Short transitions respect reduced motion. Optional After dark / Gentle / Off personality adds care-save jokes while preserving precise save/sync/error status. Quiet Mode covers the legacy chimes, too. Care persistence remains in `care-sync.js`. Candidate validation and deployment status are tracked in DEVELOPER_HANDOFF.md.
