@@ -58,6 +58,9 @@ nav .navHome{background:#e5c88b!important;color:#233a35!important;font-weight:90
 nav .navHome b{font-size:25px}
 nav .navHidden{display:none!important}
 nav #navMore[aria-expanded="true"]{background:#213a4a;color:#fff}
+/* P96: highlight the selected tab, not the home button on every screen. */
+nav .navHome:not(.active){background:transparent!important;color:inherit!important;box-shadow:none!important}
+nav button.active:not(.navHome){background:#e5c88b!important;color:#233a35!important;font-weight:900;box-shadow:0 3px 12px #0003}
 /* P86: family chat preview and reachable edge indicator */
 #timelineDrawer .drawerPanel,#timelineDrawer .drawerPanel *{color:#2a413c!important;-webkit-text-fill-color:#2a413c!important}
 #timelineDrawer .drawerPanel{background:#f8f0e5!important}
