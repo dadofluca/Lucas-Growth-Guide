@@ -510,6 +510,11 @@ test("P126: top Bottle uses in-app amount buttons rather than native prompt",asy
  await expect(page.locator("#manualComposer")).toBeVisible();
  await expect(page.locator('#manualComposer [data-oz="8"]')).toHaveClass(/on/);
  await expect(page.locator("#saveEntry")).toHaveText("Confirm bottle");
+ await expect(page.locator("#eventTimePicker")).toBeVisible();
+ await expect(page.locator("#date")).toBeVisible();
+ await expect(page.locator("#time")).toBeVisible();
+ await page.locator("#time").fill("06:15");
+ await expect(page.locator("#time")).toHaveValue("06:15");
  await page.locator('#manualComposer [data-oz="6"]').click();
  await expect(page.locator('#manualComposer [data-oz="6"]')).toHaveClass(/on/);
 });
