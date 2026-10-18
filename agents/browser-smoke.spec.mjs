@@ -202,7 +202,7 @@ test("P87 runtime version agrees with displayed badge",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
  await expect(page.locator("#patchBadge")).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P87");
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P132");
 });
 
 
@@ -347,8 +347,8 @@ test("P95 family authentication does not falsely claim timeline synchronization"
  const source=await page.locator("script").allTextContents();
  const app=source.join("\n");
  expect(app).toContain('timelineLoaded=await pullShared()');
- expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
- expect(app).toContain('render();return false}let remoteRows=');
+ expect(app).toContain('const timelineLoaded=await pullShared()');
+ expect(app).toContain('function pullShared(){return careEvents.refresh()}');
 });
 
 test("P96 bottom navigation highlights History and de-emphasizes Today",async({page})=>{
@@ -404,7 +404,7 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await expect(page.locator('#history button[data-history-delete]')).toBeVisible();
  await page.locator('#history button[data-history-edit]').click();
  await expect(page.locator("#todayView")).toHaveClass(/active/);
- await expect(page.locator("#composerTitle")).toHaveText("Edit entry");
+ await expect(page.locator("#composerTitle")).toContainText("Editing saved entry");
  await expect(page.locator("#notes")).toHaveValue("QA morning bottle");
  await page.locator('nav [data-tab="history"]').click();
  const historyDay=page.locator('#history details').first();
@@ -510,4 +510,75 @@ test("P125: capture phone-sized Today and History views for review",async({page}
   await page.locator('nav button[data-tab="history"]').click();
   await page.screenshot({path:testInfo.outputPath("history-"+width+".png"),fullPage:true});
  }
+});
+
+test("P126: quick Bottle logs immediately when choosing 4–8 oz",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ page.on("dialog",dialog=>{throw new Error("Unexpected native dialog: "+dialog.message())});
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#topQuickBottle").click();
+ await expect(page.locator("#quickBottlePicker")).toBeVisible();
+ await expect(page.locator("#manualComposer")).toBeHidden();
+ for(const oz of [4,5,6,7,8])await expect(page.locator('#quickBottlePicker [data-quick-oz="'+oz+'"]')).toBeVisible();
+ await page.locator('#quickBottlePicker [data-quick-oz="6"]').click();
+ await expect(page.locator("#quickBottlePicker")).toBeHidden();
+ await expect(page.locator("#oz")).toHaveText("6");
+ await expect(page.locator("#feeds")).toHaveText("1");
+});
+// A synthetic authenticated backend exercises the real UI and care queue without family data.
+async function syntheticCareBackend(page){
+ await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',route=>route.fulfill({contentType:'application/javascript',body:'window.supabase={createClient:()=>window.syntheticClient};'}));
+ await page.addInitScript(()=>{
+  window.syntheticOffline=false;
+  const read=()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]');
+  const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
+  function query(table){
+   let op='read',payload=null,filters={};
+   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(){return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
+    then(resolve,reject){return Promise.resolve().then(()=>{
+     if(table!=='baby_events')return {data:[],error:null};
+     if(window.syntheticOffline)return {data:null,error:{code:'network'}};
+     const rows=read();
+     if(op==='insert'){if(rows.some(x=>x.id===payload.id))return {error:{code:'23505'}};write([...rows,payload]);return {data:payload,error:null};}
+     if(op==='update'){const old=rows.find(x=>x.id===filters.id);if(!old)return {error:{code:'PGRST116'}};const saved={...old,...payload};write(rows.map(x=>x.id===saved.id?saved:x));return {data:saved,error:null};}
+     if(op==='delete'){write(rows.filter(x=>x.id!==filters.id));return {data:[{id:filters.id}],error:null};}
+     const matching=rows.filter(x=>Object.entries(filters).every(([key,value])=>x[key]===value));
+     return {data:filters.id?matching[0]:matching,error:null};
+    }).then(resolve,reject);}
+   };return q;
+  }
+  const channel={on(){return channel},subscribe(){return channel}};
+  window.syntheticClient={auth:{getUser:async()=>({data:{user:{id:'qa-user',email:'synthetic@example.invalid'}}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},rpc:async()=>({data:[{baby_id:'qa-baby',family_id:'qa-family'}]}),from:query,channel:()=>channel,removeChannel:async()=>{}};
+  localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
+ });
+}
+
+test('P132: quick bottle survives refresh, History editing, offline retry and reload without duplication',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();
+ await expect(page.locator('#quickBottlePicker')).toBeHidden();await expect(page.locator('#oz')).toHaveText('6');
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
+ await page.locator('nav button[data-tab="history"]').click();await page.locator('#historyView [data-edit]').first().click();
+ await expect(page.locator('#manualComposer')).toBeVisible();await expect(page.locator('#composerTitle')).toHaveText('Editing entry');
+ await expect(page.locator('#manualComposer')).toHaveAttribute('data-editing','true');
+ await expect(page.locator('#chatPeekTab')).toBeHidden();await expect(page.locator('#careDock')).toBeHidden();
+ await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#time').fill('09:15');
+ await page.evaluate(()=>window.syntheticOffline=true);await page.locator('#saveEntry').click();
+ await expect(page.locator('#manualComposer')).toBeHidden();await expect(page.locator('#oz')).toHaveText('7');
+ await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toContainText('pending');
+ await page.evaluate(()=>window.syntheticOffline=false);await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await expect(page.locator('#oz')).toHaveText('7');await expect(page.locator('#feeds')).toHaveText('1');
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));
+ expect(saved).toHaveLength(1);expect(saved[0].amount_oz).toBe(7);expect(new Date(saved[0].event_time).getHours()).toBe(9);expect(new Date(saved[0].event_time).getMinutes()).toBe(15);
+});
+
+test('P132: loaded build and runtime use the same visible version',async({page})=>{
+ await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P132');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P132');
 });

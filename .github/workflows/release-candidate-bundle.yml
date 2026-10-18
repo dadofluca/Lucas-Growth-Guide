@@ -9,6 +9,7 @@ on:
       - 'sw.js'
       - 'family-pin.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'agents/**'
       - '.github/workflows/release-candidate-bundle.yml'
 permissions:
@@ -36,7 +37,7 @@ jobs:
       - name: Package static candidate (no deployment)
         run: |
           mkdir -p release-candidate
-          cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest release-candidate/
+          cp index.html emergency.html sw.js family-pin.js sync-fix.js care-sync.js manifest.webmanifest release-candidate/
           cp -r agents release-candidate/
           cp artifacts/release-readiness.json release-candidate/release-readiness.json
           # Keep root-level static assets referenced by the app, without copying repository metadata.

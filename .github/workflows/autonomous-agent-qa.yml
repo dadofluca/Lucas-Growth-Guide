@@ -11,6 +11,7 @@ on:
       - 'index.html'
       - 'sw.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'family-pin.js'
       - 'supabase/migrations/**'
       - '.github/workflows/autonomous-agent-qa.yml'

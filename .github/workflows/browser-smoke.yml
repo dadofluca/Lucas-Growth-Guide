@@ -8,6 +8,7 @@ on:
       - 'sw.js'
       - 'family-pin.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
   push:
@@ -21,6 +22,7 @@ on:
       - 'sw.js'
       - 'family-pin.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'playwright.config.mjs'
       - '.github/workflows/browser-smoke.yml'
 permissions:

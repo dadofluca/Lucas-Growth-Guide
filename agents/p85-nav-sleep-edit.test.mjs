@@ -21,5 +21,6 @@ test("P85 double-click save is guarded and edits retain original identity",()=>{
  assert.match(html,/entrySaveBusy=true/);
  assert.match(html,/finally\{entrySaveBusy=false/);
  assert.match(html,/id:editId\|\|Date\.now\(\)/);
- assert.match(html,/a=a\.map\(x=>x\.id===editId\?e:x\)/);
+ assert.match(html,/e=\{\.\.\.old,\.\.\.e\}/);
+ assert.match(html,/void saveCareEvent\(e\)/);
 });

@@ -13,5 +13,5 @@ test("close preserves draft, discard clears it",()=>{
 });
 test("More toggles and successful save closes composer",()=>{
  assert.match(html,/\$\("#moreBtn"\)\.onclick=\(\)=>\{const form=.*?classList\.toggle\("hiddenOldComposer"\)/);
- assert.match(html,/Entry logged ✓"\)\);reset\(\);\$\("#manualComposer"\)\.classList\.add/);
+ assert.match(html,/reset\(\);\$\("#manualComposer"\)\.classList\.add/);
 });

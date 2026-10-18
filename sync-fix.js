@@ -1,42 +1,6 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P87',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility patches run.
-
-/* P34 — direct inline Save -> Supabase */
-(function(){
- const btn=document.getElementById("inlineSave");if(!btn)return;
- btn.onclick=async function(){
-  if(smartSaving)return;
-  if(!smartItems.length&&!smartSupplyItems.length)return toast("Nothing to save");
-  if(smartItems.some(smartNeedsChoice))return toast("Answer the highlighted choice first");
-  smartSaving=true;btn.disabled=true;
-  try{
-   const baseText=document.getElementById("smartText").value.trim();
-   const made=[];
-   for(const it of smartItems){
-    let at=new Date();
-    if(it.clock)at=it.clock.ambiguous?inferDateFromChoice(it.clock,it.clockChoice):it.clock.date;
-    else if(it.start)at=it.start.ambiguous?inferDateFromChoice(it.start,it.startChoice):it.start.date;
-    let tags=it.kind==="feed"?[]:[it.kind],notes="";
-    if(it.kind==="sleep"&&it.start&&it.end){let sd=it.start.ambiguous?inferDateFromChoice(it.start,it.startChoice):it.start.date,ed=it.end.ambiguous?inferDateFromChoice(it.end,it.endChoice):it.end.date;if(ed<=sd)ed.setDate(ed.getDate()+1);let mins=Math.round((ed-sd)/60000);notes="Nap "+it.start.raw+"–"+it.end.raw+" ("+Math.floor(mins/60)+"h "+mins%60+"m)"}
-    else if(it.kind==="solids")notes=it.label.replace(/^🥣\s*/,"")+(it.relative?"; "+it.relative:"");
-    else if(it.kind==="other")notes=it.note||baseText;
-    else if(it.kind==="medicine")notes=it.label.replace(/^💊\s*/,"")+(it.dose?" · Dose: "+it.dose:"");
-    made.push({id:Date.now()+"-"+Math.random(),at:at.toISOString(),oz:it.oz||null,tags,people:[it.credit||deviceCaregiver()],notes,source:"smart",sourceText:it.raw||it.label||baseText});
-   }
-   for(const s of smartSupplyItems){let item=supplies.find(x=>x.name.toLowerCase()===s.name.toLowerCase());if(item&&syncUser)await setSupply(item.id,"low");else{let p=JSON.parse(localStorage.getItem("luca-pending-supplies")||"{}");p[s.name]="low";localStorage.setItem("luca-pending-supplies",JSON.stringify(p))}}
-   for(const e of made){
-    a.push(e);persist();
-    if(syncBaby&&syncUser){const remote=await pushEntry(e);if(remote){a=a.filter(x=>x.id!==e.id);a.push({id:remote.id,at:remote.event_time,oz:remote.amount_oz==null?null:+remote.amount_oz,tags:remote.tags||[],people:remote.caregivers||[],notes:remote.note||"",event_type:remote.event_type||"",source:remote.details?.source||"smart",sourceText:remote.details?.sourceText||e.sourceText||"",remote:true})}}
-   }
-   persist();render();
-   document.getElementById("quickText").value="";document.getElementById("smartText").value="";
-   smartItems=[];smartSupplyItems=[];renderSmart();document.getElementById("inlineClarify").classList.remove("show");
-   toast(syncBaby&&syncUser?"Saved + synced ✓":"Saved on this phone");
-  }catch(err){console.error("P34 direct save",err);toast("Saved on this phone — sync failed")}
-  finally{smartSaving=false;btn.disabled=false}
- };
-})();
 
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
 (function(){
@@ -107,68 +71,6 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  },true);
 })();
 
-/* P37 — event time is when it happened; edits preserve provenance + undo */
-(function(){
- const st=document.createElement("style");
- st.textContent=`
- .editMeta{font-size:12px;color:#66716b!important;-webkit-text-fill-color:#66716b!important;margin-top:8px}
- .undoEdit{margin-left:6px;border:0;background:transparent!important;color:#9b5a38!important;-webkit-text-fill-color:#9b5a38!important;font-weight:800;padding:3px 5px}
- `;document.head.appendChild(st);
-
- // Preserve original event state before editing, so Undo can restore the shared row.
- let editSnapshots={};
- document.addEventListener("click",e=>{
-   const b=e.target.closest("[data-edit]");if(!b)return;
-   const row=a.find(x=>String(x.id)===String(b.dataset.edit));
-   if(row)editSnapshots[String(row.id)]=JSON.parse(JSON.stringify(row));
- },true);
-
- const baseUpdate=window.updateRemote;
- window.updateRemote=async function(e){
-   if(!syncBaby||!e.remote)return;
-   const prior=editSnapshots[String(e.id)];
-   const details={};
-   if(prior){
-     details.original_event={
-       event_time:prior.at,amount_oz:prior.oz,tags:prior.tags||[],
-       caregivers:prior.people||[],note:prior.notes||"",
-       sourceText:prior.sourceText||""
-     };
-     details.edited_at=new Date().toISOString();
-   }
-   const payload={event_time:e.at,amount_oz:e.oz||null,note:e.notes||null,tags:e.tags||[],caregivers:e.people||[],event_type:e.oz?"feed":((e.tags&&e.tags[0])||"other")};
-   if(prior)payload.details={source:prior.source||"smart",sourceText:prior.sourceText||null,...details};
-   const {error}=await sb.from("baby_events").update(payload).eq("id",e.id);
-   if(error)toast("Couldn't save shared edit");
- };
-
- window.undoLucaEdit=async function(id){
-   const old=editSnapshots[String(id)];if(!old)return toast("Nothing to undo");
-   let cur=a.find(x=>String(x.id)===String(id));if(!cur)return;
-   const restored={...old,id:cur.id,remote:cur.remote};
-   a=a.map(x=>String(x.id)===String(id)?restored:x);persist();render();
-   if(restored.remote)await sb.from("baby_events").update({
-     event_time:restored.at,amount_oz:restored.oz||null,note:restored.notes||null,
-     tags:restored.tags||[],caregivers:restored.people||[],
-     event_type:restored.oz?"feed":((restored.tags&&restored.tags[0])||"other"),
-     details:{source:restored.source||"smart",sourceText:restored.sourceText||null}
-   }).eq("id",id);
-   delete editSnapshots[String(id)];toast("Edit undone ✓");
- };
-
- // After a successful edit, offer a short-lived Undo action without changing original provenance.
- document.getElementById("saveEntry")?.addEventListener("click",()=>{
-   const id=editId;if(!id)return;
-   setTimeout(()=>{
-     if(!editSnapshots[String(id)])return;
-     const t=document.getElementById("toast");if(!t)return;
-     t.innerHTML='Entry updated ✓ <button class="undoEdit" type="button">Undo</button>';
-     t.classList.add("on");
-     t.querySelector(".undoEdit")?.addEventListener("click",()=>window.undoLucaEdit(id));
-   },80);
- },true);
-})();
-
 /* P38 — edits change current event time + current display text, originals remain in details */
 (function(){
 
@@ -192,17 +94,6 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
    if(e.people&&e.people.length)bits.push("by "+e.people.join(" & "));
    return bits.join(" · ");
  }
-
- // If someone types a new explicit time while editing, make that the actual event_time.
- document.getElementById("saveEntry")?.addEventListener("click",()=>{
-   if(!editId)return;
-   const id=editId;
-   const note=document.getElementById("notes")?.value||"";
-   const explicit=extractTime(note,a.find(x=>String(x.id)===String(id))?.at);
-   if(!explicit)return;
-   const row=a.find(x=>String(x.id)===String(id));
-   if(row){row.at=explicit.toISOString();persist();render();if(row.remote)updateRemote(row)}
- },true);
 
  // Make the visible card describe CURRENT structured truth after edits.
  // Keep original typed sentence available only as provenance in the database.
@@ -393,9 +284,8 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
    const b=e.target.closest("[data-qoz]");if(!b)return;const oz=+b.dataset.qoz,who=deviceCaregiver(),now=new Date();
    b.disabled=true;
    const entry={id:Date.now()+"-"+Math.random(),at:now.toISOString(),oz,tags:[],people:[who],notes:"",source:"quick-bottle",sourceText:oz+" oz quick bottle by "+who};
-   a.push(entry);persist();render();pop.classList.remove("on");
-   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:remote.amount_oz==null?null:+remote.amount_oz,tags:remote.tags||[],people:remote.caregivers||[],notes:remote.note||"",event_type:remote.event_type||"feed",source:remote.details?.source||"quick-bottle",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast(oz+" oz bottle logged ✓")}}
-   else toast(oz+" oz bottle saved on this phone");
+   void saveCareEvent(entry);pop.classList.remove("on");
+   toast("Entry saved on this phone ✓");
    b.disabled=false;
  });
 })();
@@ -418,9 +308,8 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  pop.addEventListener("click",async e=>{
    const b=e.target.closest("[data-topoz]");if(!b)return;const oz=+b.dataset.topoz,who=deviceCaregiver(),now=new Date();
    b.disabled=true;const entry={id:Date.now()+"-"+Math.random(),at:now.toISOString(),oz,tags:[],people:[who],notes:"",source:"quick-bottle",sourceText:oz+" oz quick bottle by "+who};
-   a.push(entry);persist();render();pop.classList.remove("on");
-   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:remote.amount_oz==null?null:+remote.amount_oz,tags:remote.tags||[],people:remote.caregivers||[],notes:remote.note||"",event_type:remote.event_type||"feed",source:remote.details?.source||"quick-bottle",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast(oz+" oz bottle logged ✓")}}
-   else toast(oz+" oz bottle saved on this phone");b.disabled=false;
+   void saveCareEvent(entry);pop.classList.remove("on");
+   toast("Entry saved on this phone ✓");
  });
 })();
 
@@ -441,9 +330,8 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
    const b=e.target.closest("[data-pooper]");if(!b)return;let who=b.dataset.pooper;
    if(who==="Other"){who=prompt("Who changed Luca?")?.trim();if(!who)return}
    const entry={id:Date.now()+"-"+Math.random(),at:new Date().toISOString(),oz:null,tags:["poop"],people:[who],notes:"",source:"quick-poop",sourceText:"Poop diaper changed by "+who};
-   a.push(entry);persist();render();pop.classList.remove("on");
-   if(syncBaby&&syncUser){const remote=await pushEntry(entry);if(remote){a=a.filter(x=>x.id!==entry.id);a.push({id:remote.id,at:remote.event_time,oz:null,tags:remote.tags||["poop"],people:remote.caregivers||[who],notes:remote.note||"",event_type:remote.event_type||"poop",source:remote.details?.source||"quick-poop",sourceText:remote.details?.sourceText||entry.sourceText,remote:true});persist();render();toast("Poop logged for "+who+" ✓")}}
-   else toast("Poop saved for "+who);
+   void saveCareEvent(entry);pop.classList.remove("on");
+   toast("Entry saved on this phone ✓");
  });
 
  // iOS PWA: explicitly load/play both intro videos; never leave a permanent black overlay.

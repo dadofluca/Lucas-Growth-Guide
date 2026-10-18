@@ -16,6 +16,7 @@ on:
       - 'index.html'
       - 'sw.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'family-pin.js'
       - 'supabase/migrations/**'
       - '.github/workflows/agent-tests.yml'
@@ -38,6 +39,7 @@ on:
       - 'index.html'
       - 'sw.js'
       - 'sync-fix.js'
+      - 'care-sync.js'
       - 'family-pin.js'
       - 'supabase/migrations/**'
       - '.github/workflows/agent-tests.yml'
@@ -64,7 +66,7 @@ jobs:
         run: |
           node agents/release-readiness.mjs
           mkdir -p artifacts/luca-release
-          cp index.html emergency.html sw.js family-pin.js sync-fix.js manifest.webmanifest artifacts/luca-release/
+          cp index.html emergency.html sw.js family-pin.js sync-fix.js care-sync.js manifest.webmanifest artifacts/luca-release/
           cp -r agents artifacts/luca-release/
           find . -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" -o -iname "*.ico" -o -iname "*.webp" -o -iname "*.mov" -o -iname "*.mp3" -o -iname "*.mp4" \) -exec cp {} artifacts/luca-release/ \;
           cp artifacts/release-readiness.json artifacts/luca-release/
