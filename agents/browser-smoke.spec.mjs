@@ -455,3 +455,16 @@ test("P112: Today entry does not reserve 70vh",async({page})=>{
  expect(m.minHeight).toBe("0px");
  expect(m.buttons).toBeGreaterThan(0);
 });
+
+test("P116: quick Poop opens editable poop-size and wet/messy confirmation",async({page})=>{
+ await page.setViewportSize({width:390,height:750});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator('.heroBtn[data-quick="poop"]').click();
+ await expect(page.locator("#manualComposer")).toBeVisible();
+ await expect(page.locator("#poopDetails")).toBeVisible();
+ await expect(page.locator('#manualComposer [data-tag="poop"]')).toHaveClass(/on/);
+ await expect(page.locator("#poopSize")).toHaveValue("3");
+ await expect(page.locator("#poopWet")).not.toBeChecked();
+ await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
+});
