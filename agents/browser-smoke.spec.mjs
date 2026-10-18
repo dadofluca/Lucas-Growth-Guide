@@ -622,7 +622,7 @@ test('P133: original artwork filters, saves, reloads and follows the family memb
  await expect.poll(()=>portrait.evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);
  await page.locator('#profileSave').click();await expect(page.locator('#profileStatus')).toHaveText('Profile saved.');
  await page.getByRole('searchbox',{name:'Find an avatar'}).fill('');
- await page.locator('.armoryHeader').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/p133-armory-390.png'});
+ await page.locator('.armoryHeader').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({path:'test-results/p133-armory-390.png'});
  await page.reload();await page.locator('#navMore').click();await page.locator('#menuFamily').click();
  await expect(page.locator('.armoryPreview')).toContainText('Teddy Trooper');
  await page.locator('nav button[data-tab="chat"]').click();
