@@ -18,18 +18,33 @@ const armory={
 for(const [key,item] of Object.entries(armory)){presets[key]=item.symbol;palette[key]=item.colors;labels[key]=item.label;}
 for(const [key,item] of Object.entries(bonusCharacters)){presets[key]="★";palette[key]=item.colors;labels[key]=item.label;}
 function armorySvg(key){
- const a=armory[key],dark=a.colors[0],light=a.colors[1];
- const crown=key==="diaperKing"||key==="napEmperor"?'<path d="M23 37 L20 16 36 26 50 11 64 26 80 16 77 37Z" fill="#f9c84d" stroke="#7b5930" stroke-width="3"/>':"";
- const helmet=key==="teddyTrooper"||key==="formulaCommando"||key==="bottleSupreme"?'<path d="M15 45 Q17 12 50 12 Q83 12 85 45Z" fill="'+dark+'" stroke="#34404b" stroke-width="3"/><rect x="15" y="40" width="70" height="9" rx="4" fill="#334b48"/>':"";
- const explosion=key==="diaperDoom"||key==="poopMeteor"||key==="wipeTornado"?'<path d="M50 4 L60 22 79 10 74 33 96 38 78 52 93 73 67 69 58 96 44 74 18 89 26 64 5 51 27 40 18 15 41 26Z" fill="'+light+'" stroke="'+dark+'" stroke-width="3"/>':"";
- const sleepy=key==="sleepDeprived"||key==="napEmperor";
- const eyes=sleepy?'<path d="M27 53 Q35 47 43 53 M57 53 Q65 47 73 53" stroke="#26303e" stroke-width="4" fill="none" stroke-linecap="round"/>':'<circle cx="35" cy="51" r="5" fill="#29303c"/><circle cx="65" cy="51" r="5" fill="#29303c"/>';
- const mouth=key==="evilDuck"?'<path d="M34 66 L50 77 66 66 L50 65Z" fill="#f18e41"/>':'<path d="M39 69 Q50 83 61 69" stroke="#473c46" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
- const accent=key==="formulaCommando"||key==="bottleSupreme"?'<rect x="42" y="78" width="16" height="17" rx="4" fill="#eaf5fc" stroke="#587f9d" stroke-width="2"/>':key==="sleepDeprived"?'<path d="M70 80 h16 v12 h-16Z" fill="#e9f4f6" stroke="#4e596b" stroke-width="2"/>':"";
- const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="49" fill="'+dark+'"/>'+explosion+'<circle cx="50" cy="56" r="34" fill="'+light+'" stroke="'+dark+'" stroke-width="3"/>'+helmet+crown+eyes+mouth+accent+'<path d="M28 64 L39 60 M61 60 L72 64" stroke="#df777c" stroke-width="3" opacity=".55"/></svg>';
+ const a=armory[key],[dark,light]=a.colors;
+ const crown=key==="diaperKing"||key==="napEmperor";
+ const soldier=["teddyTrooper","formulaCommando","bottleSupreme"].includes(key);
+ const explosive=["diaperDoom","poopMeteor","wipeTornado"].includes(key);
+ const tired=["sleepDeprived","napEmperor"].includes(key);
+ const duck=key==="evilDuck";
+ const prop={
+ teddyTrooper:'<path d="M19 26 Q9 11 22 10 Q36 9 37 26 M63 26 Q65 9 79 10 Q92 11 81 26" fill="#87624b" stroke="#453e3b" stroke-width="3"/>',
+ formulaCommando:'<g transform="rotate(-20 81 78)"><rect x="75" y="61" width="12" height="26" rx="5" fill="#f8faf5" stroke="#547a91" stroke-width="2"/><rect x="78" y="55" width="6" height="9" rx="2" fill="#e6c28a"/></g>',
+ diaperDoom:'<path d="M15 80 Q50 64 85 80 L79 95 Q50 84 21 95Z" fill="#f8f1d9" stroke="#746187" stroke-width="3"/><path d="M42 79 l8 7 8-7" fill="none" stroke="#d3b9ef" stroke-width="3"/>',
+ poopMeteor:'<path d="M69 21 Q92 19 91 40 L84 33 79 44 72 34Z" fill="#f4b04b" stroke="#bc5836" stroke-width="2"/>',
+ wipeTornado:'<path d="M10 78 Q50 99 90 78 M20 87 Q50 101 80 87" fill="none" stroke="#d9f7f5" stroke-width="5" stroke-linecap="round"/>',
+ diaperKing:'<path d="M27 82 Q50 98 73 82 L67 96 H33Z" fill="#8d3d94" stroke="#f5d58e" stroke-width="3"/>',
+ napEmperor:'<path d="M20 87 Q50 99 80 87" fill="none" stroke="#f5e2b5" stroke-width="8"/>',
+ bottleSupreme:'<path d="M80 58 l-10 18 10-2-8 20 19-27-11 1Z" fill="#ffe17a" stroke="#d39c36" stroke-width="2"/>',
+ evilDuck:'<path d="M25 30 Q11 18 22 12 Q35 10 37 29 M63 29 Q65 10 78 12 Q89 18 75 30" fill="#f6d33f"/>',
+ sleepDeprived:'<g transform="rotate(14 80 84)"><rect x="72" y="74" width="18" height="19" rx="3" fill="#fff3d9" stroke="#765a4d" stroke-width="2"/><path d="M90 78 Q102 82 90 88" fill="none" stroke="#fff3d9" stroke-width="4"/></g>'
+ }[key]||"";
+ const helm=soldier?'<path d="M13 46 Q15 9 50 10 Q85 9 87 46 L78 50 Q49 41 22 50Z" fill="url(#helm)" stroke="#293e43" stroke-width="3"/><path d="M24 30 Q50 14 75 30" fill="none" stroke="#f2ebd1" stroke-opacity=".45" stroke-width="4"/><rect x="14" y="42" width="72" height="9" rx="4" fill="#34494d"/><circle cx="50" cy="27" r="5" fill="#e8cf79"/>':"";
+ const royalty=crown?'<path d="M18 37 L15 14 34 27 50 7 66 27 85 14 82 37Z" fill="url(#gold)" stroke="#795132" stroke-width="3"/><circle cx="50" cy="25" r="5" fill="#dc5874"/><circle cx="31" cy="30" r="3" fill="#7fd5d8"/><circle cx="69" cy="30" r="3" fill="#7fd5d8"/>':"";
+ const blast=explosive?'<path d="M50 2 L60 20 78 8 75 31 98 40 78 53 91 77 67 69 58 98 43 76 18 90 25 65 3 50 25 39 17 14 41 26Z" fill="url(#blast)" stroke="#70464d" stroke-width="2.5"/>':"";
+ const eyes=tired?'<path d="M27 54 Q35 48 43 54 M57 54 Q65 48 73 54" stroke="#263440" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M26 59 L43 61 M57 61 L74 59" stroke="#a46b73" stroke-width="2" opacity=".8"/>':'<path d="M28 50 Q35 45 42 50 M58 50 Q65 45 72 50" fill="none" stroke="#5d4240" stroke-width="3"/><ellipse cx="35" cy="55" rx="5" ry="6" fill="#222e38"/><ellipse cx="65" cy="55" rx="5" ry="6" fill="#222e38"/><circle cx="33" cy="53" r="1.8" fill="#fff"/><circle cx="63" cy="53" r="1.8" fill="#fff"/>';
+ const mouth=duck?'<path d="M31 68 Q50 58 69 68 L50 80Z" fill="#ee933d" stroke="#b55d32" stroke-width="2"/>':'<path d="M36 70 Q50 88 64 70 Q50 76 36 70Z" fill="#542f42" stroke="#493343" stroke-width="2"/><path d="M41 73 Q50 78 59 73" fill="none" stroke="#fff6ea" stroke-width="3"/>';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="bg" cx=".32" cy=".18" r=".85"><stop stop-color="'+light+'"/><stop offset=".62" stop-color="'+dark+'"/><stop offset="1" stop-color="#253443"/></radialGradient><linearGradient id="face" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#fff8e8"/><stop offset=".55" stop-color="'+light+'"/><stop offset="1" stop-color="'+dark+'"/></linearGradient><linearGradient id="helm"><stop stop-color="'+dark+'"/><stop offset=".5" stop-color="'+light+'"/><stop offset="1" stop-color="'+dark+'"/></linearGradient><linearGradient id="gold"><stop stop-color="#fff4aa"/><stop offset=".55" stop-color="#d99b36"/><stop offset="1" stop-color="#f8d777"/></linearGradient><radialGradient id="blast"><stop stop-color="#fff4c4"/><stop offset=".55" stop-color="'+light+'"/><stop offset="1" stop-color="'+dark+'"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#bg)" stroke="#fff3d6" stroke-width="1.5"/>'+blast+'<ellipse cx="50" cy="61" rx="37" ry="35" fill="#283341" opacity=".2"/><ellipse cx="50" cy="57" rx="35" ry="36" fill="url(#face)" stroke="'+dark+'" stroke-width="3"/><ellipse cx="34" cy="40" rx="15" ry="9" fill="#fff" opacity=".14"/>'+prop+helm+royalty+eyes+mouth+'<ellipse cx="24" cy="67" rx="6" ry="4" fill="#e67d7d" opacity=".38"/><ellipse cx="76" cy="67" rx="6" ry="4" fill="#e67d7d" opacity=".38"/><path d="M14 78 Q50 102 86 78" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2"/></svg>';
  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
-function avatarSvg(key){
+export function avatarSvg(key){
  if(bonusCharacters[key])return bonusAvatarSvg(key);
  if(armory[key])return armorySvg(key);
  const [dark,light]=palette[key]||palette.bear;
