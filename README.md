@@ -1,13 +1,14 @@
-## Current release: P135 — 2026-10-18
+## Current release: P136 — 2026-10-18
 
-Live app: https://dadofluca.github.io/Lucas-Growth-Guide/ · [Release PR #85](https://github.com/dadofluca/Lucas-Growth-Guide/pull/85)
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Release PR #86](https://github.com/dadofluca/Lucas-Growth-Guide/pull/86)
 
-- Anchored Quick Bottle 4–8 oz and compact Quick Poop caregiver/size/wetness picker use the shared care queue.
-- Searchable History journal, compact edit/delete actions, correct diaper metadata through edits/reloads.
-- Original avatar character names in chat/profiles, 13 cosmetic achievements, earned selectable profile/chat banners, optional rare Easter eggs and soft clicks.
-- Prior P134 timed nap/night sleep and readable controls remain. Next pass addresses contextual sleep-note inference and softer light surfaces.
-- **183 Node + 55 Chromium checks passed** on `e0f46083bccc99180bfd0e6ea5f26844c9d43289`; public P135 assets matched tested SHA-256 bytes. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39141679951) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39141679958).
-- Additive cosmetic profile-flair migration uses unchanged membership/self-update RLS. Owner/shape/non-member assertions passed with all test writes rolled back. Real iPhone Safari, a second production device and Muse ingestion remain external checks. Read DEVELOPER_HANDOFF.md before editing; older notes below are historical.
+- Muted stone/sage light surfaces and readable controls; compact quick care and searchable History stay on the shared care queue.
+- Clear bedtime/wake narratives and abbreviated naps count as labeled, editable inferred sleep windows. Source notes remain intact; confirmed times take precedence and linked windows count once.
+- Original portrait artwork and character names in chat/profiles, 23 calling cards, four easy starters, mastery, classified discoveries and optional soft clicks/surprises.
+- Friend playground opens as Test Pilot with sample records. Care edits/deletes, chat, profiles and schedules stay in isolated browser storage. Reset clears only practice data. Copy its link from Profiles → Tools & support → Friend test link; no family password is needed.
+- `node agents/doctor.mjs --run` produces machine-readable health and next-assistant instructions. Existing scheduled checks upload exact failures, test locations, owning files, screenshots and reproduction commands. Start with AGENTS.md, DEVELOPER_HANDOFF.md and docs/AGENT_PLAYBOOK.md.
+- **201 Node + 60 Chromium checks passed**, with zero failures, skips or flakes, on `09c55177a1cd26caaf0c00158b683a428cdc55ee`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39143781511) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39143781444). Public P136 app/demo and 20 file SHA-256 comparisons matched the tested release.
+- No production family records or access policies changed. Actual signed-in iPhone Safari, a second production family device and Muse ingestion remain external checks. Older release notes below are historical.
 
 ## P132 care-sync release — 2026-10-18
 - Previous baseline: main P130 (`95526b57c674622965b150564b2b467651eaed7b`). This candidate incorporates the tested P131 Quick Bottle work and P129 form-obstruction rules without merging obsolete conflicting branches.
