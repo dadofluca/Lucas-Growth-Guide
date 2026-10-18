@@ -13,7 +13,7 @@ test("History renders before optional sleep, drawer and leaderboard panels",()=>
  }
 });
 test("event sync reports query failures distinctly from auth readiness",()=>{
- assert.match(html,/const timelineLoaded=await pullShared\(\)/);
+ assert.match(html,/timelineLoaded=await pullShared\(\)/);
  assert.match(html,/Timeline sync failed/);
  assert.match(html,/render\(\);return false\}let remoteRows=/);
 });
