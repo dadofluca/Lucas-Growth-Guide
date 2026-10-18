@@ -745,14 +745,16 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMenu();closeDr
 </script><script type="module">
 import {mountFamilyProfiles} from "./agents/family-profiles.js";
 let profileStarted=false,profileDispose=null,profileSession=null;
-document.querySelector('[data-tab="profile"]')?.addEventListener("click",()=>{
+function activateFamilyProfiles(){
  const session=(typeof syncFamily==="object"?syncFamily?.id:syncFamily)+":"+syncUser?.id;
  if(profileStarted&&profileSession!==session){profileDispose?.();profileStarted=false;profileDispose=null;}
  if(profileStarted)return;
  if(!sb||!syncFamily||!syncUser){document.querySelector("#profileStatus").textContent="Sign in to Family Sync, then reopen Family.";return;}
  profileStarted=true;profileSession=session;
  profileDispose=mountFamilyProfiles({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,list:document.querySelector("#familyProfileList"),name:document.querySelector("#profileName"),bio:document.querySelector("#profileBio"),avatar:document.querySelector("#profileAvatar"),save:document.querySelector("#profileSave"),status:document.querySelector("#profileStatus")});
-});
+}
+document.querySelector('[data-tab="profile"]')?.addEventListener("click",activateFamilyProfiles);
+window.addEventListener("luca:family-session-ready",()=>{if(document.querySelector("#profileView")?.classList.contains("active"))activateFamilyProfiles()});
 </script><script type="module">
 import {mountFamilyChat} from "./agents/family-chat.js";
 const chatTab=document.querySelector('[data-tab="chat"]');
