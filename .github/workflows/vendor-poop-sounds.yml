@@ -1,0 +1,37 @@
+name: Vendor CC0 recorded poop sounds
+on:
+  push:
+    branches: [fix/local-audio-assets]
+    paths: [.github/workflows/vendor-poop-sounds.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download public-domain audio into the app
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sounds/poop
+          base='https://raw.githubusercontent.com/jonjonsson/SoundMonster/main/Public%20domain'
+          curl --fail --location --retry 3 --silent --show-error "$base/fart%20short.mp3" -o sounds/poop/short-01.mp3
+          curl --fail --location --retry 3 --silent --show-error "$base/fart%20wet.mp3" -o sounds/poop/wet-01.mp3
+          curl --fail --location --retry 3 --silent --show-error "$base/fart%20powerful.mp3" -o sounds/poop/nasty-01.mp3
+          curl --fail --location --retry 3 --silent --show-error "$base/fart%20long.mp3" -o sounds/poop/long-01.mp3
+          for f in sounds/poop/*.mp3; do test "$(wc -c < "$f")" -gt 1024; file "$f" | grep -Ei 'audio|mpeg|mp3|id3' >/dev/null; done
+      - name: Commit downloaded assets to this feature branch only
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sounds/poop/*.mp3
+          if ! git diff --cached --quiet; then
+            git commit -m 'audio: vendor CC0 fart recordings for offline playback'
+            git push origin HEAD:fix/local-audio-assets
+          fi
