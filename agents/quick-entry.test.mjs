@@ -9,10 +9,11 @@ test("quick actions no longer write into natural language text input",()=>{
  assert.match(quickHandler,/smartParseText\(value\)/);
  assert.match(quickHandler,/inlineClarify/);
 });
-test("bottle button asks for amount rather than silently choosing eight ounces",()=>{
- assert.match(quickHandler,/window\.prompt/);
- assert.match(quickHandler,/entered===null/);
- assert.match(quickHandler,/amount>16/);
+test("quick bottle opens 4–8 oz picker and never launches a native prompt",()=>{
+ assert.match(quickHandler,/openQuickBottle\(\)/);
+ assert.doesNotMatch(quickHandler,/window\.prompt/);
+ for(const oz of [4,5,6,7,8])assert.match(html,new RegExp('data-quick-oz="'+oz+'"'));
+ assert.match(html,/at:new Date\(\)\.toISOString\(\)/);
 });
 test("quick actions require confirmation, not an immediate save",()=>{
  assert.doesNotMatch(quickHandler,/saveEvent\(|insert\(|smartSave"\)\.click/);

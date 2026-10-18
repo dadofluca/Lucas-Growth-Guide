@@ -500,3 +500,19 @@ test("P121: narrow phone keeps top quick actions and navigation tappable",async(
   expect(b.x+b.width).toBeLessThanOrEqual(m.viewport+2);
  }
 });
+
+test("P126: quick Bottle logs immediately when choosing 4–8 oz",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ page.on("dialog",dialog=>{throw new Error("Unexpected native dialog: "+dialog.message())});
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#topQuickBottle").click();
+ await expect(page.locator("#quickBottlePicker")).toBeVisible();
+ await expect(page.locator("#manualComposer")).toBeHidden();
+ for(const oz of [4,5,6,7,8])await expect(page.locator('#quickBottlePicker [data-quick-oz="'+oz+'"]')).toBeVisible();
+ await page.locator('#quickBottlePicker [data-quick-oz="6"]').click();
+ await expect(page.locator("#quickBottlePicker")).toBeHidden();
+ await expect(page.locator("#oz")).toHaveText("6");
+ await expect(page.locator("#feeds")).toHaveText("1");
+});
+
