@@ -429,3 +429,15 @@ test("P107: compact title stays in document flow and clears Today controls on na
  expect(layout.bottom).toBeLessThanOrEqual(layout.nextTop+1);
  expect(layout.width).toBeLessThanOrEqual(layout.viewport);
 });
+
+test("P111: Today quick entry has no forced viewport height",async({page})=>{
+ await page.setViewportSize({width:390,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const m=await page.evaluate(()=>{
+  const el=document.querySelector("#todayView .quickhome");
+  return {minHeight:getComputedStyle(el).minHeight,buttons:el.querySelectorAll(".heroBtn").length};
+ });
+ expect(m.minHeight).toBe("0px");
+ expect(m.buttons).toBeGreaterThan(0);
+});
