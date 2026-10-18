@@ -10,7 +10,7 @@ test("quick actions no longer write into natural language text input",()=>{
  assert.match(quickHandler,/inlineClarify/);
 });
 test("quick bottle opens 4–8 oz picker and never launches a native prompt",()=>{
- assert.match(quickHandler,/openQuickBottle\(\)/);
+ assert.match(quickHandler,/openQuickBottle\(b\)/);
  assert.doesNotMatch(quickHandler,/window\.prompt/);
  for(const oz of [4,5,6,7,8])assert.match(html,new RegExp('data-quick-oz="'+oz+'"'));
  assert.match(html,/at:new Date\(\)\.toISOString\(\)/);

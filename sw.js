@@ -1,6 +1,6 @@
-const CACHE="luca-shell-p134";
+const CACHE="luca-shell-p135";
 const EMERGENCY="./emergency.html";
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./index.html","./care-sync.js?v=134","./sync-fix.js?v=134","./family-pin.js?v=134","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/sleep-data.js?v=134","./agents/sleep-ui.js?v=134","./agents/ui-polish.css?v=134","./agents/report-widget.js","./agents/family-ideas.js"]);}))});
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./index.html","./care-sync.js?v=135","./sync-fix.js?v=135","./family-pin.js?v=135","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/quick-actions.js?v=135","./agents/playfulness.js?v=135","./agents/achievements.js","./agents/achievements-ui.js","./agents/flair-ui.js","./agents/sleep-data.js?v=135","./agents/sleep-ui.js?v=135","./agents/ui-polish.css?v=135","./agents/report-widget.js","./agents/family-ideas.js"]);}))});
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith("luca-")&&k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
@@ -9,8 +9,8 @@ self.addEventListener("fetch",e=>{
  if(e.request.mode==="navigate"){
   e.respondWith((async()=>{try{
    const r=await fetch(e.request,{cache:"no-store"});if(!r.ok)return r;let html=await r.text();
-   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=134"></script></body>');
-   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=134"></script></body>');
+   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=135"></script></body>');
+   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=135"></script></body>');
    return new Response(html,{status:r.status,statusText:r.statusText,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
   }catch(err){return (await caches.match("./index.html"))||(await caches.match(EMERGENCY))||Response.error()}})());return;
  }

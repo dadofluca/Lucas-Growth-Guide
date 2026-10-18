@@ -9,7 +9,7 @@
   const dirty=e=>!e.remote||e.pendingUpdate;
   function report(state,code){status?.({state,code,pending:read().filter(dirty).length});}
   function change(entries){write(entries);}
-  function row(x){return {id:x.id,syncId:x.id,babyId:x.baby_id,at:x.event_time,oz:x.amount_oz==null?null:+x.amount_oz,tags:x.tags||[],people:x.caregivers||[],notes:x.note||"",event_type:x.event_type||"",source:x.details?.source||"",sourceText:x.details?.sourceText||"",details:x.details||{},remote:true};}
+  function row(x){return {id:x.id,syncId:x.id,babyId:x.baby_id,createdBy:x.created_by||null,createdAt:x.created_at||null,at:x.event_time,oz:x.amount_oz==null?null:+x.amount_oz,tags:x.tags||[],people:x.caregivers||[],notes:x.note||"",event_type:x.event_type||"",source:x.details?.source||"",sourceText:x.details?.sourceText||"",details:x.details||{},remote:true};}
   function payload(e,c){return {baby_id:c.baby,event_type:e.oz?"feed":((e.tags||[])[0]||e.event_type||"other"),event_time:e.at,amount_oz:e.oz||null,note:e.notes||null,tags:e.tags||[],caregivers:e.people||[],details:{...e.details,source:e.source||"manual",sourceText:e.sourceText||null},created_by:c.user.id};}
   async function request(query){
    const controller=new AbortController();let timer;
