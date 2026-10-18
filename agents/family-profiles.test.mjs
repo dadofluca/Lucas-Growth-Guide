@@ -58,3 +58,12 @@ test("app HTML and compatibility runtime agree on release badge",()=>{
  assert.ok(runtimeBadge,"runtime must declare its version");
  assert.equal(htmlBadge[1],runtimeBadge[1],"runtime patch must not override HTML with an older version");
 });
+
+test("Family Ideas board has explicit privacy and server-enforced family scope",()=>{
+ const sql=readFileSync(new URL("../supabase/migrations/20261018_family_ideas.sql",import.meta.url),"utf8");
+ const ideas=readFileSync(new URL("./family-ideas.js",import.meta.url),"utf8");
+ assert.match(html,/id="ideasView"/);assert.match(html,/data-tab="ideas"/);
+ assert.match(sql,/enable row level security/);assert.match(sql,/visibility='family' or author_id=/);
+ assert.match(sql,/from public.family_members/);assert.match(sql,/revoke all on public.family_ideas from anon/);
+ assert.match(ideas,/Private — only me/);assert.match(ideas,/getClient\(\)\.from\("family_ideas"\)/);
+});
