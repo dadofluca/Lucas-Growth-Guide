@@ -429,3 +429,17 @@ test("P107: compact title stays in document flow and clears Today controls on na
  expect(layout.bottom).toBeLessThanOrEqual(layout.nextTop+1);
  expect(layout.width).toBeLessThanOrEqual(layout.viewport);
 });
+
+test("P110: navigation stays compact, light and tappable on small phones",async({page})=>{
+ await page.setViewportSize({width:320,height:680});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const nav=await page.evaluate(()=>{
+  const el=document.querySelector("nav"),s=getComputedStyle(el),btn=el.querySelector('button[data-tab="today"]');
+  return {height:el.getBoundingClientRect().height,background:s.backgroundColor,buttonHeight:btn.getBoundingClientRect().height,buttonWidth:btn.getBoundingClientRect().width};
+ });
+ expect(nav.height).toBeLessThan(115);
+ expect(nav.buttonHeight).toBeGreaterThanOrEqual(44);
+ expect(nav.buttonWidth).toBeGreaterThanOrEqual(44);
+ expect(nav.background).not.toBe("rgb(23, 35, 44)");
+});

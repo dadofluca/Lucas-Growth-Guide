@@ -444,6 +444,12 @@ nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){
 .persistentTitle{position:relative!important;top:auto!important;z-index:2!important;width:fit-content!important;max-width:100%!important;min-height:0!important;margin:0 0 9px!important;padding:6px 10px!important;font-size:clamp(13px,3.6vw,16px)!important;line-height:1.2!important;box-sizing:border-box!important}
 .persistentTitle .titleL{width:25px!important;height:25px!important;margin-right:5px!important;border-width:2px!important;font-size:19px!important;flex-shrink:0}
 @media(max-width:390px){.persistentTitle{padding:5px 8px!important;font-size:13px!important}}
+/* P110: lighter, compact navigation; remove permanent navy slab. */
+nav,body:has(#todayView.active) nav{background:#f9f5eefa!important;border:1px solid #d8cdbd!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;box-shadow:0 -3px 16px #342d241a!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;align-items:center!important}
+nav button,body:has(#todayView.active) nav button{min-height:48px!important;padding:5px 2px!important;border-radius:12px!important;color:#52615b!important;-webkit-text-fill-color:#52615b!important;font-size:11px!important;line-height:1.15!important}
+nav button b,body:has(#todayView.active) nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
+nav button.active,body:has(#todayView.active) nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
+nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
 /* P103: iPhone editor contrast, including native date/time controls. */
 #manualComposer #notes,#manualComposer #date,#manualComposer #time,#manualComposer #otherPersonName{background:#fffaf2!important;color:#243b35!important;-webkit-text-fill-color:#243b35!important;border:1.5px solid #a58c72!important;border-radius:14px!important;opacity:1!important;color-scheme:light!important}
 #manualComposer #notes::placeholder,#manualComposer #otherPersonName::placeholder{color:#65716a!important;-webkit-text-fill-color:#65716a!important;opacity:1!important}
