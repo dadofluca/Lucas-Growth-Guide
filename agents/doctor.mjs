@@ -7,6 +7,7 @@ import {friendDemo} from './build-friend-demo.mjs';
 import './sleep-inference.js';
 import sleep from './sleep-data.js';
 const owners=[
+ {pattern:/browser (?:report|evidence)|verification/i,area:'verification evidence',files:['agents/doctor.mjs','playwright.config.mjs','.github/workflows/browser-smoke.yml'],command:'npx playwright test --config=playwright.config.mjs'},
  {pattern:/sleep|nap|overnight/i,area:'sleep',files:['agents/sleep-inference.js','agents/sleep-data.js','agents/sleep-ui.js'],command:'node --test agents/p136-sleep-inference.test.mjs agents/p134-sleep-data.test.mjs'},
  {pattern:/schedule|coverage|work block/i,area:'schedule',files:['sync-fix.js','index.html','agents/browser-smoke.spec.mjs'],command:'npx playwright test --config=playwright.config.mjs --grep "practice schedule"'},
  {pattern:/demo|practice|sandbox/i,area:'friend sandbox',files:['agents/demo-mode.js','agents/build-friend-demo.mjs','demo.html','sw.js'],command:'node --test agents/p136-friend-demo.test.mjs'},
@@ -20,14 +21,17 @@ export function readTap(text){
  const total=n('tests'),failed=n('fail'),passed=n('pass');
  return {status:failed>0?'failed':Number.isFinite(failed)&&total>0&&passed===total&&failed===0?'passed':'unverified',total:Number.isFinite(total)?total:null,passed:Number.isFinite(passed)?passed:null,failed:Number.isFinite(failed)?failed:null,failures:[...text.matchAll(/^not ok \d+ - (.+)$/gm)].map(m=>m[1].slice(0,180))};
 }
-export function readBrowser(report){
- if(!report?.stats)return {status:'unverified',failures:[]};
+export function readBrowser(report,{expectedCommit,sourceDirty=false}={}){
+ const sourceCommit=report?.config?.metadata?.sourceCommit||null;
+ const evidenceIssue=sourceDirty?'Current checkout has uncommitted tracked changes; commit and rerun browser verification.':expectedCommit?(expectedCommit==='unknown'?'Current checkout commit is unknown.':!sourceCommit?'Browser evidence has no source commit.':sourceCommit!==expectedCommit?'Browser evidence belongs to '+sourceCommit+', not current checkout '+expectedCommit+'.':null):null;
+ if(!report?.stats)return {status:'unverified',sourceCommit,evidenceIssue:evidenceIssue||'Browser report is missing or invalid.',failures:[]};
  const failures=[];function walk(suites){for(const suite of suites||[]){walk(suite.suites);for(const spec of suite.specs||[]){const failed=spec.tests?.filter(t=>t.status==='unexpected'||t.status==='flaky')||[];if(!failed.length)continue;const messages=failed.flatMap(t=>(t.results||[]).flatMap(r=>r.errors||[r.error].filter(Boolean))).map(e=>e.message||'').join('\n');failures.push({title:String(spec.title).slice(0,180),file:spec.file,line:spec.line,message:messages.replace(/\u001b\[[0-9;]*m/g,'').slice(0,1200)});}}}walk(report.suites);
  const {expected=0,unexpected=0,flaky=0}=report.stats;
- return {status:unexpected>0||report.errors?.length?'failed':flaky>0?'flaky':expected>0?'passed':'unverified',passed:expected,failed:unexpected,flaky,failures};
+ return {status:unexpected>0||report.errors?.length?'failed':flaky>0?'flaky':expected>0&&!evidenceIssue?'passed':'unverified',sourceCommit,evidenceIssue,passed:expected,failed:unexpected,flaky,failures};
 }
 export function handoffFor(failures){return failures.map(f=>{const title=typeof f==='string'?f:f.title,owner=owners.find(o=>o.pattern.test(title));return {symptom:title,area:owner.area,files:owner.files,testFile:f.file||null,testLine:f.line||null,evidence:f.message||null,reproduce:f.file?'npx playwright test --config=playwright.config.mjs':owner.command,next:'Read the failing test and exact error first; an assertion fixture can be wrong. Reproduce, repair the owning implementation when needed, and rerun the affected flow. Use the existing GitHub browser workflow when local browser execution is unavailable.',autoDeploy:false};});}
 export function diagnose(root,{unitText='',browserReports=[]}={}){
+ let commit='unknown',sourceDirty=true;try{commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();execFileSync('git',['diff','--quiet','HEAD'],{cwd:root});sourceDirty=false;}catch{}
  const html=readFileSync(join(root,'index.html'),'utf8'),sw=readFileSync(join(root,'sw.js'),'utf8'),version=html.match(/id="buildVersion"[^>]*>(P\d+)/)?.[1]||'unknown';
  const assets=inspectBundle(root),checks=[{id:'assets',status:assets.ok?'passed':'failed',detail:assets.problems.join('; ')||'All page asset references exist.'}];
  const revision=version.slice(1),versions=[...html.matchAll(/\?v=(\d+)/g)].map(m=>m[1]);
@@ -38,18 +42,17 @@ export function diagnose(root,{unitText='',browserReports=[]}={}){
  const rows=[{id:'fixture-bed',at:bedtime.toISOString(),notes:'Down for the night at 10:15',tags:['sleep']},{id:'fixture-wake',at:wake.toISOString(),notes:'Slept last night until 7 am',tags:['other']},{id:'fixture-nap',at:nap.toISOString(),notes:'Napped 8–9',tags:['sleep']}];
  const summary=sleep.summarize(rows,7,now);
  checks.push({id:'sleep inference',status:summary.night===525&&summary.nap===60&&summary.partialCount===0?'passed':'failed',detail:'22:15 → 07:00 is 8h45m, and Napped 8–9 is 1h. Source rows remain read-only.'});
- const unit=readTap(unitText),browser=browserReports.map(readBrowser),failures=[...checks.filter(c=>c.status==='failed').map(c=>c.id),...unit.failures,...browser.flatMap(b=>b.failures)];
+ const unit=readTap(unitText),browser=browserReports.map(report=>readBrowser(report,{expectedCommit:commit,sourceDirty})),failures=[...checks.filter(c=>c.status==='failed').map(c=>c.id),...unit.failures,...browser.flatMap(b=>b.failures)];
  if(unit.status==='failed'&&!unit.failures.length)failures.push('Unit runner reported failures without individual titles');
- browser.forEach((b,i)=>{if((b.status==='failed'||b.status==='flaky')&&!b.failures.length)failures.push('Browser report '+(i+1)+' is '+b.status);});
- return {version,generatedAt:new Date().toISOString(),mode:'code-and-synthetic-evidence',productionDataRead:false,productionWrites:false,automaticDeployment:false,checks,unit,browser,verdict:failures.length?'investigate':unit.status==='passed'&&browser.length&&browser.every(b=>b.status==='passed')?'synthetic-checks-passed':'verification-incomplete',nextTasks:handoffFor(failures),externalChecks:['Actual signed-in iPhone Safari/PWA','Second production family device','Muse ingestion']};
+ browser.forEach((b,i)=>{if(b.evidenceIssue)failures.push({title:'Browser report '+(i+1)+' needs current verification',message:b.evidenceIssue});else if(b.status!=='passed'&&!b.failures.length)failures.push('Browser report '+(i+1)+' is '+b.status);});
+ return {version,commit,sourceDirty,generatedAt:new Date().toISOString(),mode:'code-and-synthetic-evidence',productionDataRead:false,productionWrites:false,automaticDeployment:false,checks,unit,browser,verdict:failures.length?'investigate':unit.status==='passed'&&browser.length&&browser.every(b=>b.status==='passed')?'synthetic-checks-passed':'verification-incomplete',nextTasks:handoffFor(failures),externalChecks:['Actual signed-in iPhone Safari/PWA','Second production family device','Muse ingestion']};
 }
 if(process.argv[1]&&resolve(process.argv[1])===new URL(import.meta.url).pathname){
  const args=process.argv.slice(2),root=process.cwd(),out=resolve('artifacts/doctor');mkdirSync(out,{recursive:true});
  const tap=resolve('artifacts/unit-results.tap');
  if(args.includes('--run')){try{const result=execFileSync(process.execPath,['--test','--test-reporter=tap',...readdirSync(join(root,'agents')).filter(f=>f.endsWith('.test.mjs')).map(f=>'agents/'+f)],{encoding:'utf8',maxBuffer:12*1024*1024});writeFileSync(tap,result);}catch(error){writeFileSync(tap,String(error.stdout||'')+'\n# runner failed\n');}}
- const reports=args.filter(a=>a.endsWith('.json')).filter(existsSync).map(p=>{try{return JSON.parse(readFileSync(p,'utf8'));}catch{return null;}});
+ const reports=args.filter(a=>a.endsWith('.json')).map(p=>{try{return JSON.parse(readFileSync(p,'utf8'));}catch{return null;}});
  const report=diagnose(root,{unitText:existsSync(tap)?readFileSync(tap,'utf8'):'',browserReports:reports});
- try{report.commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();}catch{report.commit='unknown';}
  writeFileSync(join(out,'health.json'),JSON.stringify(report,null,2)+'\n');
  const notes=['# Next assistant handoff','',`Build: ${report.version} · commit: ${report.commit}`,`Verdict: ${report.verdict}`,'','Read DEVELOPER_HANDOFF.md first. Care writes belong to care-sync.js. Fix the owning implementation; do not add another compatibility wrapper.','',...report.checks.map(c=>`- ${c.id}: ${c.status} — ${c.detail}`),'',`Unit evidence: ${report.unit.status}. Browser evidence: ${report.browser.map(b=>b.status).join(', ')||'not supplied'}.`,...report.nextTasks.flatMap(t=>['',`## ${t.symptom}`,`Area: ${t.area}`,`Files: ${t.files.join(', ')}`,...(t.testFile?[`Failing test: ${t.testFile}:${t.testLine}`]:[]),...(t.evidence?['```text',t.evidence,'```']:[]),`Reproduce: \`${t.reproduce}\``,t.next]),'','External device/account checks remain unverified until independently tested. This report does not authorize deployment.'];
  writeFileSync(join(out,'NEXT_AGENT.md'),notes.join('\n')+'\n');if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,notes.join('\n')+'\n');

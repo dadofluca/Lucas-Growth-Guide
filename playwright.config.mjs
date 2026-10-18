@@ -1,5 +1,9 @@
 import {defineConfig} from "@playwright/test";
+import {execFileSync} from "node:child_process";
+let sourceCommit='unknown';
+try{sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();}catch{}
 export default defineConfig({
+ metadata:{sourceCommit},
  testDir:"./agents",
  testMatch:["browser-smoke.spec.mjs","spark-ui.spec.mjs"],
  timeout:30000,

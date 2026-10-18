@@ -353,7 +353,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
      }else if(!s.covers.length) care+='<div class="home48">✓ No outside childcare coverage needed.</div>';
      if(s.covers.length)care+='<button class="dayRevert60" data-revertday="'+x.k+'">↶ Revert day · remove coverage</button>';
      care+='<button class="manage62" data-manageday="'+x.k+'">＋ Manage day / add coverage</button>';
-     return '<div class="scheduleDay48"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
+     return '<div class="scheduleDay48" data-schedule-day="'+x.k+'"><div class="scheduleDayTop48"><b>'+x.d.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"})+'</b><span class="scheduleStatus48 '+status[0]+'">'+status[1]+'</span></div>'+work+care+'</div>';
    }).join("");
    el.innerHTML='<div class="weekLegend48"><span><i style="background:#d9d9d6"></i>Working</span><span><i style="background:#bfeacf"></i>Covered</span><span><i style="background:#ffc7bc"></i>Missing coverage</span></div><div class="weekStrip48">'+mini+'</div>'+cards;
    el.querySelectorAll("[data-gapday]").forEach(b=>b.onclick=async()=>{if(window.lucaCoverageEditor){window.lucaCoverageEditor({person:b.dataset.gapperson,day:b.dataset.gapday,start:new Date(b.dataset.gapstart).getHours()*60+new Date(b.dataset.gapstart).getMinutes(),end:new Date(b.dataset.gapend).getHours()*60+new Date(b.dataset.gapend).getMinutes()});return;}
@@ -476,9 +476,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  window.renderSchedule=function(){
    priorRender();
    document.querySelectorAll("#scheduleList .scheduleDay48").forEach(card=>{
-     const label=card.querySelector(".scheduleDayTop48 b")?.textContent;if(!label)return;
-     const d=new Date(label+" "+new Date().getFullYear()+" 12:00:00");if(isNaN(d))return;
-     const day=dateKey(d);
+     const day=card.dataset.scheduleDay;if(!day)return;
      card.onclick=e=>{if(e.target.closest("button"))return;window.lucaOpenDayManager?.(day)};
      const m=card.querySelector(".manage62");if(m)m.onclick=e=>{e.stopPropagation();window.lucaOpenDayManager?.(day)};
    });

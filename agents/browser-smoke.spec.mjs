@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P136');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P137');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P136');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P137');
 });
 
 
@@ -869,6 +869,24 @@ test('P136: practice schedule changes persist locally and revert removes only sa
  await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);await page.locator('.scheduleDay48').filter({hasText:'Sam'}).first().click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
  await page.locator('.scheduleDay48').filter({hasText:'Nona'}).first().click();page.once('dialog',dialog=>dialog.accept());await page.locator('.revertMgr63').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).length)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).every(r=>r.kind==='work'))).toBe(true);
+});
+
+for(const locale of ['en-US','es-DO'])test('P137: practice schedule keeps the selected New Year date in '+locale,async({browser})=>{
+ const context=await browser.newContext({locale,viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage();try{
+  await page.clock.setFixedTime(new Date('2026-12-31T16:00:00Z'));
+  await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+  await page.evaluate(()=>{localStorage.setItem('db:luca_schedule',JSON.stringify([
+   {id:'new-year-sam',family_id:'practice-family',person:'Sam',kind:'work',start_at:'2027-01-01T06:00:00Z',end_at:'2027-01-01T15:00:00Z'},
+   {id:'new-year-maddie',family_id:'practice-family',person:'Maddie',kind:'work',start_at:'2027-01-01T07:00:00Z',end_at:'2027-01-01T19:00:00Z'}
+  ]));});
+  await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
+  const card=page.locator('[data-schedule-day="2027-01-01"]');await expect(card).toBeVisible();await card.locator('.scheduleDayTop48 b').click();await expect(page.locator('.workMgr63')).toHaveCount(2);
+  await page.locator('.closeMgr63').click();await card.locator('.scheduleDayTop48').click();await expect(page.locator('.workMgr63')).toHaveCount(2);
+  await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);
+  const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')));expect(rows.filter(r=>r.kind==='work')).toHaveLength(2);expect(rows.find(r=>r.kind==='coverage')).toMatchObject({person:'Nona',start_at:'2027-01-01T07:00:00.000Z',end_at:'2027-01-01T15:00:00.000Z'});
+  await expect(card).toContainText('Nona');await card.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p137-new-year-'+locale+'-390.png'});
+ }finally{await context.close();}
 });
 
 test('P136: offline practice navigation never falls back to real family data cached by the service worker',async({browser})=>{
