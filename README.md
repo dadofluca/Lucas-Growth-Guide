@@ -96,3 +96,12 @@ See [Agent Operations Plan](docs/agent-operations.md).
 
 ## Immediate next step
 Run Atlas unit tests, inspect how the static PWA is deployed, and design the protected agent findings schema. Keep all live data and production code unchanged until reviewed.
+
+## Chat handoff — 2026-10-17 (P87/P88 continuation)
+- User confirmed GitHub and Supabase are connected and explicitly requested that future ChatGPT sessions read this README and keep it updated as a durable handoff.
+- Latest user screenshots report P87 merged to main with compact Today home, centered navigation, bedtime duplicate protection, Family Chat preview, and photo/GIF/video attachments. **These claims have not been independently deployment-tested in this session.**
+- P88 is PR #33 (`https://github.com/dadofluca/Lucas-Growth-Guide/pull/33`): improved illustrated SVG avatar details and selected avatar beside name/timestamp in Family Chat. Screenshot reports agent tests passing, browser checks pending, and P88 unmerged. Verify current PR/CI state before merging.
+- User strongly prefers rich, expressive, humorous, almost 3D game-character avatar artwork rather than flat simplified SVG tokens. Preserve each caregiver's selected avatar key; upgrade assets separately after reliable integration.
+- Priorities: verify deployed build/version (user still saw P75), fix mobile cache/version indicator, finish avatar chat integration, right-side slide-out as family-chat quick preview with unread cue, consolidate home input/timeline spacing, strengthen chat media and notifications. Preserve existing baby events, schedules, messages and profiles.
+- README contains older agent-operation milestones and historical progress entries; treat each as dated, not proof of present state. Audit actual main, open PRs, CI and Supabase before any production action.
+- Next assistant should read README, inspect PR #33 and deployed version, work via branch/PR with tests, and append verified results to this handoff. Do not commit secrets or personal family records to this public repository.
