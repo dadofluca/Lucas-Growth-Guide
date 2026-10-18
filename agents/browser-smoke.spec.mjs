@@ -413,3 +413,16 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await page.locator('#history button[data-history-delete]').click();
  await expect(page.locator('#history button[data-history-edit]')).toHaveCount(1);
 });
+
+test("P108: Today quick entry does not reserve 70vh before the timeline",async({page})=>{
+ await page.setViewportSize({width:390,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const metrics=await page.evaluate(()=>{
+  const q=document.querySelector("#todayView .quickhome"),s=getComputedStyle(q);
+  return {minHeight:s.minHeight,height:q.getBoundingClientRect().height,viewport:innerHeight,buttons:q.querySelectorAll(".heroBtn").length};
+ });
+ expect(metrics.minHeight).toBe("0px");
+ expect(metrics.buttons).toBeGreaterThan(0);
+ expect(metrics.height).toBeLessThan(1000);
+});
