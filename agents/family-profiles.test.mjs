@@ -107,7 +107,7 @@ test("P73 offers explicit recorded fart preview for iPhone sound checks",()=>{
 
 test("P78 bottle confirmation includes glug audio and preserves sound opt-out",()=>{
  assert.match(html,/function bottleGlug\(\)/);
- assert.match(html,/safeAudio\(bottleLogSound\)/);\n assert.match(html,/function bottleCapRefresh\(\)/);\n assert.match(html,/bottleSoundLast===\"glug\"/);
+ assert.match(html,/safeAudio\(bottleLogSound\)/);\n assert.match(html,/function bottleCapRefresh\(\)/);\n assert.match(html,/id="profileGlugTest"/);\n assert.match(html,/id="profileRefreshTest"/);\n assert.match(html,/bottleSoundLast===\"glug\"/);
  assert.match(html,/!editId&&Number\(e\.oz\)>0/);
  assert.match(html,/function safeAudio\(fn\)\{try\{if\(lucaSoundEnabled\(\)\)/);
 });
