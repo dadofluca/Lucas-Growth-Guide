@@ -90,7 +90,9 @@ test("sign-out and family tabs do not expose previous messages to a guest",async
  await page.locator('nav button[data-tab="chat"]').click();
  await expect(page.locator("#familyChatStatus")).toContainText(/sign in|family sync/i);
  await expect(page.locator("#familyChatFeed")).toBeEmpty();
- await page.locator('nav button[data-tab="profile"]').click();
+ await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  await page.locator("#menuFamily").click();
  await expect(page.locator("#familyProfileList")).toBeEmpty();
 });
 
@@ -102,7 +104,9 @@ test("mobile-size viewport can navigate Family Chat, profiles, and emergency bac
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   await page.locator('nav button[data-tab="chat"]').click();
   await expect(page.locator("#chatView")).toHaveClass(/active/);
-  await page.locator('nav button[data-tab="profile"]').click();
+  await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  await page.locator("#menuFamily").click();
   await expect(page.locator("#profileView")).toHaveClass(/active/);
   await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
   await expect(page.locator("#save")).toBeVisible();
