@@ -725,13 +725,15 @@ document.querySelector('[data-tab="profile"]')?.addEventListener("click",()=>{
 import {mountFamilyChat} from "./agents/family-chat.js";
 const chatTab=document.querySelector('[data-tab="chat"]');
 let chatStarted=false,chatDispose=null,chatSession=null;
-chatTab?.addEventListener("click",()=>{
+function activateFamilyChat(){
  const session=(typeof syncFamily==="object"?syncFamily?.id:syncFamily)+":"+syncUser?.id;
  if(chatStarted&&chatSession!==session){chatDispose?.();chatStarted=false;chatDispose=null;}
  if(!chatStarted&&!sb){document.querySelector("#familyChatStatus").textContent="Sign in to Family Sync to use chat.";return;}
  if(!chatStarted&&(!syncFamily||!syncUser)){document.querySelector("#familyChatStatus").textContent="Finish Family Sync sign-in, then reopen Chat.";return;}
  if(!chatStarted){chatStarted=true;chatSession=session;chatDispose=mountFamilyChat({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,feed:document.querySelector("#familyChatFeed"),input:document.querySelector("#familyChatText"),send:document.querySelector("#familyChatSend"),status:document.querySelector("#familyChatStatus"),mediaInput:document.querySelector("#familyChatMedia"),attachButton:document.querySelector("#familyChatAttach"),mediaPreview:document.querySelector("#familyChatMediaPreview")});}
-});
+}
+chatTab?.addEventListener("click",activateFamilyChat);
+window.addEventListener("luca:family-session-ready",()=>{if(document.querySelector("#chatView")?.classList.contains("active"))activateFamilyChat();});
 </script><script type="module">
 /* P86: read-only chat peek; unread cursor is device-local metadata, never message content. */
 let peekFamilyKey=null,peekBusy=false;
