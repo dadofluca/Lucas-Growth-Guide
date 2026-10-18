@@ -468,3 +468,18 @@ test("P116: quick Poop opens editable poop-size and wet/messy confirmation",asyn
  await expect(page.locator("#poopWet")).not.toBeChecked();
  await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
 });
+
+test("P119: top Poop button opens detailed size and wetness confirmation",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await expect(page.locator("#topQuickBottle")).toBeVisible();
+ await expect(page.locator("#topQuickPoop")).toBeVisible();
+ const box=await page.locator("#topQuickPoop").boundingBox();
+ expect(box.width).toBeGreaterThanOrEqual(44);
+ expect(box.height).toBeGreaterThanOrEqual(44);
+ await page.locator("#topQuickPoop").click();
+ await expect(page.locator("#manualComposer")).toBeVisible();
+ await expect(page.locator("#poopDetails")).toBeVisible();
+ await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
+});
