@@ -15,6 +15,15 @@ for(const width of [320,390,430]){
    expect(navRect.x).toBeGreaterThanOrEqual(-1);
    expect(navRect.x+navRect.width).toBeLessThanOrEqual(width+1);
    await page.screenshot({path:`artifacts/spark/mobile-${width}-home.png`,fullPage:false});
+   // Spark flags missing navigation controls before collecting drawer evidence.
+   await expect(nav.locator("button:visible")).toHaveCount(5);
+   for(const button of await nav.locator("button:visible").all()){
+    const rect=await button.boundingBox();
+    expect(rect.width).toBeGreaterThanOrEqual(36);
+    expect(rect.height).toBeGreaterThanOrEqual(40);
+    expect(rect.x).toBeGreaterThanOrEqual(-1);
+    expect(rect.x+rect.width).toBeLessThanOrEqual(width+1);
+   }
    await page.locator("#navMore").click();
    await expect(page.locator("#sideMenu")).toHaveClass(/open/);
    await page.screenshot({path:`artifacts/spark/mobile-${width}-drawer.png`,fullPage:false});
