@@ -114,3 +114,14 @@ test("P79 illustrated avatars are selectable without emoji-only profile rows",()
  assert.match(profiles,/avatar_preset:preset/);
  assert.match(html,/\.avatarGallery\{/);
 });
+
+test("P78 bottle confirmation includes glug audio and preserves sound opt-out",()=>{
+ assert.match(html,/function bottleGlug\(\)/);
+ assert.match(html,/safeAudio\(bottleLogSound\)/); 
+ assert.match(html,/function bottleCapRefresh\(\)/); 
+ assert.match(html,/id="profileGlugTest"/); 
+ assert.match(html,/id="profileRefreshTest"/); 
+ assert.match(html,/bottleSoundLast===\"glug\"/);
+ assert.match(html,/!editId&&Number\(e\.oz\)>0/);
+ assert.match(html,/function safeAudio\(fn\)\{try\{if\(lucaSoundEnabled\(\)\)/);
+});
