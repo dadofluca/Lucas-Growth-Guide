@@ -84,6 +84,6 @@ test("P71 Ideas form is responsive, Teddy dock collapses and new poops trigger s
  assert.match(html,/#familyIdeasRoot textarea\{min-height:116px/);
  assert.match(html,/\.careDock:not\(\.open\) \.careItems\{display:none!important\}/);
  assert.match(html,/if\(!editId&&e.tags.includes\("poop"\)\)playPoopFun\(\)/);
- assert.match(html,/function fart\(\)\{let x=ac\(\)/);
- assert.match(html,/x\.createBuffer\(1,/);
+ assert.match(html,/function fart\(\)\{if\(!lucaSoundEnabled\(\)\)return/);
+ assert.match(html,/new Audio\(pick.src\)/);
 });
