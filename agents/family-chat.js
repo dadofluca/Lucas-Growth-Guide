@@ -42,12 +42,15 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
   if(error){feed.replaceChildren();say("Chat is unavailable right now. Please try again.");return;}
+  // Display confirmed messages immediately; profile/avatar enrichment must never block chat history.
+  const messages=(data||[]).slice().reverse();
+  show(messages);say("");
   let people=[];
   try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p]));
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}
-  show((data||[]).reverse(),names);say("");
+  show(messages,names);say("");
  }
  const onChoose=()=>{
   const file=mediaInput?.files?.[0]||null;

@@ -296,3 +296,35 @@ for(const width of [320,375,390,430]) test(`P90 Watchdog: menu fits ${width}px p
   await expect(page.locator("#sideMenu")).not.toHaveClass(/open/);
  }finally{await context.close();}
 });
+test("P91 chat peek retries immediately when Family Sync becomes ready",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await expect(page.locator("#drawerChatPreview")).toContainText("Connecting to Family Chat");
+ const result=await page.evaluate(async()=>{
+  let calls=0;
+  const mock={from:()=>({select:()=>({eq:()=>({order:()=>({limit:async()=>{calls++;return {data:[],error:null}}})})})})};
+  window.addEventListener("luca:chat-session-request",e=>e.detail({client:mock,family:"synthetic-family",user:"synthetic-user"}));
+  window.dispatchEvent(new CustomEvent("luca:family-session-ready"));
+  await new Promise(resolve=>setTimeout(resolve,100));
+  return calls;
+ });
+ expect(result).toBe(1);
+ await expect(page.locator("#drawerChatPreview")).toContainText("No messages yet");
+});
+
+
+test("P91 chat history renders even when profile lookup stalls",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const result=await page.evaluate(async()=>{
+  const {mountFamilyChat}=await import("./agents/family-chat.js");
+  const feed=document.createElement("div"),input=document.createElement("textarea"),send=document.createElement("button"),status=document.createElement("div");
+  const client={from:table=>table==="family_chat_messages"?{select:()=>({eq:()=>({order:()=>({limit:async()=>({data:[{id:"synthetic-chat",sender_id:"someone-else",body:"Synthetic QA hello",created_at:"2026-01-01T00:00:00Z"}],error:null})})})})}:{select:()=>({eq:()=>new Promise(()=>{})})}};
+  const dispose=mountFamilyChat({getClient:()=>client,getFamilyId:()=>"synthetic-family",getUser:()=>({id:"synthetic-user"}),feed,input,send,status});
+  await new Promise(resolve=>setTimeout(resolve,200));
+  const text=feed.textContent;
+  dispose();
+  return text;
+ });
+ expect(result).toContain("Synthetic QA hello");
+});
