@@ -162,3 +162,22 @@ test("phone layout keeps family forms full width and care dock out of the way",a
   }
  }finally{await context.close();}
 });
+
+
+test("iPhone care dock opens from poop emoji and emergency shortcut stays clear of bottom navigation",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ try{
+  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+  const dock=page.locator("#careDock");
+  await expect(dock).toBeVisible();
+  await dock.locator("#carePoop").tap({timeout:5000});
+  await expect(dock).toHaveClass(/open/);
+  const sos=await page.locator("#lucaEmergencyLink").boundingBox();
+  const nav=await page.locator("nav").boundingBox();
+  expect(sos).not.toBeNull();expect(nav).not.toBeNull();
+  expect(sos.y+sos.height).toBeLessThanOrEqual(nav.y);
+ }finally{await context.close();}
+});
