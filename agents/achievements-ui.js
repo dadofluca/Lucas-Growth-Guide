@@ -23,7 +23,7 @@ export function mountAchievements({getContext,getEntries,host}){
   if(!session||key(c)!==session){host.append(element('p','muted','Sign in to Family Sync to collect achievements.'));return;}
   if(!self){host.append(element('p','muted',notice||'Opening your trophy cabinet…'));return;}
   const hero=element('div','achievementHero');
-  hero.append(avatarImage(self.avatar_preset||'bear',64));
+  hero.append(avatarImage(self.avatar_preset||'bear',64,true));
   const identity=element('div','achievementIdentity');identity.append(element('strong','',self.display_name||'You'),element('span','avatarCharacter',avatarLabel(self.avatar_preset)));
   const banner=profileBanner(flair);if(banner)identity.append(banner);else identity.append(element('small','muted','Choose an earned banner below.'));
   hero.append(identity);host.append(hero);
@@ -57,17 +57,18 @@ export function mountAchievements({getContext,getEntries,host}){
  }
  async function flush(){
   if(saving||!dirty||!self)return;const c=context(),g=generation;if(!c.client||key(c)!==session)return;
-  saving=true;const version=revision,snapshot=structuredClone(flair);
+  saving=true;let conflict=false;const version=revision,snapshot=structuredClone(flair);
   try{
-   // A narrow update preserves names, avatars and newer profile drafts.
-   const {data,error}=await c.client.from('family_profiles').update({flair:snapshot}).eq('family_id',c.family).eq('user_id',c.user.id).select('user_id,flair');
+   // A narrow compare-and-swap preserves profile drafts and concurrent discoveries on another device.
+   const {data,error}=await c.client.from('family_profiles').update({flair:snapshot}).eq('family_id',c.family).eq('user_id',c.user.id).eq('flair',JSON.stringify(self.flair||{})).select('user_id,flair');
    if(!current(c,g))return;
-   if(error||!data?.some(p=>p.user_id===c.user.id))throw new Error('Profile not updated');
+   if(error)throw error;
+   if(!data?.some(p=>p.user_id===c.user.id)){conflict=true;return;}
    self={...self,flair:snapshot};profiles=profiles.map(p=>p.user_id===c.user.id?self:p);
    if(revision===version){dirty=false;pendingBanner=undefined;clearPending(c);notice='Collection synced. Your banner is ready for Family Chat.';}
    window.dispatchEvent(new CustomEvent('luca:profile-flair',{detail:{family:c.family,user:c.user.id,flair:snapshot}}));
   }catch{if(current(c,g)){notice='Saved on this phone. Reconnect and tap Refresh to sync your collection.';storePending(c);}}
-  finally{if(current(c,g)){saving=false;paint();if(dirty&&revision!==version)void flush();}}
+  finally{if(current(c,g)){saving=false;paint();if(conflict)void refresh();else if(dirty&&revision!==version)void flush();}}
  }
  async function refresh(){
   const c=context(),next=key(c);

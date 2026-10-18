@@ -5,8 +5,7 @@
  const motion=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches;
  const enabled=()=>read('luca-surprises','on')!=='off'&&read('luca-personality','dark')!=='off';
  let lastRocket=0,lastClick=0,mounted=false,clickSound=()=>{};
- const earned=new Set();
- function unlock(id){if(earned.has(id))return;earned.add(id);window.dispatchEvent(new CustomEvent('luca:easter-egg',{detail:{id}}));}
+ function unlock(id){window.dispatchEvent(new CustomEvent('luca:easter-egg',{detail:{id}}));}
  function decorate(emoji,target,animation){
   if(!motion()||!target)return;
   const r=target.getBoundingClientRect(),el=document.createElement('span');

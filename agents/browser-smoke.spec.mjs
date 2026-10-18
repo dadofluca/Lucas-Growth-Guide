@@ -545,9 +545,11 @@ async function syntheticCareBackend(page){
       if(op==='upsert'&&window.syntheticProfileSaveDelay)await new Promise(resolve=>setTimeout(resolve,window.syntheticProfileSaveDelay));
       let profiles=JSON.parse(localStorage.getItem('qa-profiles')||'[]');
       if(op==='upsert'&&!(ignoreDuplicates&&profiles.some(x=>x.user_id===payload.user_id))){const old=profiles.find(x=>x.user_id===payload.user_id)||{};profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push({...old,...payload});}
-      if(op==='update')profiles=profiles.map(x=>Object.entries(filters).every(([k,v])=>x[k]===v)?{...x,...payload}:x);
+      if(op==='update'&&payload?.flair&&window.syntheticFlairConflictOnce){window.syntheticFlairConflictOnce=false;profiles=profiles.map(x=>x.user_id===filters.user_id?{...x,flair:{...(x.flair||{}),unlocked:[...(x.flair?.unlocked||[]),'block-party'],eggs:['block-party']}}:x);localStorage.setItem('qa-profiles',JSON.stringify(profiles));return {data:[],error:null};}
+      const matches=x=>Object.entries(filters).every(([k,v])=>k==='flair'?JSON.stringify(x.flair||{})===v:x[k]===v);
+      const matched=profiles.filter(matches).map(x=>x.user_id);if(op==='update')profiles=profiles.map(x=>matches(x)?{...x,...payload}:x);
       localStorage.setItem('qa-profiles',JSON.stringify(profiles));
-      return {data:profiles.filter(x=>Object.entries(filters).every(([k,v])=>x[k]===v)),error:null};
+      return {data:op==='update'?profiles.filter(x=>matched.includes(x.user_id)):profiles.filter(matches),error:null};
      }
      if(table==='family_chat_messages'){let rows=JSON.parse(localStorage.getItem('qa-chat')||'[]');if(op==='insert'){rows.push({...payload,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('qa-chat',JSON.stringify(rows));}rows=rows.filter(x=>!filters.sender_id||x.sender_id===filters.sender_id);return {data:countRequested?null:rows,count:countRequested?rows.length:null,error:null};}
      if(table!=='baby_events')return {data:[],error:null};
@@ -791,4 +793,15 @@ test('P135: surprise opt-out and quiet clicks persist, while an offline banner r
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>{window.qaAudioStarts=0;window.AudioContext=class{constructor(){window.qaAudioStarts++;throw new Error('Quiet audio');}};Math.random=()=>0;});
  await page.locator('#topQuickPoop').click();await page.locator('#quickPoopSize').fill('5');await expect(page.locator('#quickPoopPicker .poopMeter')).not.toHaveClass(/railBroken/);
  await page.keyboard.press('Escape');expect(await page.evaluate(()=>window.qaAudioStarts)).toBe(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('P135: simultaneous discoveries from another device merge before a banner is equipped',async({page})=>{
+ await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="6"]').click();
+ await page.locator('#navMore').click();await page.locator('#menuAchievements').click();await expect(page.locator('[data-achievement="first-watch"]')).toHaveClass(/unlocked/);
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.unlocked.includes('first-watch'))).toBe(true);
+ await page.evaluate(()=>window.syntheticFlairConflictOnce=true);await page.locator('[data-achievement="first-watch"] [data-equip-banner]').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair.banner)).toBe('first-watch');
+ const flair=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-profiles'))[0].flair);expect(flair.unlocked).toEqual(expect.arrayContaining(['first-watch','block-party']));expect(flair.eggs).toContain('block-party');
 });
