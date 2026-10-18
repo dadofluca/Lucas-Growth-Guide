@@ -117,3 +117,10 @@ test('offline entries are bound to the selected baby before their first request'
  h.c.baby='baby-a';h.c.user={id:'user-a'};const w=deferred();h.wait=w;const syncing=h.store.refresh();
  assert.equal(h.entries[0].babyId,'baby-a');w.resolve();await syncing;assert.equal(h.entries[0].remote,true);
 });
+
+test('one stalled upload does not make refresh wait through the entire pending queue',async()=>{
+ const h=harness();h.c.baby=null;h.c.user=null;
+ for(let i=0;i<5;i++)await h.store.save(entry('queued-'+i));
+ h.c.baby='baby-a';h.c.user={id:'user-a'};h.mode='hang';
+ assert.equal(await h.store.refresh(),false);assert.equal(h.calls.length,2);assert.equal(h.entries.length,5);
+});

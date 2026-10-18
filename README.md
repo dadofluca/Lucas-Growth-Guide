@@ -4,7 +4,7 @@
 - Refresh uses one shared in-flight operation and merges against the queue after the response. New logs, in-flight edits and confirmed deletes are protected against stale read responses. Request deadlines release failed operations for retry.
 - Quick Bottle: 4/5/6/7/8 oz logs the current time immediately; no native text prompt or separate time dialog. History Edit opens the visible Today composer, with ounces/time/caregiver fields and Undo. Poop size/wetness restore while editing.
 - The visible P132 marker supplies `window.LUCA_PATCH`; runtime no longer hard-codes P87. Worker and script cache identities advance together. Tap the timeline status to retry; reconnecting or reopening refreshes automatically.
-- Verification before PR: **165 Node checks passed**, including 16 behavioral repository tests for lost responses, offline edits/retry, simultaneous refresh/save, restart, family switching, Undo and delete races. Safe preview packaging and asset checks passed. Authenticated browser tests use a synthetic backend; no tests write real family records.
+- Verification before PR: **166 Node checks passed**, including 17 behavioral repository tests for lost responses, offline edits/retry, simultaneous refresh/save, restart, family switching, Undo and delete races. Safe preview packaging and asset checks passed. Authenticated browser tests use a synthetic backend; no tests write real family records.
 - **Deployment/browser CI: pending for this candidate.** Actual signed-in iPhone Safari and two-device family validation remain necessary before calling the entire app verified. No schema, family records, schedules or messages were edited.
 
 ## P89 release milestone — 2026-10-17

@@ -68,7 +68,7 @@
    refreshFlight=(async()=>{
     report("syncing");
     try{
-     for(const e of read().filter(dirty))await send(e);
+     for(const e of read().filter(dirty)){if(!await send(e))break;}
      const started=clock;
      const {data,error}=await request(c.client.from("baby_events").select("*").eq("baby_id",c.baby).order("event_time",{ascending:false}));
      if(error)throw error;
