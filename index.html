@@ -32,6 +32,9 @@
 .avatarChoice[aria-pressed="true"]{border-color:#367c7b;box-shadow:0 0 0 3px #63a8a633;background:#edf7f1}
 .avatarChoice:focus-visible{outline:3px solid #367c7b;outline-offset:3px}
 /* P82: narrower, accessible dismissible drawers, generous outside tap zone. */
+#sleepCheckinCard[hidden]{display:none!important}
+#sleepCheckinCard .field{margin:10px 0}
+#sleepCheckinCard select,#sleepCheckinCard input{width:100%;min-height:46px;font-size:16px}
 @media(max-width:600px){
  .sidePanel{width:min(74vw,320px)!important;box-sizing:border-box;padding:calc(16px + env(safe-area-inset-top)) 14px 65px!important}
  .drawerPanel{width:min(74vw,320px)!important;box-sizing:border-box;padding:calc(16px + env(safe-area-inset-top)) 14px 65px!important}
