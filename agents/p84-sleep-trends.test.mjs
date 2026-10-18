@@ -9,7 +9,7 @@ test("P84 Insights includes 7 and 30 day sleep trend summaries",()=>{
  assert.match(html,/renderSleepCheckin\(\);renderSleepTrends\(\)/);
 });
 test("P84 sleep reporting does not count unknown sleep or wakeups as zero",()=>{
- assert.match(html,/row\.night=null/); 
+ assert.match(html,/night:null,wakes:null,awake:null/); 
  assert.match(html,/nightCount:night\.length/);
  assert.match(html,/if\(awake\)row\.awake=/);
  assert.match(html,/if\(m\)\{const n=/);
