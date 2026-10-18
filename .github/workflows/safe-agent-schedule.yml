@@ -1,0 +1,35 @@
+name: Safe scheduled agent checks
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: safe-agent-checks
+  cancel-in-progress: false
+jobs:
+  synthetic-agents:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run agent unit tests
+        run: node --test agents/*.test.mjs
+      - name: Exercise synthetic Watchdog and Builder handoff
+        run: node agents/synthetic-handoff.mjs
+      - name: Evaluate release readiness without production access
+        run: node agents/release-readiness.mjs
+      - name: Upload reviewable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safe-agent-evidence
+          path: |
+            artifacts/synthetic-agent-qa.json
+            artifacts/release-readiness.json
+          if-no-files-found: warn
+          retention-days: 14
