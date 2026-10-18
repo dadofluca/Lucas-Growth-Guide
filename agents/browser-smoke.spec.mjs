@@ -468,3 +468,18 @@ test("P116: quick Poop opens editable poop-size and wet/messy confirmation",asyn
  await expect(page.locator("#poopWet")).not.toBeChecked();
  await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
 });
+
+test("P120: narrow phone keeps title, Today controls and navigation usable",async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const m=await page.evaluate(()=>{
+  const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}};
+  return {title:box(".persistentTitle"),heading:box("#todayView .top"),nav:box("nav"),poop:box('.heroBtn[data-quick="poop"]'),viewport:innerWidth};
+ });
+ expect(m.title.bottom).toBeLessThanOrEqual(m.heading.y+2);
+ expect(m.nav.height).toBeLessThan(115);
+ expect(m.poop.width).toBeGreaterThanOrEqual(44);
+ expect(m.poop.height).toBeGreaterThanOrEqual(44);
+ expect(m.poop.x+m.poop.width).toBeLessThanOrEqual(m.viewport+2);
+});
