@@ -347,7 +347,7 @@ test("P95 family authentication does not falsely claim timeline synchronization"
  const source=await page.locator("script").allTextContents();
  const app=source.join("\n");
  expect(app).toContain('timelineLoaded=await pullShared()');
- expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
+ expect(app).toContain('if(timelineLoaded)$("#syncDot").textContent="☁️ Timeline synced"');
  expect(app).toContain('render();return false}let remoteRows=');
 });
 
@@ -404,7 +404,7 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await expect(page.locator('#history button[data-history-delete]')).toBeVisible();
  await page.locator('#history button[data-history-edit]').click();
  await expect(page.locator("#todayView")).toHaveClass(/active/);
- await expect(page.locator("#composerTitle")).toHaveText("Edit entry");
+ await expect(page.locator("#composerTitle")).toContainText("Editing saved entry");
  await expect(page.locator("#notes")).toHaveValue("QA morning bottle");
  await page.locator('nav [data-tab="history"]').click();
  const historyDay=page.locator('#history details').first();
@@ -510,4 +510,19 @@ test("P125: capture phone-sized Today and History views for review",async({page}
   await page.locator('nav button[data-tab="history"]').click();
   await page.screenshot({path:testInfo.outputPath("history-"+width+".png"),fullPage:true});
  }
+});
+
+test("P126: quick Bottle logs immediately when choosing 4–8 oz",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ page.on("dialog",dialog=>{throw new Error("Unexpected native dialog: "+dialog.message())});
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.locator("#topQuickBottle").click();
+ await expect(page.locator("#quickBottlePicker")).toBeVisible();
+ await expect(page.locator("#manualComposer")).toBeHidden();
+ for(const oz of [4,5,6,7,8])await expect(page.locator('#quickBottlePicker [data-quick-oz="'+oz+'"]')).toBeVisible();
+ await page.locator('#quickBottlePicker [data-quick-oz="6"]').click();
+ await expect(page.locator("#quickBottlePicker")).toBeHidden();
+ await expect(page.locator("#oz")).toHaveText("6");
+ await expect(page.locator("#feeds")).toHaveText("1");
 });
