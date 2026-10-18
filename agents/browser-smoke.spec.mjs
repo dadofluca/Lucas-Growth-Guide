@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P137');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P138');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P137');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P138');
 });
 
 
@@ -887,6 +887,30 @@ for(const locale of ['en-US','es-DO'])test('P137: practice schedule keeps the se
   const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')));expect(rows.filter(r=>r.kind==='work')).toHaveLength(2);expect(rows.find(r=>r.kind==='coverage')).toMatchObject({person:'Nona',start_at:'2027-01-01T07:00:00.000Z',end_at:'2027-01-01T15:00:00.000Z'});
   await expect(card).toContainText('Nona');await card.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p137-new-year-'+locale+'-390.png'});
  }finally{await context.close();}
+});
+
+test('P138: Nona meal preserves the full food description, stated time and one solids record after reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-18T13:50:00Z'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ const text='Half a jar of food (chicken, sweet potato, broccoli, and avocado mixed) at 12:45 fed by Nona';
+ await page.locator('#quickText').fill(text);await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartItem')).toHaveCount(1);await expect(page.locator('#inlineItems')).not.toContainText('How many ounces');await expect(page.locator('#inlineItems .smartMealNote')).toHaveText(text);
+ await expect(page.locator('#inlineSave')).toBeDisabled();await expect(page.locator('#smartChoiceStatus')).toContainText('choose AM or PM');await page.locator('#inlineItems [data-smartchoice][data-choice="PM"]').click();await expect(page.locator('#inlineSave')).toBeEnabled();
+ await page.locator('#inlineItems [data-changecredit]').click();await expect(page.locator('#inlineSave')).toBeDisabled();await page.locator('#inlineItems [data-creditchoice][data-person="Nona"]').click();await expect(page.locator('#inlineSave')).toBeEnabled();await page.locator('#inlineSave').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(1);await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ const card=page.locator('#timeline .entry').filter({hasText:text});await expect(card).toHaveCount(1);await expect(card.locator('.note').first()).toHaveText(text);await expect(card.locator('details')).toHaveCount(0);await expect(card.locator('.entrytop')).toContainText('12:45 PM');await expect(card.locator('.chips')).toContainText('Nona');
+ const [row]=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(row.amount_oz).toBeNull();expect(row.tags).toEqual(['solids']);expect(row.note).toBe(text);expect(row.details.sourceText).toBe(text);expect(row.event_time).toBe('2026-10-18T12:45:00.000Z');
+ await card.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p138-nona-solids-390.png'});
+});
+
+test('P138: removing an unresolved bottle and correcting a draft cannot leave a hidden save blocker',async({page})=>{
+ await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-18T13:50:00Z'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#quickText').fill('Nona gave avocado and a bottle at 12:45 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartItem')).toHaveCount(2);await expect(page.locator('#inlineSave')).toBeDisabled();
+ await page.locator('#inlineItems .smartItem').filter({hasText:'Feeding'}).locator('[data-smartremove]').click();await expect(page.locator('#inlineItems .smartItem')).toHaveCount(1);await expect(page.locator('#inlineSave')).toBeEnabled();
+ await page.locator('#inlineSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(1);
+ await page.locator('#quickText').fill('Nona gave banana at 12:50 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineSave')).toBeEnabled();
+ const corrected='Nona gave chicken and broccoli at 12:55 pm';await page.locator('#quickText').fill(corrected);await expect(page.locator('#inlineClarify')).toBeHidden();await expect(page.locator('#inlineSave')).toBeDisabled();await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartMealNote')).toHaveText(corrected);await page.locator('#inlineSave').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(2);const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.amount_oz==null&&r.tags.includes('solids'))).toBe(true);expect(rows.find(r=>r.note===corrected).event_time).toBe('2026-10-18T12:55:00.000Z');expect(rows.some(r=>r.note==='Nona gave banana at 12:50 pm')).toBe(false);
 });
 
 test('P136: offline practice navigation never falls back to real family data cached by the service worker',async({browser})=>{
