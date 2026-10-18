@@ -8,8 +8,8 @@ test("History renders before optional sleep, drawer and leaderboard panels",()=>
  assert.ok(start>=0&&end>start);
  const render=html.slice(start,end);
  for(const name of ["renderSleepCheckin()","renderSleepTrends()","renderDrawer()","renderLeaderboard()"]){
-  assert.ok(render.indexOf('$(\"#history\").innerHTML')>=0);
-  assert.ok(render.indexOf('$(\"#history\").innerHTML')<render.indexOf(name),name+" must not block History");
+  assert.ok(render.indexOf("renderHistory()")>=0);
+  assert.ok(render.indexOf("renderHistory()")<render.indexOf(name),name+" must not block History");
  }
 });
 test("event sync reports query failures distinctly from auth readiness",()=>{
