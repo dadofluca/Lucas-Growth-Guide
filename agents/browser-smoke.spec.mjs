@@ -178,3 +178,14 @@ test("edited event displays saved description and keeps original message collaps
  await page.reload();
  await expect(page.locator(".entry").filter({hasText:"Nap ended at 6:15 PM"}).first()).toBeVisible();
 });
+
+
+test("P69 shows original-only notes directly and hides unnecessary original dropdown",async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem("luca-log-v2",JSON.stringify([{id:"synthetic-note",at:new Date().toISOString(),oz:null,tags:["poop"],people:["Nona"],notes:"",sourceText:"Changed a diaper at 8 PM",source:"smart"}])));
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const entry=page.locator(".entry").filter({hasText:"Changed a diaper at 8 PM"}).first();
+ await expect(entry).toBeVisible();
+ await expect(entry.locator(".note").first()).toContainText("Changed a diaper at 8 PM");
+ await expect(entry.locator("details")).toHaveCount(0);
+});
