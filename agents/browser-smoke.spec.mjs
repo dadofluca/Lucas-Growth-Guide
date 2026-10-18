@@ -539,8 +539,16 @@ async function syntheticCareBackend(page){
   const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
   function query(table){
    let op='read',payload=null,filters={};
-   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(){return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
+   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v){op='upsert';payload=v;return q},delete(){op='delete';return q},select(){return q},eq(k,v){filters[k]=v;return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
     then(resolve,reject){return Promise.resolve().then(()=>{
+     if(table==='family_profiles'){
+      let profiles=JSON.parse(localStorage.getItem('qa-profiles')||'[]');
+      if(op==='upsert'){profiles=profiles.filter(x=>x.user_id!==payload.user_id);profiles.push(payload);}
+      if(op==='update')profiles=profiles.map(x=>Object.entries(filters).every(([k,v])=>x[k]===v)?{...x,...payload}:x);
+      localStorage.setItem('qa-profiles',JSON.stringify(profiles));
+      return {data:profiles.filter(x=>Object.entries(filters).every(([k,v])=>x[k]===v)),error:null};
+     }
+     if(table==='family_chat_messages')return {data:JSON.parse(localStorage.getItem('qa-chat')||'[]'),error:null};
      if(table!=='baby_events')return {data:[],error:null};
      if(window.syntheticOffline)return {data:null,error:{code:'network'}};
      const rows=read();
@@ -584,7 +592,55 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P132');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P133');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P132');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P133');
+});
+
+
+test('P133: original artwork filters, saves, reloads and follows the family member into chat',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.addInitScript(()=>{
+  if(!localStorage.getItem('qa-profiles'))localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Synthetic caregiver',bio:'',avatar_preset:'bear'}]));
+  localStorage.setItem('qa-chat',JSON.stringify([{id:'qa-message',sender_id:'qa-user',body:'Synthetic family message',created_at:new Date().toISOString()}]));
+ });
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();
+ await expect(page.locator('.avatarChoice')).toHaveCount(59);
+ await page.getByRole('button',{name:'Diaper duty',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Teddy Trooper',exact:true})).toBeHidden();
+ await expect(page.getByRole('button',{name:'Diaper Doom',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'All',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Find an avatar'}).fill('Teddy');
+ await expect(page.locator('.avatarChoice:visible')).toHaveCount(1);
+ await page.getByRole('button',{name:'Teddy Trooper',exact:true}).click();
+ await expect(page.locator('.armoryPreview')).toContainText('Teddy Trooper');
+ const portrait=page.locator('.armoryPreview img');await expect(portrait).toHaveAttribute('src',/avatar-armory-original.png/);
+ await expect.poll(()=>portrait.evaluate(img=>img.complete&&img.naturalWidth)).toBe(1312);
+ await page.locator('#profileSave').click();await expect(page.locator('#profileStatus')).toHaveText('Profile saved.');
+ await page.locator('.armoryHeader').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/p133-armory-390.png'});
+ await page.reload();await page.locator('#navMore').click();await page.locator('#menuFamily').click();
+ await expect(page.locator('.armoryPreview')).toContainText('Teddy Trooper');
+ await page.locator('nav button[data-tab="chat"]').click();
+ await expect(page.locator('#familyChatFeed [data-avatar-key="teddyTrooper"] img')).toHaveAttribute('src',/avatar-armory-original.png/);
+ await expect(page.locator('#familyChatFeed')).toContainText('Synthetic family message');
+});
+
+test('P133: personality preferences persist, quiet mode stays silent, and reduced motion is respected',async({page})=>{
+ await page.setViewportSize({width:320,height:700});await syntheticCareBackend(page);
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
+ await page.evaluate(()=>{document.getElementById('bootCinematic')?.remove();window.qaAudioStarts=0;window.AudioContext=class{constructor(){window.qaAudioStarts++;throw new Error('Audio started in quiet mode');}};});
+ await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="5"]').click();
+ await expect(page.locator('#toast .toastQuip')).toContainText('tiny dictator');
+ await page.evaluate(()=>window.lucaSound.saved());expect(await page.evaluate(()=>window.qaAudioStarts)).toBe(0);
+ await page.locator('#navMore').click();await page.locator('#menuFamily').click();
+ await page.locator('#profilePersonality').selectOption('off');
+ await page.reload();await expect.poll(()=>page.evaluate(()=>window.lucaFeedbackLine?.('feed'))).toBe('');
+ await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="4"]').click();
+ await expect(page.locator('#toast')).toContainText('saved on this phone');await expect(page.locator('#toast .toastQuip')).toHaveCount(0);
+ expect(await page.locator('#todayView').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

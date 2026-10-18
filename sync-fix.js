@@ -16,14 +16,13 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
 
  let ctx=null;
  function audio(){ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();return ctx}
- function ping(freq=660,d=.09,delay=0){try{let x=audio(),o=x.createOscillator(),g=x.createGain(),t=x.currentTime+delay;o.type="sine";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.028,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+d)}catch(e){}}
+ function ping(freq=660,d=.09,delay=0){if(typeof lucaSoundEnabled==="function"&&!lucaSoundEnabled())return;try{let x=audio(),o=x.createOscillator(),g=x.createGain(),t=x.currentTime+delay;o.type="sine";o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.028,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+d)}catch(e){}}
  window.lucaSound={
   saved(){ping(587,.08);ping(784,.12,.07)},
   deleted(){ping(330,.08);ping(220,.12,.07)},
   edited(){ping(523,.07);ping(659,.09,.06)}
  };
- const oldToast=window.toast;
- if(typeof oldToast==="function")window.toast=function(s){oldToast(s);if(/saved|logged|added|synced|restocked|running low/i.test(s))window.lucaSound.saved();else if(/deleted|removed/i.test(s))window.lucaSound.deleted();else if(/updated|changes/i.test(s))window.lucaSound.edited()};
+
 })();
 
 /* P36 — edit mode is single-choice, truthful, and visually obvious */

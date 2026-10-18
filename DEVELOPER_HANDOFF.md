@@ -4,7 +4,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P132** (2026-10-18); previous baseline main P130. See the current release note below; older Pxx notes are historical.
+**Current release:** **P133 candidate** (2026-10-18); live baseline P132. See the current release note below; older Pxx notes are historical.
 
 ## Product intent
 
@@ -179,3 +179,13 @@ At the end of every meaningful development session, update this README with:
 - Final handoff commit changes README/this document only; tested application code is unchanged. Release PR: https://github.com/dadofluca/Lucas-Growth-Guide/pull/82. Inspect that PR for the final merge SHA and its Pages deployment.
 - Production: https://dadofluca.github.io/Lucas-Growth-Guide/ with visible P132. Source publication and actual phone-loaded code must be distinguished; do not instruct users to clear storage to get an update, because unsynced logs may be present.
 - Remaining external validation: the user's actual signed-in iPhone and a second family device. Synthetic Chromium checks do not prove real device-to-device delivery, and Muse ingestion remains a separate task.
+
+
+## P133 original Armory and interaction polish — candidate
+- P132 PR #82 is merged; an HTTP read of the public app confirmed the visible P132 marker and matching P132 script URLs.
+- Recovered the exact original 42-character “Luca’s Playful Avatar Armory” image. Its unchanged PNG is `agents/assets/avatar-armory-original.png`; `agents/avatar-art.js` frames each portrait from the shared image without generating replacements. All original preset keys remain valid. Classic SVGs and the three extra non-poster presets remain available as fallbacks.
+- Profile picker: searchable categories, selected-character preview, explicit unsaved/saved state, reachable sticky Save profile action. Chat and family rows use the same portrait factory. No database migration or family records are part of this change.
+- `agents/ui-polish.css`: short tab/picker/toast transitions, selection badges, focus states, reduced-motion behavior. Canonical toast cancels its prior hide timer so older notifications cannot hide a fresh save.
+- `agents/personality.js`: local device preference for After dark / Gentle / Off. Jokes appear only under confirmed local care-save text; sync and error messages keep their precise status. Removed the old toast audio wrapper, and legacy sound pings respect Quiet Mode.
+- Version source, shell URLs/cache and loaded-version browser expectation advance to P133 together. Avatar PNG is lazy-loaded and cached by the normal asset handler after use; it does not block initial shell installation.
+- Validation: existing 166 code checks passed before adding targeted artwork/personality checks. Synthetic browser tests added for avatar save/reload/chat, preferences and muted audio. CI results and publication must be recorded after completion. Actual signed-in iPhone and two-device delivery remain unverified.
