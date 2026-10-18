@@ -405,7 +405,7 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await expect(page.locator('#history button[data-history-delete]')).toBeVisible();
  await page.locator('#history button[data-history-edit]').click();
  await expect(page.locator("#todayView")).toHaveClass(/active/);
- await expect(page.locator("#composerTitle")).toContainText("Editing saved entry");
+ await expect(page.locator("#composerTitle")).toHaveText("Editing entry");
  await expect(page.locator("#notes")).toHaveValue("QA morning bottle");
  await page.locator('nav [data-tab="history"]').click();
  const historyDay=page.locator('#history details').first();
