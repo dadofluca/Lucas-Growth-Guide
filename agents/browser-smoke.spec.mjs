@@ -483,3 +483,14 @@ test("P119: top Poop button opens detailed size and wetness confirmation",async(
  await expect(page.locator("#poopDetails")).toBeVisible();
  await expect(page.locator("#saveEntry")).toHaveText("Confirm entry");
 });
+
+test("P123: capture Today and History at compact and standard phone widths",async({page},testInfo)=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ for(const width of [320,390]){
+  await page.setViewportSize({width,height:780});
+  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+  await page.screenshot({path:testInfo.outputPath("today-"+width+".png"),fullPage:true});
+  await page.locator('nav button[data-tab="history"]').click();
+  await page.screenshot({path:testInfo.outputPath("history-"+width+".png"),fullPage:true});
+ }
+});
