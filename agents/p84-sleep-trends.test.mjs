@@ -6,7 +6,7 @@ test("P84 Insights includes 7 and 30 day sleep trend summaries",()=>{
  for(const id of ["sleepTrends","sleep7","sleep30","sleepAwakeMinutes"])assert.ok(html.includes('id="'+id+'"'),id);
  assert.match(html,/function sleepStats\(entries,days=7,now=new Date\(\)\)/);
  assert.match(html,/function renderSleepTrends\(\)/);
- assert.match(html,/renderSleepCheckin\(\);renderSleepTrends\(\)/);
+ assert.match(html,/try\{renderSleepCheckin\(\)\}catch\(err\)/);assert.match(html,/try\{renderSleepTrends\(\)\}catch\(err\)/);
 });
 test("P84 sleep reporting does not count unknown sleep or wakeups as zero",()=>{
  assert.match(html,/night:null,wakes:null,awake:null/); 
