@@ -391,3 +391,24 @@ test("P99 History day opens and shows individual event details",async({page})=>{
  await expect(d).toContainText("Maddie");
  await expect(d).toContainText("Big diaper");
 });
+
+
+test("P100 History event Edit opens populated composer and Delete has a confirmation",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.evaluate(()=>{a=[{id:"qa-history-edit",at:"2026-10-17T09:00:00",oz:8,tags:[],people:["Sam"],notes:"QA morning bottle",remote:false}];renderHistory()});
+ await page.locator('nav [data-tab="history"]').click();
+ await page.locator('#history details summary').first().click();
+ await expect(page.locator('#history button[data-history-edit]')).toBeVisible();
+ await expect(page.locator('#history button[data-history-delete]')).toBeVisible();
+ await page.locator('#history button[data-history-edit]').click();
+ await expect(page.locator("#todayView")).toHaveClass(/active/);
+ await expect(page.locator("#composerTitle")).toHaveText("Edit entry");
+ await expect(page.locator("#notes")).toHaveValue("QA morning bottle");
+ await page.locator('nav [data-tab="history"]').click();
+ await page.locator('#history details summary').first().click();
+ page.once("dialog",dialog=>dialog.dismiss());
+ await page.locator('#history button[data-history-delete]').click();
+ await expect(page.locator('#history button[data-history-edit]')).toHaveCount(1);
+});
