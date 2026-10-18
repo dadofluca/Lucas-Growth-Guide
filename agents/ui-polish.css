@@ -294,6 +294,7 @@ body#lucaApp .starterCardTeaser{width:100%;margin:1px 0 13px;padding:11px 14px!i
 .smartMealNote,.entry>.note{white-space:pre-wrap;overflow-wrap:anywhere}
 .smartMealNote{font-size:13px;line-height:1.5;margin:10px 0;color:var(--ink,#29443c)}
 #smartChoiceStatus{margin:12px 0 4px;line-height:1.5}
+body#lucaApp .familySyncLink{display:block;margin:8px 0 12px;padding:9px 13px;min-height:44px;font-size:12px;border-radius:14px}
 body#lucaApp .pickerTitle{font-size:15px;letter-spacing:-.025em;background:transparent!important;border-color:transparent!important;padding:0!important;min-height:36px;text-align:left}
 @keyframes cardGlint{from{translate:-100% 0;opacity:0}30%{opacity:.8}to{translate:100% 0;opacity:0}}
 @media(prefers-reduced-motion:reduce){.masteryCard:after{animation:none!important}}

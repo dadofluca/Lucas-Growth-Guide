@@ -19,6 +19,8 @@
         <option value="Nona">Nona</option>
         <option value="Boppa">Boppa</option>
         <option value="Jay">Jay</option>
+        <option value="Yolanda">Yolanda</option>
+        <option value="Lindsay">Lindsay</option>
         <option value="Other">Other</option>
       </select>
     </div>
@@ -38,7 +40,10 @@
   select.addEventListener("change",()=>{otherWrap.style.display=select.value==="Other"?"block":"none"});
 
   const saved=localStorage.getItem("luca-caregiver");
-  if(saved && ["Sam","Maddie","Nona","Boppa","Jay"].includes(saved)) select.value=saved;
+  if(saved){
+    if([...select.options].some(option=>option.value===saved))select.value=saved;
+    else{select.value="Other";document.getElementById("otherCaregiver").value=saved;otherWrap.style.display="block";}
+  }
 
   document.getElementById("deviceJoin").addEventListener("click",async()=>{
     if(!sb) return toast("Family Sync unavailable");
@@ -60,10 +65,12 @@
 
       localStorage.setItem("luca-caregiver",caregiver);
       document.getElementById("authStatus").textContent="Connected as "+caregiver+" ✓";
-      await setupSync();
+      const connected=await setupSync();
+      if(!connected){document.getElementById("authStatus").textContent="Sign-in completed. Tap Family sync to retry loading the family timeline.";return;}
       toast("Family Sync connected ✓");
     }catch(err){
       console.error("P32 device join",err);
+      document.getElementById("authStatus").textContent="Couldn't connect. Check the family code and your connection, then try again.";
       toast("Couldn't connect — check the family code");
     }finally{
       btn.disabled=false; btn.textContent="Connect this phone";
