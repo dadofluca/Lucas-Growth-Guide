@@ -651,7 +651,7 @@ $("#joinFamily").onclick=async()=>{let code=$("#joinCode").value.trim();if(!code
 $("#signOut").onclick=async()=>{await sb.auth.signOut();syncUser=null;syncBaby=null;showSync("login","Signed out.");};
 /* P22: sync isolated from app startup while auth hang is debugged */
 let pullY=null,pullBusy=false;window.addEventListener("touchstart",e=>{if(window.scrollY<=0)pullY=e.touches[0].clientY},{passive:true});window.addEventListener("touchmove",e=>{if(pullY==null||pullBusy)return;let d=e.touches[0].clientY-pullY;if(d>35){$("#pullRefresh").classList.add("on");$("#pullRefresh").textContent=d>80?"↻ Release to refresh":"↓ Pull to refresh"}},{passive:true});window.addEventListener("touchend",async e=>{if(pullY==null)return;let shown=$("#pullRefresh").classList.contains("on");pullY=null;if(!shown)return;pullBusy=true;$("#pullRefresh").textContent="↻ Refreshing…";try{if(syncBaby)await pullShared();if(syncFamily)await pullSupplies();await setupSync();$("#pullRefresh").textContent="✓ Up to date";setTimeout(()=>$("#pullRefresh").classList.remove("on"),650)}catch(x){$("#pullRefresh").textContent="Couldn't refresh";setTimeout(()=>$("#pullRefresh").classList.remove("on"),900)}finally{pullBusy=false}}, {passive:true});
-$("#dismissSync").onclick=()=>{$("#authGate").style.display="none"};$("#careHead").onclick=()=>$("#careDock").classList.toggle("open");document.addEventListener("pointerdown",e=>{let d=$("#careDock");if(d?.classList.contains("open")&&!d.contains(e.target))d.classList.remove("open")});document.querySelectorAll(".careItem").forEach(x=>x.onclick=()=>{if(!$("#careDock").classList.contains("open"))$("#careDock").classList.add("open")});$("#carePoop").onclick=e=>{e.stopPropagation();if(!$("#careDock").classList.contains("open")){$("#careDock").classList.add("open");return}playPoopFun()};function openMenu(){let f=a.filter(e=>e.oz).sort((x,y)=>new Date(y.at)-new Date(x.at))[0];$("#menuLastFeed").textContent=f?f.oz+" oz · "+new Date(f.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):"Nothing yet";$("#menuLastFeedWhy").textContent=f?"Logged "+new Date(f.at).toLocaleDateString([],{month:"short",day:"numeric"}):"Log Luca's next bottle and it will appear here.";$("#sideMenu").classList.add("open");$("#navMore")?.setAttribute("aria-expanded","true")}function closeMenu(){$("#sideMenu").classList.remove("open");$("#navMore")?.setAttribute("aria-expanded","false")}$("#sideShade").onclick=closeMenu;$("#closeMenu").onclick=closeMenu;$("#menuRecents").onclick=()=>{closeMenu();openDrawer()};$("#menuInsights").onclick=()=>{closeMenu();document.querySelector('[data-tab="insights"]').click()};$("#menuSchedule").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#scheduleView").classList.add("active");(window.pullSchedule||pullSchedule)()};$("#menuLeaderboard").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#leaderboardView").classList.add("active");renderLeaderboard()};$("#lbWeek").onclick=()=>{lbRange="week";renderLeaderboard()};$("#lbAll").onclick=()=>{lbRange="all";renderLeaderboard()};$("#menuSupplies").onclick=()=>{closeMenu();document.querySelector('[data-tab="supplies"]').click()};$("#menuIdeas").onclick=()=>{closeMenu();document.querySelector('[data-tab="ideas"]').click()};$("#menuFamily").onclick=()=>{closeMenu();document.querySelector('[data-tab="profile"]').click()};$("#menuHistory").onclick=()=>{closeMenu();document.querySelector('[data-tab="history"]').click()};$("#navMore").onclick=()=>{$("#sideMenu").classList.contains("open")?closeMenu():openMenu()};function openDrawer(){closeMenu();$("#timelineDrawer").classList.add("open");window.dispatchEvent(new Event("luca:chat-peek"))}
+$("#dismissSync").onclick=()=>{$("#authGate").style.display="none"};$("#careHead").onclick=()=>$("#careDock").classList.toggle("open");document.addEventListener("pointerdown",e=>{let d=$("#careDock");if(d?.classList.contains("open")&&!d.contains(e.target))d.classList.remove("open")});document.querySelectorAll(".careItem").forEach(x=>x.onclick=()=>{if(!$("#careDock").classList.contains("open"))$("#careDock").classList.add("open")});$("#carePoop").onclick=e=>{e.stopPropagation();if(!$("#careDock").classList.contains("open")){$("#careDock").classList.add("open");return}playPoopFun()};function openMenu(){let f=a.filter(e=>e.oz).sort((x,y)=>new Date(y.at)-new Date(x.at))[0];$("#menuLastFeed").textContent=f?f.oz+" oz · "+new Date(f.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):"Nothing yet";$("#menuLastFeedWhy").textContent=f?"Logged "+new Date(f.at).toLocaleDateString([],{month:"short",day:"numeric"}):"Log Luca's next bottle and it will appear here.";$("#sideMenu").classList.add("open");$("#navMore")?.setAttribute("aria-expanded","true")}function closeMenu(){$("#sideMenu").classList.remove("open");$("#navMore")?.setAttribute("aria-expanded","false")}$("#sideShade").onclick=closeMenu;$("#closeMenu").onclick=closeMenu;$("#menuRecents").onclick=()=>{closeMenu();document.querySelector('[data-tab="history"]').click()};$("#menuInsights").onclick=()=>{closeMenu();document.querySelector('[data-tab="insights"]').click()};$("#menuSchedule").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#scheduleView").classList.add("active");(window.pullSchedule||pullSchedule)()};$("#menuLeaderboard").onclick=()=>{closeMenu();document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#leaderboardView").classList.add("active");renderLeaderboard()};$("#lbWeek").onclick=()=>{lbRange="week";renderLeaderboard()};$("#lbAll").onclick=()=>{lbRange="all";renderLeaderboard()};$("#menuSupplies").onclick=()=>{closeMenu();document.querySelector('[data-tab="supplies"]').click()};$("#menuIdeas").onclick=()=>{closeMenu();document.querySelector('[data-tab="ideas"]').click()};$("#menuFamily").onclick=()=>{closeMenu();document.querySelector('[data-tab="profile"]').click()};$("#menuHistory").onclick=()=>{closeMenu();document.querySelector('[data-tab="history"]').click()};$("#navMore").onclick=()=>{$("#sideMenu").classList.contains("open")?closeMenu():openMenu()};function openDrawer(){closeMenu();$("#timelineDrawer").classList.add("open");window.dispatchEvent(new Event("luca:chat-peek"))}
 function closeDrawer(){$("#timelineDrawer").classList.remove("open")}
 $("#drawerShade").onclick=closeDrawer;$("#closeDrawer").onclick=closeDrawer;
 $("#chatPeekTab").onclick=openDrawer;
@@ -695,6 +695,46 @@ chatTab?.addEventListener("click",()=>{
  if(!chatStarted&&(!syncFamily||!syncUser)){document.querySelector("#familyChatStatus").textContent="Finish Family Sync sign-in, then reopen Chat.";return;}
  if(!chatStarted){chatStarted=true;chatSession=session;chatDispose=mountFamilyChat({getClient:()=>sb,getFamilyId:()=>syncFamily,getUser:()=>syncUser,feed:document.querySelector("#familyChatFeed"),input:document.querySelector("#familyChatText"),send:document.querySelector("#familyChatSend"),status:document.querySelector("#familyChatStatus")});}
 });
+</script><script type="module">
+/* P86: read-only chat peek; unread cursor is device-local metadata, never message content. */
+let peekFamilyKey=null,peekBusy=false;
+const peekFeed=document.querySelector("#drawerChatPreview"),peekBadge=document.querySelector("#chatUnreadBadge");
+const peekButton=document.querySelector("#chatPeekTab");
+const peekSession=()=>({client:typeof sb!=="undefined"?sb:null,family:typeof syncFamily!=="undefined"?(typeof syncFamily==="object"?syncFamily?.id:syncFamily):null,user:typeof syncUser!=="undefined"?syncUser?.id:null});
+const seenKey=(f,u)=>"luca-chat-seen:"+f+":"+u;
+async function updateChatPeek(markSeen=false){
+ if(peekBusy)return;
+ const {client,family,user}=peekSession();
+ if(!client||!family||!user){peekFeed.textContent="Sign in to Family Sync to see messages.";peekBadge.hidden=true;return}
+ const key=seenKey(family,user);peekFamilyKey=key;peekBusy=true;
+ try{
+  const {data,error}=await client.from("family_chat_messages").select("id,sender_id,body,created_at").eq("family_id",family).order("created_at",{ascending:false}).limit(8);
+  if(error)throw error;
+  const current=peekSession();if(current.family!==family||current.user!==user)return;
+  const rows=data||[],lastSeen=localStorage.getItem(key)||"";
+  const unread=rows.filter(m=>m.sender_id!==user&&m.created_at>lastSeen).length;
+  peekBadge.hidden=!unread;peekBadge.textContent=unread>=8?"8+":String(unread);
+  peekButton.setAttribute("aria-label",unread?unread+" new family chat messages":"Peek at family chat");
+  peekFeed.replaceChildren();
+  if(!rows.length)peekFeed.textContent="No messages yet. Say hello in Family Chat.";
+  else{
+   for(const m of rows){
+    const card=document.createElement("div");card.className="chatPeekMessage";
+    const heading=document.createElement("strong");heading.textContent=m.sender_id===user?"You":"Family member";
+    const body=document.createElement("p");body.textContent=m.body;
+    const time=document.createElement("small");time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+    card.append(heading,body,time);peekFeed.append(card);
+   }
+  }
+  if(markSeen&&rows[0]?.created_at){localStorage.setItem(key,rows[0].created_at);peekBadge.hidden=true;peekBadge.textContent="";}
+ }catch{peekFeed.textContent="Couldn't load chat preview. Open Family Chat to retry.";peekBadge.hidden=true}
+ finally{peekBusy=false}
+}
+window.addEventListener("luca:chat-peek",()=>updateChatPeek(true));
+document.querySelector('nav button[data-tab="chat"]')?.addEventListener("click",()=>updateChatPeek(true));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateChatPeek(false)});
+setInterval(()=>{if(!document.hidden)updateChatPeek(false)},30000);
+updateChatPeek(false);
 </script><style>
 nav{overflow-x:auto;justify-content:space-around}nav button{min-width:62px}
 </style><style>
