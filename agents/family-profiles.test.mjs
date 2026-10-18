@@ -96,3 +96,11 @@ test("Feedback review approval is author controlled and revocable",()=>{
  assert.match(sql,/author_id=\(select auth.uid\(\)\)/);
  assert.match(ui,/data-agent-review/);assert.match(ui,/agent_review_approved:approved/);
 });
+
+test("P73 offers explicit recorded fart preview for iPhone sound checks",()=>{
+ assert.match(html,/id="profilePoopClip"/);
+ assert.match(html,/id="profilePoopTest"/);
+ assert.match(html,/poopTest\?\.addEventListener\("click"/);
+ assert.match(html,/await audio\.play\(\)/);
+ assert.match(html,/Sound blocked\. Check silent mode/);
+});
