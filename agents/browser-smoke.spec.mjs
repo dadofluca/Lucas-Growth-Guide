@@ -156,7 +156,8 @@ test("phone layout keeps family forms full width and care dock out of the way",a
   await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   for(const tab of ["chat","profile"]){
-   await page.locator('nav button[data-tab="'+tab+'"]').click();
+   if(tab==="profile"){await page.locator("#navMore").click();await page.locator("#menuFamily").click();}
+    else await page.locator('nav button[data-tab="'+tab+'"]').click();
    await expect(page.locator("#careDock")).toBeHidden();
    const selector=tab==="chat"?"#familyChatText":"#profileName";
    const field=page.locator(selector);
