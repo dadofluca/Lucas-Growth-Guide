@@ -10,7 +10,7 @@ test("missing or blocked Web Audio cannot prevent care logging",()=>{
  assert.match(html,/if\(!Ctx\)return null/);
  assert.match(html,/function safeAudio\(fn\)/);
  assert.match(html,/safeAudio\(fart\)/);
- assert.match(html,/safeAudio\(swoosh\)/);
+ assert.match(html,/safeAudio\(bottleLogSound\)/);
 });
 test("intro jingle no longer starts on arbitrary first touch",()=>{
  assert.doesNotMatch(html,/document\.addEventListener\("pointerdown",function unlock/);
