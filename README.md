@@ -1,3 +1,9 @@
+## P89 release milestone — 2026-10-17
+- PR #35 squash-merged into main at `1ed07729d125bfb381911ae41416d5b671e83c9d` after green agent prototype and Chromium browser smoke checks.
+- Restored high-contrast left menu and compact five-button mobile navigation, plus enlarged-text / Display Zoom-like viewport regression coverage and reduced-motion handling.
+- Added `.github/workflows/scheduled-ui-audit.yml`: daily UTC 11:17 scheduled synthetic Chromium browser audit with failure artifacts; workflow execution after merge is not yet verified. This does **not** constitute production Safari/device monitoring or automatic fixes.
+- Next: Family Chat delayed-session synthetic checks, multiple phone-size matrix, version indicator consistency, and screenshot comparisons. No real family records changed.
+
 # Luca's Growth Guide
 
 Mobile-first family baby-care tracking application.
