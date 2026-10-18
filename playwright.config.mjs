@@ -1,7 +1,7 @@
 import {defineConfig} from "@playwright/test";
 export default defineConfig({
  testDir:"./agents",
- testMatch:"browser-smoke.spec.mjs",
+ testMatch:["browser-smoke.spec.mjs","spark-ui.spec.mjs"],
  timeout:30000,
  retries:1,
  use:{browserName:"chromium",headless:true,serviceWorkers:"block"},
