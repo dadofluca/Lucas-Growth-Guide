@@ -340,3 +340,16 @@ test("P96 bottom navigation highlights History and de-emphasizes Today",async({p
  const styles=await page.evaluate(()=>({history:getComputedStyle(document.querySelector('nav [data-tab="history"]')).backgroundColor,today:getComputedStyle(document.querySelector('nav [data-tab="today"]')).backgroundColor}));
  expect(styles.history).not.toBe(styles.today);
 });
+
+
+test("P97 bottom navigation has the same surface on Today and History",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ const style=()=>page.locator("nav").evaluate(el=>{const s=getComputedStyle(el);return {background:s.backgroundColor,bottom:s.bottom,width:s.width,radius:s.borderTopLeftRadius}});
+ await page.locator('nav [data-tab="today"]').click();const today=await style();
+ await page.locator('nav [data-tab="history"]').click();const history=await style();
+ expect(history).toEqual(today);
+ await expect(page.locator('nav [data-tab="history"]')).toHaveClass(/active/);
+ await expect(page.locator('nav [data-tab="today"]')).not.toHaveClass(/active/);
+});
