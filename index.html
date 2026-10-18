@@ -427,7 +427,7 @@ function safeAudio(fn){try{if(lucaSoundEnabled())fn()}catch(e){console.warn("Opt
  test.addEventListener("click",()=>{if(!lucaSoundEnabled()){status.textContent="Turn sounds on to test.";return;}safeAudio(()=>tone(659,.15,.06));status.textContent="Test played (if your device allows audio).";});
 });
 function tone(f,d,v=.045,type="sine",delay=0){let x=ac();if(!x)return;let o=x.createOscillator(),g=x.createGain(),t=x.currentTime+delay;o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+d)}function swoosh(){let x=ac();if(!x)return;let o=x.createOscillator(),g=x.createGain(),t=x.currentTime;o.type="sine";o.frequency.setValueAtTime(320,t);o.frequency.exponentialRampToValueAtTime(900,t+.22);g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(x.destination);o.start(t);o.stop(t+.3)}/* Recorded-only poop SFX: add licensed clips to /sounds/poop/. No synthetic fallback. */
-const realPoopSounds=["https://raw.githubusercontent.com/jonjonsson/SoundMonster/main/Public%20domain/fart%20short.mp3","https://raw.githubusercontent.com/jonjonsson/SoundMonster/main/Public%20domain/fart%20wet.mp3","https://raw.githubusercontent.com/jonjonsson/SoundMonster/main/Public%20domain/fart%20powerful.mp3","https://raw.githubusercontent.com/jonjonsson/SoundMonster/main/Public%20domain/fart%20long.mp3"];
+const realPoopSounds=["sounds/poop/short-01.mp3","sounds/poop/wet-01.mp3","sounds/poop/nasty-01.mp3","sounds/poop/long-01.mp3"];
 let lastPoopSound=-1;
 const poopAudioPool=realPoopSounds.map(src=>{const audio=new Audio();audio.preload="auto";audio.src=src;audio.load();return audio});
 function fart(){
