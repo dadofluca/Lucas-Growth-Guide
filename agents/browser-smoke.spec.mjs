@@ -455,3 +455,17 @@ test("P112: Today entry does not reserve 70vh",async({page})=>{
  expect(m.minHeight).toBe("0px");
  expect(m.buttons).toBeGreaterThan(0);
 });
+
+test("P118: top Quick Bottle and Quick Poop are both real buttons",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await expect(page.locator("#topQuickBottle")).toBeVisible();
+ await expect(page.locator("#topQuickPoop")).toBeVisible();
+ const dimensions=await page.locator("#topQuickPoop").boundingBox();
+ expect(dimensions.width).toBeGreaterThanOrEqual(44);
+ expect(dimensions.height).toBeGreaterThanOrEqual(44);
+ await page.locator("#topQuickPoop").click();
+ await expect(page.locator("#inlineClarify")).toHaveClass(/show/);
+ await expect(page.locator("#inlineItems")).not.toBeEmpty();
+});
