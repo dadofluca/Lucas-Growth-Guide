@@ -31,6 +31,7 @@ jobs:
         with:
           name: safe-agent-evidence
           path: |
+            artifacts/spark-design-audit.json
             artifacts/synthetic-agent-qa.json
             artifacts/release-readiness.json
           if-no-files-found: warn
