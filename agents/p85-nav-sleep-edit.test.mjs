@@ -13,7 +13,7 @@ test("P85 same-minute bedtimes are de-duplicated visually, without deleting fami
  assert.match(html,/function visibleCareEvents\(events\)/);
  assert.match(html,/visibleCareEvents\(a\.filter/);
  assert.match(html,/if\(existing\)\{toast\("Bedtime already logged/);
- assert.doesNotMatch(html,/function visibleCareEvents[\s\S]*?function persist\(\)/);
+ assert.match(html,/if\(detail\(e\)>detail\(prev\)\)/);
 });
 test("P85 double-click save is guarded and edits retain original identity",()=>{
  assert.match(html,/let entrySaveBusy=false/);
