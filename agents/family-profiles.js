@@ -1,4 +1,4 @@
-const presets={bear:"🧸",fox:"🦊",bunny:"🐰",duck:"🐥",owl:"🦉"};
+const presets={bear:"🧸",fox:"🦊",bunny:"🐰",duck:"🐥",owl:"🦉",lion:"🦁",panda:"🐼",koala:"🐨",penguin:"🐧",dino:"🦕",robot:"🤖",astronaut:"👨‍🚀",sun:"☀️",star:"⭐"};
 function lastSeen(iso){
  if(!iso)return "Activity not available";
  const minutes=Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/60000));
