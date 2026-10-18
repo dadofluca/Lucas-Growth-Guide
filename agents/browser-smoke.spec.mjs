@@ -413,3 +413,19 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await page.locator('#history button[data-history-delete]').click();
  await expect(page.locator('#history button[data-history-edit]')).toHaveCount(1);
 });
+
+test("P107: compact title stays in document flow and clears Today controls on narrow phones",async({page})=>{
+ await page.setViewportSize({width:320,height:680});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const title=page.locator(".persistentTitle");
+ await expect(title).toBeVisible();
+ const layout=await page.evaluate(()=>{
+  const t=document.querySelector(".persistentTitle"),h=document.querySelector("#todayView .top");
+  const a=t.getBoundingClientRect(),b=h.getBoundingClientRect(),s=getComputedStyle(t);
+  return {position:s.position,top:a.top,bottom:a.bottom,nextTop:b.top,width:a.width,viewport:innerWidth};
+ });
+ expect(layout.position).toBe("relative");
+ expect(layout.bottom).toBeLessThanOrEqual(layout.nextTop+1);
+ expect(layout.width).toBeLessThanOrEqual(layout.viewport);
+});
