@@ -142,5 +142,9 @@ P133 is merged through PR #83 and the public app serves P133. It restores the ex
 All 168 code checks and 45 Chromium browser checks passed; final phone screenshots were reviewed. Public asset bytes match the tested source. Actual signed-in iPhone/PWA and two-family-device delivery remain external checks. See DEVELOPER_HANDOFF.md for exact commits, CI evidence and next steps. No real family data or database schema changed in this release.
 
 
-## 2026-10-18 P134 candidate — refined UI and sleep intervals
-A shared soft-sage control style replaces heavy navy buttons, including Quick menu, Chat peek and Family Ideas. Sleep opens a start/end editor for naps or overnight sleep, with optional wake-ups/awake minutes. Existing care persistence stores the structured details and supports editing/Undo. Insights summarizes logged sleep over 24 hours and 7/30 days without treating missing data as zero; overlapping records cannot inflate recorded time. All 175 local code checks pass; browser/visual QA and publication are pending. See DEVELOPER_HANDOFF.md for the current release gate.
+## 2026-10-18 P134 — live and verified
+P134 is merged through PR #84 and verified on the public app. Soft-sage controls replace heavy navy actions in Quick menu, Chat peek and Family Ideas. Cards, forms and navigation share a lighter refined style; the Ideas form stays clear of floating utilities.
+
+Sleep opens an explicit start/end editor for naps or overnight sleep, with optional wake-ups/awake minutes. Today/History editing and Undo preserve the event identity through the existing care queue. Insights shows logged time over 24 hours, nap counts, longest periods and 7/30-day patterns. Missing times remain unknown, and overlapping records cannot inflate totals. Original detailed avatars and optional personality/audio remain intact.
+
+All 175 code checks and 48 Chromium browser checks passed. Settled 320/390 phone screenshots were reviewed, and public page/script/style bytes match the tested source. Actual signed-in iPhone/PWA and family-device delivery remain external checks. No real family data, database schema or authorization policies changed. See DEVELOPER_HANDOFF.md for exact commits and CI evidence.
