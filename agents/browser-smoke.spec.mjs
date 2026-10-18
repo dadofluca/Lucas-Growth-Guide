@@ -330,6 +330,27 @@ test("P91 chat history renders even when profile lookup stalls",async({page})=>{
 });
 
 
+test("P95 history always displays an explicit result, never a blank panel",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.locator('nav [data-tab="history"]').click();
+ await expect(page.locator("#historyView")).toHaveClass(/active/);
+ await expect(page.locator("#history")).not.toBeEmpty();
+ await expect(page.locator("#history")).toContainText(/No history yet|entries|Loading history/);
+});
+
+
+test("P95 family authentication does not falsely claim timeline synchronization",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const source=await page.locator("script").allTextContents();
+ const app=source.join("\n");
+ expect(app).toContain('timelineLoaded=await pullShared()');
+ expect(app).toContain('timelineLoaded?"☁️ Timeline synced":"⚠️ Timeline sync failed — local records retained"');
+ expect(app).toContain('render();return false}let remoteRows=');
+});
+
 test("P96 bottom navigation highlights History and de-emphasizes Today",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
