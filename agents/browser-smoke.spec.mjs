@@ -566,7 +566,7 @@ async function syntheticCareBackend(page){
   }
   const channel={on(){return channel},subscribe(){return channel}};
   window.syntheticClient={auth:{getUser:async()=>({data:{user:{id:'qa-user',email:'synthetic@example.invalid'}}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},rpc:async()=>({data:[{baby_id:'qa-baby',family_id:'qa-family'}]}),from:query,channel:()=>channel,removeChannel:async()=>{}};
-  localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
+  if(!localStorage.getItem('luca-caregiver'))localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
  });
 }
 
