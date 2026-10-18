@@ -58,3 +58,13 @@ test("app HTML and compatibility runtime agree on release badge",()=>{
  assert.ok(runtimeBadge,"runtime must declare its version");
  assert.equal(htmlBadge[1],runtimeBadge[1],"runtime patch must not override HTML with an older version");
 });
+
+test("Spark design agent is read-only and included in scheduled evidence",()=>{
+ const spark=readFileSync(new URL("./spark-audit.mjs",import.meta.url),"utf8");
+ const workflow=readFileSync(new URL("../.github/workflows/safe-agent-schedule.yml",import.meta.url),"utf8");
+ assert.match(spark,/agent:"Spark"/);
+ assert.match(spark,/autoDeploy:false/);
+ assert.match(spark,/requiresHumanReview:true/);
+ assert.match(workflow,/node agents\/spark-audit\.mjs/);
+ assert.match(workflow,/artifacts\/spark-design-audit\.json/);
+});
