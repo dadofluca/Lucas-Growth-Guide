@@ -21,6 +21,8 @@ jobs:
         run: node --test agents/*.test.mjs
       - name: Exercise synthetic Watchdog and Builder handoff
         run: node agents/synthetic-handoff.mjs
+      - name: Run Spark design audit without production access
+        run: node agents/spark-audit.mjs
       - name: Evaluate release readiness without production access
         run: node agents/release-readiness.mjs
       - name: Upload reviewable evidence
