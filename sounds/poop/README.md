@@ -1,17 +1,10 @@
-# Recorded poop sounds (pending asset import)
+# Recorded fart sound sources
 
-The app uses **recorded audio only**, not synthesized fart tones. The following files must be supplied before release:
+P71 uses four real MP3 recordings hosted in the public SoundMonster repository, rather than synthesizing oscillator sounds. Source: https://github.com/jonjonsson/SoundMonster (Public domain folder). Its README lists each of the four sounds under CC0.
 
-- `short-01.mp3` — short dry recording
-- `wet-01.mp3` — short wet recording
-- `nasty-01.mp3` — longer/multi-part recording
-- `wet-02.mp3` — alternate wet recording
+- fart short.mp3 — short
+- fart wet.mp3 — wet
+- fart powerful.mp3 — powerful
+- fart long.mp3 — long
 
-Verified CC0 source candidates (download and convert to optimized MP3, then listen and choose suitable clips):
-
-- Breviceps, Fart 1: https://freesound.org/people/Breviceps/sounds/445998/
-- Breviceps, Fart 2: https://freesound.org/people/Breviceps/sounds/445999/
-- rockittt, Wet fart collection: https://freesound.org/people/rockittt/sounds/690450/
-- DSISStudios public-domain fart pack: https://freesound.org/people/DSISStudios/packs/14789/
-
-These source pages state CC0/public-domain permissions. The actual binary recordings have **not** been imported yet; do not deploy this branch before files are in place and iPhone playback is tested. Audio remains subject to the existing user sound toggle and iOS autoplay restrictions.
+The files are loaded directly from raw.githubusercontent.com. This avoids shipping missing local audio assets, but **requires network access**. The source file paths were confirmed through GitHub; actual iPhone playback and sound quality still need device validation. For production reliability, a later release should vendor the licensed binaries into the app. No synthetic fallback is used. The user sound toggle remains effective.
