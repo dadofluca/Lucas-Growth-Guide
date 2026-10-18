@@ -443,3 +443,15 @@ test("P110: navigation stays compact, light and tappable on small phones",async(
  expect(nav.buttonWidth).toBeGreaterThanOrEqual(44);
  expect(nav.background).not.toBe("rgb(23, 35, 44)");
 });
+
+test("P112: Today entry does not reserve 70vh",async({page})=>{
+ await page.setViewportSize({width:390,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const m=await page.evaluate(()=>{
+  const el=document.querySelector("#todayView .quickhome");
+  return {minHeight:getComputedStyle(el).minHeight,buttons:el.querySelectorAll(".heroBtn").length};
+ });
+ expect(m.minHeight).toBe("0px");
+ expect(m.buttons).toBeGreaterThan(0);
+});
