@@ -206,6 +206,8 @@ test("P71 poop row tap opens care dock on iPhone",async({browser})=>{
   await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+  await page.locator("#careHead").tap();
+  await expect(page.locator("#careDock")).toHaveClass(/open/);
   await page.locator("#carePoop").tap();
   await expect(page.locator("#careDock")).toHaveClass(/open/);
  }finally{await context.close()}
