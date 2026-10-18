@@ -9,7 +9,9 @@ test("app loads and core tabs are reachable without a signed-in session",async({
  await page.locator('nav button[data-tab="chat"]').click();
  await expect(page.locator("#chatView")).toHaveClass(/active/);
  await expect(page.locator("#familyChatStatus")).toContainText(/sign in|family sync/i);
- await page.locator('nav button[data-tab="profile"]').click();
+ await page.locator("#navMore").click();
+ await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+ await page.locator("#menuFamily").click();
  await expect(page.locator("#profileView")).toHaveClass(/active/);
  await expect(page.locator("#profileStatus")).toContainText(/sign in|family sync/i);
  await expect(page.locator('a[href="./emergency.html"]')).toHaveCount(1);
