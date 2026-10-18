@@ -328,3 +328,14 @@ test("P91 chat history renders even when profile lookup stalls",async({page})=>{
  });
  expect(result).toContain("Synthetic QA hello");
 });
+
+
+test("P95 history always displays an explicit result, never a blank panel",async({page})=>{
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ await page.evaluate(()=>document.getElementById("bootCinematic")?.remove());
+ await page.locator('nav [data-tab="history"]').click();
+ await expect(page.locator("#historyView")).toHaveClass(/active/);
+ await expect(page.locator("#history")).not.toBeEmpty();
+ await expect(page.locator("#history")).toContainText(/No history yet|entries|Loading history/);
+});
