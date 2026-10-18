@@ -667,13 +667,13 @@ test('P133: avatar changes during a slow save remain a visible unsaved draft',as
 });
 
 test('P134: nap start/end, offline time edit, retry, reload and sleep statistics stay in sync',async({page})=>{
- await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:"reduce"});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());
  await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('[data-quick="nap"]').click();await expect(page.locator('#sleepComposer')).toBeVisible();
  const times=await page.evaluate(()=>{const local=d=>LucaSleep.dateKey(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');return {start:local(new Date(Date.now()-120*60000)),end:local(new Date(Date.now()-30*60000)),later:local(new Date(Date.now()-15*60000))};});
  await page.locator('#sleepStart').fill(times.start);await page.locator('#sleepEnd').fill(times.end);await expect(page.locator('#sleepDuration')).toHaveText('1h 30m');
- await page.screenshot({path:'test-results/p134-sleep-editor-390.png'});await page.locator('#sleepSave').click();await expect(page.locator('#sleepComposer')).toBeHidden();
+ await page.screenshot({animations:'disabled',path:'test-results/p134-sleep-editor-390.png'});await page.locator('#sleepSave').click();await expect(page.locator('#sleepComposer')).toBeHidden();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
  await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('1h 30m');
  await page.locator('nav [data-tab="history"]').click();await page.locator('#history details summary').first().click();await page.locator('[data-history-edit]').first().click();
@@ -684,11 +684,11 @@ test('P134: nap start/end, offline time edit, retry, reload and sleep statistics
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="insights"]').click();
  await expect(page.locator('#sleepTrends')).toContainText('1h 45m');
  const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].details.sleep.start_at).toBeTruthy();expect(rows[0].details.sleep.end_at).toBeTruthy();
- await page.locator('#sleepTrends').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({path:'test-results/p134-sleep-stats-390.png'});
+ await page.locator('#sleepTrends').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p134-sleep-stats-390.png'});
 });
 
 test('P134: overnight dates and awake minutes are explicit, and invalid intervals never save',async({page})=>{
- await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);
+ await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:"reduce"});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('[data-quick="nap"]').click();await page.getByRole('button',{name:'Night sleep',exact:true}).click();
  await page.locator('#sleepSave').click();await expect(page.locator('#sleepValidation')).toContainText('Choose');
@@ -697,21 +697,21 @@ test('P134: overnight dates and awake minutes are explicit, and invalid interval
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(0);
  await page.locator('#sleepStart').fill(times.start);await page.locator('#sleepEnd').fill(times.end);await page.locator('#sleepEntryWakeups').fill('3');await page.locator('#sleepEntryAwake').fill('30');
  await expect(page.locator('#sleepDuration')).toHaveText('10h');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.screenshot({path:'test-results/p134-night-editor-320.png'});await page.locator('#sleepSave').click();await page.locator('nav [data-tab="insights"]').click();
- await expect(page.locator('#sleepTrends')).toContainText('9h 30m');await expect(page.locator('#sleepTrends')).toContainText('3 / night');
+ await page.screenshot({animations:'disabled',path:'test-results/p134-night-editor-320.png'});await page.locator('#sleepSave').click();await page.locator('nav [data-tab="insights"]').click();
+ await expect(page.locator('#sleepTrends')).toContainText('9h 30m');await expect(page.locator('.sleepMetric').nth(1).locator('strong')).toHaveText('0');await expect(page.locator('#sleepTrends')).toContainText('3 / night');
  await page.locator('#sleep30').click();await expect(page.locator('#sleep30')).toHaveAttribute('aria-pressed','true');await expect(page.locator('#sleepTrends')).toContainText('9h 30m');
 });
 
 test('P134: refined actions have readable text and light surfaces across drawers and Family Ideas',async({page})=>{
- await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:"reduce"});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  async function contrast(selector){
   await expect(page.locator(selector)).toBeVisible();
   const value=await page.locator(selector).evaluate(el=>{const s=getComputedStyle(el),lum=c=>c.match(/[0-9.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);const bg=lum(s.backgroundColor),fg=lum(s.webkitTextFillColor||s.color);return {ratio:(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05),background:bg};});
   expect(value.ratio).toBeGreaterThanOrEqual(4.5);expect(value.background).toBeGreaterThan(.5);
  }
- await contrast('#quickUnderstand');await page.screenshot({path:'test-results/p134-today-390.png'});
- await page.locator('#navMore').click();await contrast('#menuFamily');await page.screenshot({path:'test-results/p134-menu-390.png'});
- await page.locator('#menuIdeas').click();await contrast('#familyIdeasRoot button[type="submit"]');await page.locator('#familyIdeasRoot').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({path:'test-results/p134-ideas-390.png'});
- await page.locator('nav [data-tab="today"]').click();await page.locator('#chatPeekTab').click();await contrast('#drawerOpenChat');await page.screenshot({path:'test-results/p134-chat-peek-390.png'});
+ await contrast('#quickUnderstand');await page.screenshot({animations:'disabled',path:'test-results/p134-today-390.png'});
+ await page.locator('#navMore').click();await contrast('#menuFamily');await page.screenshot({animations:'disabled',path:'test-results/p134-menu-390.png'});
+ await page.locator('#menuIdeas').click();await contrast('#familyIdeasRoot button[type="submit"]');await page.locator('#familyIdeasRoot').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p134-ideas-390.png'});
+ await page.locator('nav [data-tab="today"]').click();await page.locator('#chatPeekTab').click();await contrast('#drawerOpenChat');await page.screenshot({animations:'disabled',path:'test-results/p134-chat-peek-390.png'});
 });

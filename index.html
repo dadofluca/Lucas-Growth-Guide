@@ -109,9 +109,9 @@ body{background:linear-gradient(180deg,#f6efe5 0%,#fbf8f2 42%,#f2e7da 100%);colo
 #todayView .heroBtn:nth-child(5){background:#e9e4ef}
 #todayView .heroBtn:nth-child(6){background:#eee7df}
 #todayView+section{}
-body:has(#todayView.active) nav{background:#fffaf4ee;border-top:1px solid #e6d7c7}
-body:has(#todayView.active) nav button{color:#84776a!important;-webkit-text-fill-color:#84776a!important}
-body:has(#todayView.active) nav .active{color:#b86138!important;-webkit-text-fill-color:#b86138!important}
+nav{background:#fffaf4ee;border-top:1px solid #e6d7c7}
+nav button{color:#84776a!important;-webkit-text-fill-color:#84776a!important}
+nav .active{color:#b86138!important;-webkit-text-fill-color:#b86138!important}
 
 /* Autumn dusk + iOS-inspired floating glass */
 body{background:
@@ -134,9 +134,9 @@ body{background:
 #todayView .heroBtn:nth-child(3){background:#71816c20!important}
 #todayView .heroBtn:nth-child(4){background:#a87d4920!important}
 #todayView .heroBtn:nth-child(5){background:#796f8622!important}
-body:has(#todayView.active) nav{left:50%;bottom:calc(8px + env(safe-area-inset-bottom));width:min(490px,calc(100% - 24px));border:1px solid #ffffff18;border-radius:26px;padding:6px 8px;background:#252a28cc;box-shadow:0 12px 38px #0006,inset 0 1px #ffffff18;backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)}
-body:has(#todayView.active) nav button{color:#aaa49d!important;-webkit-text-fill-color:#aaa49d!important;border-radius:18px}
-body:has(#todayView.active) nav .active{color:#ffd4b6!important;-webkit-text-fill-color:#ffd4b6!important;background:#ffffff0d}
+nav{left:50%;bottom:calc(8px + env(safe-area-inset-bottom));width:min(490px,calc(100% - 24px));border:1px solid #ffffff18;border-radius:26px;padding:6px 8px;background:#252a28cc;box-shadow:0 12px 38px #0006,inset 0 1px #ffffff18;backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)}
+nav button{color:#aaa49d!important;-webkit-text-fill-color:#aaa49d!important;border-radius:18px}
+nav .active{color:#ffd4b6!important;-webkit-text-fill-color:#ffd4b6!important;background:#ffffff0d}
 
 /* Warm mid-tone theme: softer than cream, brighter than dusk */
 html{background:#d9cbbb}
@@ -162,8 +162,8 @@ body{background:
 #todayView #quickUnderstand{background:linear-gradient(180deg,#cf7e4e,#bc663b)}
 #todayView .heroBtn{color:#464842!important;-webkit-text-fill-color:#464842!important;border:1px solid #ffffff70;box-shadow:inset 0 1px #ffffff70}
 #todayView .heroBtn:nth-child(1){background:#ddc8adcc!important}#todayView .heroBtn:nth-child(2){background:#dfb9a7cc!important}#todayView .heroBtn:nth-child(3){background:#bdcbb6cc!important}#todayView .heroBtn:nth-child(4){background:#dfcf9fcc!important}#todayView .heroBtn:nth-child(5){background:#c9bfd1cc!important}#todayView .heroBtn:nth-child(6){background:#d1c8bdcc!important}
-body:has(#todayView.active) nav{background:#d9d1c5e8;border:1px solid #ffffff80;box-shadow:0 12px 34px #54433230,inset 0 1px #ffffffa0}
-body:has(#todayView.active) nav button{color:#6d6963!important;-webkit-text-fill-color:#6d6963!important}body:has(#todayView.active) nav .active{color:#9d5737!important;-webkit-text-fill-color:#9d5737!important;background:#eee3d6aa}
+nav{background:#d9d1c5e8;border:1px solid #ffffff80;box-shadow:0 12px 34px #54433230,inset 0 1px #ffffffa0}
+nav button{color:#6d6963!important;-webkit-text-fill-color:#6d6963!important}nav .active{color:#9d5737!important;-webkit-text-fill-color:#9d5737!important;background:#eee3d6aa}
 /* Timeline gets visual rhythm instead of one continuous dark list */
 #todayView>section.card:last-child{background:transparent;border:0;box-shadow:none;padding:4px;margin-top:18px}
 #todayView #timeline .entry{margin:9px 0;padding:14px;border:1px solid #ffffff72;border-radius:20px;background:#e5dacdbd;box-shadow:0 7px 18px #5f49331a}
@@ -416,11 +416,11 @@ nav .navHome{min-height:64px!important}
 
 
 /* P97: one navigation surface across every tab, including Today. */
-nav,body:has(#todayView.active) nav{background:#17232c!important;border:1px solid #34454d!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;left:50%!important;bottom:0!important;width:min(520px,100%)!important;box-shadow:0 -5px 24px #0002!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-nav button,body:has(#todayView.active) nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
-nav button.active,body:has(#todayView.active) nav button.active{background:#e5c88b!important;color:#233a35!important;-webkit-text-fill-color:#233a35!important;box-shadow:0 3px 12px #0003!important}
-nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){background:transparent!important;color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important;box-shadow:none!important}
-@media(max-width:390px){nav,body:has(#todayView.active) nav{width:100%!important}}
+nav,nav{background:#17232c!important;border:1px solid #34454d!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;left:50%!important;bottom:0!important;width:min(520px,100%)!important;box-shadow:0 -5px 24px #0002!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+nav button,nav button{color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important}
+nav button.active,nav button.active{background:#e5c88b!important;color:#233a35!important;-webkit-text-fill-color:#233a35!important;box-shadow:0 3px 12px #0003!important}
+nav .navHome:not(.active),nav .navHome:not(.active){background:transparent!important;color:#f5f0e9!important;-webkit-text-fill-color:#f5f0e9!important;box-shadow:none!important}
+@media(max-width:390px){nav,nav{width:100%!important}}
 
 /* P99: accessible expandable daily event details. */
 #history details.historyDay{border-top:1px solid #8c7c6b28;padding:0}
@@ -445,11 +445,11 @@ nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){
 .persistentTitle .titleL{width:25px!important;height:25px!important;margin-right:5px!important;border-width:2px!important;font-size:19px!important;flex-shrink:0}
 @media(max-width:390px){.persistentTitle{padding:5px 8px!important;font-size:13px!important}}
 /* P110: lighter, compact navigation; remove permanent navy slab. */
-nav,body:has(#todayView.active) nav{background:#f9f5eefa!important;border:1px solid #d8cdbd!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;box-shadow:0 -3px 16px #342d241a!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;align-items:center!important}
-nav button,body:has(#todayView.active) nav button{min-height:48px!important;padding:5px 2px!important;border-radius:12px!important;color:#52615b!important;-webkit-text-fill-color:#52615b!important;font-size:11px!important;line-height:1.15!important}
-nav button b,body:has(#todayView.active) nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
-nav button.active,body:has(#todayView.active) nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
-nav .navHome:not(.active),body:has(#todayView.active) nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
+nav,nav{background:#f9f5eefa!important;border:1px solid #d8cdbd!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;box-shadow:0 -3px 16px #342d241a!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;align-items:center!important}
+nav button,nav button{min-height:48px!important;padding:5px 2px!important;border-radius:12px!important;color:#52615b!important;-webkit-text-fill-color:#52615b!important;font-size:11px!important;line-height:1.15!important}
+nav button b,nav button b{font-size:19px!important;line-height:1!important;margin-bottom:3px!important}
+nav button.active,nav button.active{background:#e9d9b9!important;color:#294039!important;-webkit-text-fill-color:#294039!important;box-shadow:none!important}
+nav .navHome:not(.active),nav .navHome:not(.active){color:#52615b!important;-webkit-text-fill-color:#52615b!important}
 /* P112: compact Today quick entry; remove forced 70vh height. */
 #todayView .quickhome{min-height:0!important;height:auto!important;padding-bottom:12px!important}
 #todayView .heroNext{padding-bottom:8px!important}
@@ -559,7 +559,7 @@ function pullShared(){return careEvents.refresh()}
 function saveCareEvent(e){return careEvents.save(e)}
 function updateRemote(e){return saveCareEvent(e)}
 async function deleteRemote(id){const e=a.find(x=>String(x.id)===String(id));return e?careEvents.remove(e):false}
-const K="luca-log-v2";let a=JSON.parse(localStorage.getItem(K)||"null");if(!a){let old=JSON.parse(localStorage.getItem("luca-log-v1")||"[]");a=old.map(x=>({id:x.id||x.at,at:x.at,oz:x.type==="feed"?x.oz:null,tags:x.type!=="feed"?[x.type]:[],notes:""}));localStorage.setItem(K,JSON.stringify(a))}let ozPick=null,tags=new Set(),people=new Set(),editId=null;const $=s=>document.querySelector(s),day=x=>new Date(x).toDateString(),esc=s=>(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const K="luca-log-v2";let a=JSON.parse(localStorage.getItem(K)||"null");if(!a){let old=JSON.parse(localStorage.getItem("luca-log-v1")||"[]");a=old.map(x=>({id:x.id||x.at,at:x.at,oz:x.type==="feed"?x.oz:null,tags:x.type!=="feed"?[x.type]:[],notes:""}));localStorage.setItem(K,JSON.stringify(a))}let ozPick=null,tags=new Set(),people=new Set(),editId=null;const $=s=>document.querySelector(s),day=x=>new Date(x).toDateString(),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const careEvents=LucaCareSync.create({
  context:()=>({client:sb,baby:syncBaby,user:syncUser}),read:()=>a,
  write:entries=>{a=entries;persist();render()},
@@ -833,7 +833,7 @@ function renderSleepTrends(){
 $("#sleep7")?.addEventListener("click",()=>{sleepWindowDays=7;renderSleepTrends()});
 $("#sleep30")?.addEventListener("click",()=>{sleepWindowDays=30;renderSleepTrends()});
 function sleepEventLabel(e){const sleep=LucaSleep.session(e);return sleep?(sleep.kind==="night"?"🌙 Night sleep":"😴 Nap")+(sleep.complete?" · "+LucaSleep.duration(sleep.minutes):" · time unknown"):"🌙 Sleep";}
-function historyEventLabel(e){if(!e.oz&&LucaSleep.session(e))return sleepEventLabel(e);const tags=Array.isArray(e.tags)?e.tags:[];return e.oz!=null&&Number(e.oz)>0?"🍼 "+Number(e.oz)+" oz bottle":tags.length?tags.map(t=>({poop:"💩 Poop",pee:"💧 Pee",nap:"😴 Nap",solids:"🥣 Solids",medicine:"💊 Medicine",walk:"🚶 Walk",play:"🧸 Play"}[t]||t)).join(" · "):e.event_type||"Care event"}
+function historyEventLabel(e){const tags=Array.isArray(e.tags)?e.tags:[];if(!e.oz&&tags.every(t=>t==="sleep"||t==="other")&&LucaSleep.session(e))return sleepEventLabel(e);return e.oz!=null&&Number(e.oz)>0?"🍼 "+Number(e.oz)+" oz bottle":tags.length?tags.map(t=>t==="sleep"?sleepEventLabel(e):({poop:"💩 Poop",pee:"💧 Pee",nap:"😴 Nap",solids:"🥣 Solids",medicine:"💊 Medicine",walk:"🚶 Walk",play:"🧸 Play"}[t]||t)).join(" · "):e.event_type||"Care event"}
 function renderHistory(){const host=$("#history");if(!host)return;const opened=new Set([...host.querySelectorAll("details[open][data-history-day]")].map(x=>x.dataset.historyDay));const grouped={};visibleCareEvents(a).forEach(e=>{if(e.at&&!Number.isNaN(new Date(e.at).getTime()))(grouped[day(e.at)]??=[]).push(e)});host.innerHTML=Object.entries(grouped).sort((x,y)=>new Date(y[0])-new Date(x[0])).map(([k,events])=>{const feeds=events.filter(e=>Number(e.oz)>0),total=feeds.reduce((sum,e)=>sum+Number(e.oz),0),poops=events.filter(e=>(e.tags||[]).includes("poop")).length;const rows=[...events].sort((x,y)=>new Date(y.at)-new Date(x.at)).map(e=>{const time=new Date(e.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});const people=(Array.isArray(e.people)?e.people:[]).filter(Boolean).join(", ");return '<li class="historyEvent"><div><strong>'+esc(time)+'</strong> · '+esc(historyEventLabel(e))+'</div>'+(people?'<div class="muted">Caregiver: '+esc(people)+'</div>':'')+(sleepRangeLabel(e)?'<div class="historyNote sleepRange">'+esc(sleepRangeLabel(e))+'</div>':'')+(e.notes?'<div class="historyNote">'+esc(String(e.notes))+'</div>':'')+'<div class="historyEventActions"><button type="button" data-history-edit="'+esc(String(e.id))+'">Edit</button><button type="button" data-history-delete="'+esc(String(e.id))+'">Delete</button></div></li>'}).join("");return '<details class="historyDay" data-history-day="'+esc(k)+'"'+(opened.has(k)?" open":"")+'><summary><span><b>'+esc(k)+'</b><span class="muted">'+total+' oz · '+feeds.length+' bottles · '+poops+' poops · '+events.length+' entries</span></span><span class="historyChevron" aria-hidden="true">⌄</span></summary><ol class="historyEvents">'+rows+'</ol></details>'}).join("")||'<div class="muted">No history yet.</div>'}
 function showHistoryEdit(id){document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));document.querySelector('nav [data-tab="today"]')?.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$("#todayView").classList.add("active");edit(id)}
 $("#history").addEventListener("click",e=>{const btn=e.target.closest("button[data-history-edit],button[data-history-delete]");if(!btn)return;const id=btn.dataset.historyEdit??btn.dataset.historyDelete;const record=a.find(x=>String(x.id)===id);if(!record){toast("Entry not found. Refresh History.");return}if(btn.hasAttribute("data-history-edit"))showHistoryEdit(record.id);else del(record.id)});

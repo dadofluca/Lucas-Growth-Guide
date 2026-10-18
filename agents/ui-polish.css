@@ -134,3 +134,6 @@ body#lucaApp:has(#sleepComposer:not([hidden])) :is(#careDock,#chatPeekTab){displ
 .sleepStatsFoot{font-size:11px!important;margin-top:16px}
 @media(max-width:350px){.sleepMetric strong{font-size:20px}.sleepMetric{padding:12px 7px}.sleepMetrics{gap:6px}.sleepChart{gap:7px}}
 @media(prefers-reduced-motion:reduce){body#lucaApp button{transition:none!important}}
+
+body#lucaApp #sleepTrends .sleepMetric strong{color:var(--luca-ink)!important;-webkit-text-fill-color:var(--luca-ink)!important}
+@media(prefers-reduced-motion:reduce){.sidePanel,.drawerPanel,.sideMenu,.drawer{transition:none!important;animation:none!important}}
