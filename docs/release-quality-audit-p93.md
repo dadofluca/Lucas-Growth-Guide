@@ -15,6 +15,11 @@ Status: code inspection and synthetic CI only; **not** a production iPhone, sign
 - Chat preview initially displays an inaccurate sign-in state and retries every 30 seconds.
 - P91 proposes session-ready event, auto-mount of an already open Chat tab, and immediate rendering of message rows ahead of slower profile lookup. Synthetic tests are required; signed-in iOS validation remains pending.
 
+### High — Remote delete and edit failures are silently hidden
+- `del(id)` removes an entry from the local array and persists **before** awaiting `deleteRemote(id)`, then shows “Entry deleted” regardless of the remote operation result.
+- `deleteRemote(id)` and `updateRemote(e)` do not inspect returned Supabase `error`. A network/RLS failure can leave the remote event unchanged; a subsequent sync may resurrect a deleted item or overwrite an edited local item.
+- Release gate: simulated failed delete/update must preserve an honest pending/error state and offer retry or undo; do not delete real family records during testing.
+
 ### Medium — Message rendering was coupled to profile lookup
 - `agents/family-chat.js` originally awaited `family_profiles` before rendering retrieved messages. A slow avatar/name lookup delays all chat history.
 - P91 proposes showing messages first and enriching sender profiles when the separate query returns.
