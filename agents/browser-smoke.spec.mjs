@@ -9,7 +9,9 @@ test("app loads and core tabs are reachable without a signed-in session",async({
  await page.locator('nav button[data-tab="chat"]').click();
  await expect(page.locator("#chatView")).toHaveClass(/active/);
  await expect(page.locator("#familyChatStatus")).toContainText(/sign in|family sync/i);
- await page.locator('nav button[data-tab="profile"]').click();
+ await page.locator("#navMore").click();
+ await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+ await page.locator("#menuFamily").click();
  await expect(page.locator("#profileView")).toHaveClass(/active/);
  await expect(page.locator("#profileStatus")).toContainText(/sign in|family sync/i);
  await expect(page.locator('a[href="./emergency.html"]')).toHaveCount(1);
@@ -88,7 +90,9 @@ test("sign-out and family tabs do not expose previous messages to a guest",async
  await page.locator('nav button[data-tab="chat"]').click();
  await expect(page.locator("#familyChatStatus")).toContainText(/sign in|family sync/i);
  await expect(page.locator("#familyChatFeed")).toBeEmpty();
- await page.locator('nav button[data-tab="profile"]').click();
+ await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  await page.locator("#menuFamily").click();
  await expect(page.locator("#familyProfileList")).toBeEmpty();
 });
 
@@ -100,7 +104,9 @@ test("mobile-size viewport can navigate Family Chat, profiles, and emergency bac
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   await page.locator('nav button[data-tab="chat"]').click();
   await expect(page.locator("#chatView")).toHaveClass(/active/);
-  await page.locator('nav button[data-tab="profile"]').click();
+  await page.locator("#navMore").click();
+  await expect(page.locator("#sideMenu")).toHaveClass(/open/);
+  await page.locator("#menuFamily").click();
   await expect(page.locator("#profileView")).toHaveClass(/active/);
   await page.goto("http://127.0.0.1:8765/emergency.html",{waitUntil:"domcontentloaded"});
   await expect(page.locator("#save")).toBeVisible();
@@ -150,7 +156,8 @@ test("phone layout keeps family forms full width and care dock out of the way",a
   await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
   await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
   for(const tab of ["chat","profile"]){
-   await page.locator('nav button[data-tab="'+tab+'"]').click();
+   if(tab==="profile"){await page.locator("#navMore").click();await page.locator("#menuFamily").click();}
+    else await page.locator('nav button[data-tab="'+tab+'"]').click();
    await expect(page.locator("#careDock")).toBeHidden();
    const selector=tab==="chat"?"#familyChatText":"#profileName";
    const field=page.locator(selector);
@@ -191,11 +198,11 @@ test("P69 shows original-only notes directly and hides unnecessary original drop
 });
 
 
-test("P75 runtime version agrees with displayed badge",async({page})=>{
+test("P87 runtime version agrees with displayed badge",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
- await expect(page.locator("#patchBadge")).toHaveText("P75");
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P75");
+ await expect(page.locator("#patchBadge")).toHaveText("P87");
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe("P87");
 });
 
 

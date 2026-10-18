@@ -1,5 +1,6 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:'P75',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:'P87',schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility patches run.
 
 /* P34 — direct inline Save -> Supabase */
 (function(){
