@@ -408,7 +408,7 @@ test("P100 History event Edit opens populated composer and Delete has a confirma
  await expect(page.locator("#notes")).toHaveValue("QA morning bottle");
  await page.locator('nav [data-tab="history"]').click();
  const historyDay=page.locator('#history details').first();
- if(!(await historyDay.getAttribute("open"))){await historyDay.locator("summary").click()}
+ if((await historyDay.getAttribute("open"))===null){await historyDay.locator("summary").click()}
  page.once("dialog",dialog=>dialog.dismiss());
  await page.locator('#history button[data-history-delete]').click();
  await expect(page.locator('#history button[data-history-edit]')).toHaveCount(1);
