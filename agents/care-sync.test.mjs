@@ -108,3 +108,12 @@ test('a confirmed delete is not resurrected by an older timeline response',async
 test('failed shared deletion retains the entry',async()=>{
  const h=harness();await h.store.save(entry());h.mode='fail';assert.equal(await h.store.remove(h.entries[0]),false);assert.equal(h.entries.length,1);
 });
+
+test('a discarded local entry in an older retry snapshot is not inserted later',async()=>{
+ const h=harness();assert.equal(await h.store.send(entry()),null);assert.equal(h.calls.length,0);assert.equal(h.rows.size,0);
+});
+test('offline entries are bound to the selected baby before their first request',async()=>{
+ const h=harness();h.c.baby=null;h.c.user=null;await h.store.save(entry());assert.equal(h.entries[0].babyId,undefined);
+ h.c.baby='baby-a';h.c.user={id:'user-a'};const w=deferred();h.wait=w;const syncing=h.store.refresh();
+ assert.equal(h.entries[0].babyId,'baby-a');w.resolve();await syncing;assert.equal(h.entries[0].remote,true);
+});

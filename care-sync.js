@@ -23,8 +23,8 @@
   async function send(entry){
    const c=snapshot();if(!c.client||!c.baby||!c.user){report("local");return null;}
    if(entry.babyId&&entry.babyId!==c.baby){report("pending","family");return null;}
-   let e=current(entry)||entry;
-   if(!e.syncId){e={...e,syncId:e.remote?e.id:newId(),babyId:c.baby};change(read().map(x=>String(x.id)===String(e.id)?e:x));}
+   let e=current(entry);if(!e)return null;
+   if(!e.syncId||!e.babyId){e={...e,syncId:e.syncId||(e.remote?e.id:newId()),babyId:c.baby};change(read().map(x=>String(x.id)===String(e.id)?e:x));}
    const id=key(e);if(flights.has(id))return flights.get(id);
    const flight=(async()=>{
     try{
