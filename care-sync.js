@@ -70,8 +70,17 @@
     try{
      for(const e of read().filter(dirty)){if(!await send(e))break;}
      const started=clock;
-     const {data,error}=await request(c.client.from("baby_events").select("*").eq("baby_id",c.baby).order("event_time",{ascending:false}));
-     if(error)throw error;
+     // Read every page: an older Stars opening balance must not disappear at the API row cap.
+     const data=[],pageEnds=new Set();let offset=0;
+     for(;;){
+      let query=c.client.from("baby_events").select("*").eq("baby_id",c.baby).order("event_time",{ascending:false}).order("id",{ascending:false});
+      const paged=typeof query.range==="function";if(paged)query=query.range(offset,offset+499);
+      const result=await request(query);if(result.error)throw result.error;if(!sameContext(c))return false;
+      const batch=result.data||[],last=batch.at(-1)?.id;
+      if(batch.length&&pageEnds.has(String(last)))throw Object.assign(new Error("History pagination did not advance"),{code:"pagination"});
+      if(batch.length)pageEnds.add(String(last));data.push(...batch);
+      if(!paged||batch.length<500)break;offset+=500;
+     }
      if(!sameContext(c))return false;
      if(!data?.length&&read().some(e=>e.remote)){report("pending","empty-result");return false;}
      const merged=new Map((data||[]).filter(x=>!deleted.has(String(x.id))).map(x=>[String(x.id),row(x)]));

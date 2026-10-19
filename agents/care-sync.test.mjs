@@ -39,6 +39,20 @@ function harness(){
  return {store,c,rows,calls,statuses,get entries(){return entries},set entries(x){entries=x},set mode(x){mode=x},set wait(x){wait=x},set selectWait(x){selectWait=x}};
 }
 const entry=(id='local-1',oz=6)=>({id,at:'2026-10-18T13:00:00Z',oz,tags:[],people:['Synthetic caregiver'],notes:''});
+test('P142: pagination retains the star opening record beyond the first thousand care logs',async()=>{
+ const h=harness(),ranges=[],from=h.c.client.from;
+ for(let i=0;i<1000;i++)h.rows.set('care-'+i,{id:'care-'+i,baby_id:'baby-a',event_time:'2026-10-18T12:00:00Z',amount_oz:8,tags:[],caregivers:['Sam']});
+ h.rows.set('opening',{id:'opening',baby_id:'baby-a',event_time:'2026-10-01T12:00:00Z',tags:['stars'],caregivers:['KJ'],details:{starChart:{action:'opening',person:'KJ',delta:33}}});
+ h.c.client.from=table=>{const q=from(table),request=q.abortSignal;let range=null;q.range=(start,end)=>{range=[start,end];ranges.push(range);return q;};q.abortSignal=async signal=>{const r=await request(signal);if(range&&Array.isArray(r.data))r.data=r.data.slice(range[0],range[1]+1);return r;};return q;};
+ assert.equal(await h.store.refresh(),true);assert.equal(h.entries.length,1001);assert.deepEqual(ranges,[[0,499],[500,999],[1000,1499]]);
+ vm.runInNewContext(readFileSync(new URL('./family-stars.js',import.meta.url),'utf8'),sandbox);assert.equal(sandbox.LucaFamilyStars.state(h.entries,'KJ').balance,33);
+});
+test('P142: a failed later history page preserves the previous complete cache',async()=>{
+ const h=harness(),from=h.c.client.from;h.entries=[{...entry('cached'),remote:true,babyId:'baby-a'}];
+ for(let i=0;i<600;i++)h.rows.set('care-'+i,{id:'care-'+i,baby_id:'baby-a',event_time:'2026-10-18T12:00:00Z',tags:[],caregivers:['Sam']});
+ h.c.client.from=table=>{const q=from(table),request=q.abortSignal;let start=0,end=499;q.range=(a,b)=>{start=a;end=b;return q;};q.abortSignal=async signal=>start>=500?{error:{code:'network'}}:{data:(await request(signal)).data.slice(start,end+1)};return q;};
+ assert.equal(await h.store.refresh(),false);assert.equal(h.entries.length,1);assert.equal(h.entries[0].id,'cached');assert.equal(h.statuses.at(-1).code,'network');
+});
 test('care save persists before the remote request completes and serializes duplicate sends',async()=>{
  const h=harness(),w=deferred();h.wait=w;
  const saving=h.store.save(entry());assert.equal(h.entries.length,1);assert.equal(h.entries[0].remote,undefined);
