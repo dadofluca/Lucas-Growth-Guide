@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay','KJ'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay','KJ','Luca'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility patches run.
 
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
@@ -204,7 +204,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
 
  // Quick poop: tap dock poop, then choose who changed it. Save immediately.
  const poop=document.getElementById("carePoop"),pop=document.createElement("div");pop.className="quickPoopPop";
- pop.innerHTML=["Sam","Maddie","Nona","Boppa","Jay","KJ","Other"].map(n=>'<button type="button" data-pooper="'+n+'">'+n+'</button>').join("");document.body.appendChild(pop);
+ pop.innerHTML=["Sam","Maddie","Nona","Boppa","Jay","KJ","Luca","Other"].map(n=>'<button type="button" data-pooper="'+n+'">'+n+'</button>').join("");document.body.appendChild(pop);
  function pos(){const r=poop.getBoundingClientRect();pop.style.top=Math.min(innerHeight-180,Math.max(90,r.top-40))+"px";pop.style.right=Math.max(72,innerWidth-r.left+6)+"px"}
  poop?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();pos();pop.classList.toggle("on")},true);
  document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!poop?.contains(e.target))pop.classList.remove("on")});
