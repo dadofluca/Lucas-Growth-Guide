@@ -8,7 +8,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  const toLatest=()=>{feed.scrollTop=feed.scrollHeight;if(latest)latest.hidden=true;};
  const onScroll=()=>{if(latest)latest.hidden=feed.scrollHeight-feed.clientHeight-feed.scrollTop<80;};
  latest?.addEventListener('click',toLatest);feed.addEventListener('scroll',onScroll);
- const resizeInput=()=>{input.style.height='auto';input.style.height=Math.min(104,input.scrollHeight)+'px';};
+ const resizeInput=()=>{const follow=feed.scrollHeight-feed.clientHeight-feed.scrollTop<80;input.style.height='auto';input.style.height=Math.min(104,input.scrollHeight)+'px';if(follow)toLatest();};
  input.addEventListener('input',resizeInput);
  function say(message){status.textContent=message;}
  function show(rows,profiles=new Map()){
@@ -113,9 +113,12 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
 
 /** Follow the visible phone viewport, including the on-screen keyboard. */
 export function fitChatViewport(){
- const fit=()=>{const v=window.visualViewport,nav=document.querySelector('nav'),height=v?.height||innerHeight;
+ if(window.LucaDemo)document.querySelector('#chatView .chatTop small').textContent='Practice room · sample messages only';
+ const fit=()=>{const v=window.visualViewport,nav=document.querySelector('nav'),height=v?.height||innerHeight,feed=document.querySelector('#familyChatFeed');
+  const follow=feed&&feed.scrollHeight-feed.clientHeight-feed.scrollTop<80;
   document.documentElement.style.setProperty('--chat-top',(v?.offsetTop||0)+'px');
   document.documentElement.style.setProperty('--chat-height',Math.max(180,height-(nav?.getBoundingClientRect().height||80))+'px');
+  if(follow)requestAnimationFrame(()=>{feed.scrollTop=feed.scrollHeight;});
  };
  fit();window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);window.visualViewport?.addEventListener('scroll',fit);
  document.querySelector('#chatSync')?.addEventListener('click',()=>{document.querySelector('nav [data-tab="today"]')?.click();document.querySelector('#openFamilySync')?.click();});
