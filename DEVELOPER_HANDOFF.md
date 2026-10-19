@@ -2,9 +2,18 @@
 
 > **Purpose:** durable breadcrumbs for the next ChatGPT/developer session. Read this file **before changing code**. Update it whenever architecture, behavior, or the active test state changes.
 
+## P143 — chat and grounded Insights, released
+- PR #94: https://github.com/dadofluca/Lucas-Growth-Guide/pull/94. Final source `4e9212eef67d50adb45723c6a9252a8d99d2dbbf`, CI checkout `3a67e1ecec7ab5acae3f2e75fa5697d8a4ec5791`, release merge `39034f527985cef1b2666add5fec5a68fedd3538`; matching source/CI tree `0077181f3f21df683ed2a444ea9de229951cb5e6`.
+- Chat owns the usable phone viewport above the bottom navigation; `fitChatViewport()` follows visualViewport height/offset and safe areas. The composer has a one-line growing textarea, 44px attachment/send buttons, filename receipt and Remove. Preserve multiline bodies. Banners are compact inline badges; avatar artwork and profile cards remain intact. Practice chat explicitly says sample messages only.
+- `agents/family-chat.js` follows latest messages on initial open/send and when already near the bottom, preserves an older reading position on refresh, and offers Latest messages. Unchanged message/profile snapshots retain DOM nodes so periodic polling does not restart videos. Keyboard/input resizing retains a bottom position when appropriate. Existing family-scoped queries, send session guards and private media URLs remain; no schema/auth/data migration or production data writes.
+- Insights owner: `agents/insights.js`, rendered by the canonical `render()` in index.html. Pure `summarize()` deduplicates care IDs, excludes Stars/future records, uses seven local calendar days, keeps missing bottle days unknown and labels today as partial. Cards: at least three qualified daytime spacing samples, median bottle size after four bottles, same-clock recorded intake with at least three prior days having two bottles by that time, shared care (one event) and food moments. No comparisons of a partial today with a full previous day. Existing sleep summary and daytime bottle estimator remain canonical.
+- 9/10/11/12 month chapters are explicitly browseable play ideas, not an inferred DOB, diagnosed ability or deadline. Content references ZERO TO THREE's 9–12 month guidance and Month 11/play activities articles. Optional dark-personality quips follow the existing preference. Everything works without a Teddy model key; no AI calls or new external dependencies.
+- Verification: **236 Node + 75 Chromium checks passed**, zero failures/flakes/skips, final browser workflow `39343603110` (job `118370784529`) and code workflow `39343603141`. Diagnostic artifact `12230106175`: clean tracked source, matching source stamps, synthetic-checks-passed, no nextTasks. Phone artifact `12230047482`: reviewed final 390px chat, 320px reduced viewport with newest message visible and 390px selected age chapter before merging. Earlier source `d770cb67e564986c06db222b727508073a1624c8` passed the full regression and preliminary phone review. First run `39343052069` failed the old exact P142 version expectation; the test now requires P143 for both visible and runtime markers. Do not weaken this check. Node tests moved the old inline-source Insights check to the new module's actual behavior and retain missing-data/sample-size guards.
+- Generated demo and service-worker shell are P143; insights.js is cached. Keep generated artifacts out of git. Real signed-in iPhone/PWA keyboard, second production family device and Muse ingestion remain external checks.
+
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P142** (2026-10-19), merged and verified on the public app. See the latest release note below; older Pxx notes are historical.
+**Current release:** **P143** (2026-10-19). See the newest release note above; older Pxx notes are historical.
 
 ## Product intent
 
