@@ -7,6 +7,7 @@
 - Browse 9–12 month play chapters with small, optional ideas and personality-aware humor. These are broad age chapters, not measured milestone deadlines. Source inspiration is linked to ZERO TO THREE. No Teddy model key is required.
 - **236 Node + 75 Chromium checks passed**, with zero failures/flakes/skips. Source `4e9212eef67d50adb45723c6a9252a8d99d2dbbf`, CI checkout `3a67e1ecec7ab5acae3f2e75fa5697d8a4ec5791`, release merge `39034f527985cef1b2666add5fec5a68fedd3538`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39343603141) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39343603110). Reviewed final 390px chat, 320px reduced viewport and selected age chapter screenshots before merging. Exact runtime tree: `0077181f3f21df683ed2a444ea9de229951cb5e6`.
 - Family history, access policies and private-key configuration are unchanged. Actual signed-in iPhone/PWA keyboard, second production family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage. See AGENTS.md and the newest DEVELOPER_HANDOFF.md section for evidence and owning files.
+- Public app and practice app both serve P143, with all 24 runtime byte comparisons matching the tested files. Documentation-only commits preserve that runtime.
 
 ## Previous release: P142 — 2026-10-19
 
