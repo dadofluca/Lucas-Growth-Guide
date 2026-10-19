@@ -51,7 +51,7 @@
  function resolve(entries,{baseSession,now=Date.now()}={}){
   now=time(now);const result=new Map(),events=new Map(entries.map(e=>[id(e),e]));
   const sameBaby=(a,b)=>{const x=events.get(String(a.id))?.babyId,y=events.get(String(b.id))?.babyId;return !x||!y||x===y;};
-  for(const e of entries){const s=fromNote(e,baseSession(e),now);if(s)result.set(id(e),s);}
+  for(const e of entries){if((e.tags||[]).includes('stars')||e.details?.starChart)continue;const s=fromNote(e,baseSession(e),now);if(s)result.set(id(e),s);}
   const complete=[...result.values()].filter(s=>s.complete&&!s.legacy),used=new Set();
   const starts=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.start)).sort((a,b)=>b.start-a.start);
   const wakes=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.end)).sort((a,b)=>a.end-b.end);
