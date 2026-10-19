@@ -4,8 +4,8 @@
  const day=d=>{d=new Date(d);return [d.getFullYear(),d.getMonth()+1,d.getDate()].join('-');};
  const fmt=n=>Number(n.toFixed(1)).toString();
  function summarize(entries,{now=Date.now(),rhythm={intervals:[]}}={}){
-  now=+new Date(now);const seen=new Set();
-  const rows=entries.filter(e=>{const t=+new Date(e.at),id=String(e.syncId||e.id||'');if((e.tags||[]).includes('stars')||e.details?.starChart||!Number.isFinite(t)||t>now||t<now-7*86400000)return false;if(id&&seen.has(id))return false;if(id)seen.add(id);return true;});
+  now=+new Date(now);const seen=new Set(),start=new Date(now);start.setDate(start.getDate()-6);start.setHours(0,0,0,0);
+  const rows=entries.filter(e=>{const t=+new Date(e.at),id=String(e.syncId||e.id||'');if((e.tags||[]).includes('stars')||e.details?.starChart||!Number.isFinite(t)||t>now||t<+start)return false;if(id&&seen.has(id))return false;if(id)seen.add(id);return true;});
   const feeds=rows.filter(e=>Number(e.oz)>0),days=new Set(rows.map(e=>day(e.at))),cards=[];
   const gaps=(rhythm.intervals||[]).filter(Number.isFinite);
   if(gaps.length>=3){const sorted=[...gaps].sort((a,b)=>a-b);cards.push({icon:'🍼',title:'His daytime rhythm',text:'About '+Math.round(gaps.reduce((s,n)=>s+n,0)/gaps.length)+' minutes between recorded daytime bottles. Recent range: '+Math.round(sorted[0])+'–'+Math.round(sorted.at(-1))+' minutes.',foot:gaps.length+' intervals · recorded sleep and 9 PM–6 AM gaps excluded. A pattern, not a feeding deadline.'});}

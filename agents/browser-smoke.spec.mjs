@@ -4,7 +4,7 @@ import {readFileSync} from "node:fs";
 test('P143: chat keeps compact messages and composer visible, preserves reading position, supports photo removal',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
  await page.addInitScript(()=>{
-  localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Sam',avatar_preset:'dadasDude',flair:{equipped:'weekly-mvp',unlocked:['weekly-mvp']}}]));
+  localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Sam',avatar_preset:'dadasDude',flair:{banner:'weekly-mvp',unlocked:['weekly-mvp']}}]));
   if(!localStorage.getItem('qa-chat'))localStorage.setItem('qa-chat',JSON.stringify(Array.from({length:18},(_,i)=>({id:'compact-'+i,sender_id:'qa-user',body:'Family moment '+(18-i)+' — Luca is running this household.',created_at:new Date(Date.now()-i*60000).toISOString()}))));
  });
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.locator('nav [data-tab="chat"]').click();
@@ -623,9 +623,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P142');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P143');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P142');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P143');
 });
 
 

@@ -1,6 +1,6 @@
 /* One bounded presentation layer; persistence stays in care-sync.js. */
 body#lucaApp:has(#chatView.active){overflow:hidden}
-body#lucaApp #chatView.active{display:flex;flex-direction:column;position:fixed;top:var(--chat-top,0px);left:0;right:0;width:100%;max-width:520px;height:var(--chat-height,calc(100dvh - 85px));margin:auto;padding:12px 14px 4px;z-index:8;overflow:hidden;background:var(--luca-page)}
+body#lucaApp #chatView.active{display:flex;flex-direction:column;position:fixed;top:var(--chat-top,0px);left:0;right:0;width:100%;max-width:520px;height:var(--chat-height,calc(100dvh - 85px));margin:auto;padding:calc(12px + env(safe-area-inset-top)) 14px 4px;z-index:8;overflow:hidden;background:var(--luca-page)}
 body#lucaApp #chatView .chatTop{flex:0 0 auto;padding:2px 4px 10px;gap:10px}
 body#lucaApp #chatView h1{font-size:23px;margin:0 0 2px}
 body#lucaApp #chatView .chatTop small{font-size:10px}
