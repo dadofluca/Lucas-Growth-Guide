@@ -7,7 +7,7 @@
   const person=poop.querySelector('#quickPoopCaregiver'),other=poop.querySelector('#quickPoopOther');
   const size=poop.querySelector('#quickPoopSize'),wet=poop.querySelector('#quickPoopWet');
   const submit=poop.querySelector('#quickPoopSave');
-  const names=['Sam','Maddie','Nona','Jay','Boppa','Yolanda','Lindsay'];
+  const names=['Sam','Maddie','Nona','Jay','Boppa','Yolanda','Lindsay','KJ'];
   function place(){
    if(!active||!anchor)return;
    const r=anchor.getBoundingClientRect(),vv=window.visualViewport;
