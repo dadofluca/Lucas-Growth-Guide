@@ -1,8 +1,9 @@
-## Current release: P140 — 2026-10-19
+## Current release: P141 — 2026-10-19
 
-[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [KJ and daytime bottle estimates #91](https://github.com/dadofluca/Lucas-Growth-Guide/pull/91)
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Luca caregiver option #92](https://github.com/dadofluca/Lucas-Growth-Guide/pull/92)
 
 - KJ is available for family sign-in, quick/manual care, Smart Entry attribution and schedule coverage. Saved caregiver credit survives editing and reload.
+- Luca is also selectable in caregiver pickers. Mentions of baby Luca in notes do not automatically change caregiver credit; “Nona gave Luca 8 oz” retains Nona.
 - Bottle estimates and Insights share daytime spacing: recorded/inferred naps and night sleep, partial sleep boundaries and overnight gaps (9 PM–6 AM local) are excluded. Up to 12 qualifying 45–360-minute intervals from the last seven days inform the estimate; genuine longer daytime spacing remains valid. No qualifying intervals means an explicit temporary 180-minute fallback. Existing history stays unchanged.
 - A fresh phone's missing session opens family-code sign-in. Family sync stays reachable in the header and More menu; retries keep an open form visible, wrong codes show an inline error, and the chosen caregiver survives reload. Enter the family code, choose a name (or Other), and tap Connect this phone.
 - Muted stone/sage light surfaces and readable controls; compact quick care and searchable History stay on the shared care queue.
@@ -12,7 +13,7 @@
 - Friend playground opens as Test Pilot with sample records. Care edits/deletes, chat, profiles and schedules stay in isolated browser storage. Reset clears only practice data. Copy its link from Profiles → Tools & support → Friend test link; no family password is needed.
 - Schedule day cards use actual calendar keys, so translated labels and weeks spanning New Year open and save the correct day. Work rows remain separate from editable coverage.
 - `node agents/doctor.mjs --run` produces machine-readable health and next-assistant instructions. Browser reports must match the checked-out commit and a clean tracked worktree; missing, invalid, stale or empty supplied evidence is actionable, never a pass. Existing scheduled checks upload exact failures, test locations, owning files, screenshots and reproduction commands. Start with AGENTS.md, DEVELOPER_HANDOFF.md and docs/AGENT_PLAYBOOK.md.
-- **222 Node + 68 Chromium checks passed**, with zero failures, skips or flakes, for source `4591adb38afa4915de5771c183a1fb6c655f87a2` (CI checkout `86c04addd8c66f8433fb34e0d6ec983ee898dc4b`). [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39315566055) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39315565984). Public P140 app/demo and 22 file SHA-256 comparisons matched the tested release; reviewed 390px daytime estimate and KJ picker captures. Source, tested checkout and release merge have identical trees.
+- **223 Node + 69 Chromium checks passed**, with zero failures, skips or flakes, for source `6cf294a20406628576023620a8da404538096016` (CI checkout `0787618a06e5895afef1142e86c18894fed5e7e3`). [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39324039350) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39324039161). Public P141 app/demo and 22 file SHA-256 comparisons matched the tested release; reviewed the 390px Luca picker capture. Source, tested checkout and release merge have identical trees.
 - No production family records or access policies changed. Actual signed-in iPhone Safari, a second production family device and Muse ingestion remain external checks. Older release notes below are historical.
 
 ## P132 care-sync release — 2026-10-18
