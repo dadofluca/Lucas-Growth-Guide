@@ -1,6 +1,33 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P143: chat keeps compact messages and composer visible, preserves reading position, supports photo removal',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.addInitScript(()=>{
+  localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Sam',avatar_preset:'dadasDude',flair:{equipped:'weekly-mvp',unlocked:['weekly-mvp']}}]));
+  if(!localStorage.getItem('qa-chat'))localStorage.setItem('qa-chat',JSON.stringify(Array.from({length:18},(_,i)=>({id:'compact-'+i,sender_id:'qa-user',body:'Family moment '+(18-i)+' — Luca is running this household.',created_at:new Date(Date.now()-i*60000).toISOString()}))));
+ });
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.locator('nav [data-tab="chat"]').click();
+ await expect(page.locator('.familyChatMessage')).toHaveCount(18);await expect(page.locator('#familyChatFeed')).toContainText("Dada's Dude");
+ const frame=await page.evaluate(()=>{const feed=document.querySelector('#familyChatFeed'),r=feed.getBoundingClientRect(),nav=document.querySelector('nav').getBoundingClientRect(),composer=document.querySelector('.chatComposer').getBoundingClientRect();return {height:r.height,bottom:r.bottom,composer:composer.y,composerBottom:composer.bottom,nav:nav.y,overflow:document.documentElement.scrollWidth>innerWidth,visible:[...feed.children].filter(x=>{const b=x.getBoundingClientRect();return b.top>=r.top&&b.bottom<=r.bottom}).length,atBottom:feed.scrollHeight-feed.clientHeight-feed.scrollTop};});
+ expect(frame.height).toBeGreaterThan(450);expect(frame.visible).toBeGreaterThanOrEqual(4);expect(frame.composerBottom).toBeLessThanOrEqual(frame.nav);expect(frame.atBottom).toBeLessThan(5);expect(frame.overflow).toBe(false);
+ await page.locator('#familyChatFeed').evaluate(el=>el.scrollTop=0);await page.locator('nav [data-tab="chat"]').click();await expect.poll(()=>page.locator('#familyChatFeed').evaluate(el=>el.scrollTop)).toBe(0);
+ await expect(page.locator('#chatLatest')).toBeVisible();await page.locator('#chatLatest').click();await expect(page.locator('#chatLatest')).toBeHidden();
+ await page.locator('#familyChatText').fill('A compact message\nwith a second line');await page.locator('#familyChatSend').click();await expect(page.locator('.chatBody').last()).toHaveText('A compact message\nwith a second line');await expect(page.locator('#familyChatText')).toHaveValue('');
+ await page.locator('#familyChatMedia').setInputFiles({name:'test.png',mimeType:'image/png',buffer:Buffer.from('synthetic image')});await expect(page.locator('#familyChatMediaPreview')).toContainText('test.png');await page.locator('#familyChatRemove').click();await expect(page.locator('#familyChatMediaPreview')).toBeEmpty();
+ await page.screenshot({animations:'disabled',path:'test-results/p143-chat-390.png'});
+ await page.setViewportSize({width:320,height:480});await page.locator('#familyChatText').fill('Keyboard-sized viewport');const send=await page.locator('#familyChatSend').boundingBox();expect(send.y+send.height).toBeLessThanOrEqual(480);expect(send.x+send.width).toBeLessThanOrEqual(320);await page.screenshot({animations:'disabled',path:'test-results/p143-chat-320.png'});
+});
+
+test('P143: Insights shows real log patterns and browseable age chapters without Teddy',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-remote-events')){const rows=[];for(let i=0;i<6;i++){const d=new Date();d.setDate(d.getDate()-i);d.setHours(8,0,0,0);rows.push({id:'insight-'+i,baby_id:'qa-baby',family_id:'qa-family',event_time:d.toISOString(),amount_oz:8,event_type:'feeding',tags:[],caregivers:['Sam','Luca'],notes:'Shared bottle'});}localStorage.setItem('qa-remote-events',JSON.stringify(rows));}});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="insights"]').click();
+ await expect(page.locator('#insightTrends')).toContainText('The usual bottle');await expect(page.locator('#insightTrends')).toContainText('8 oz');await expect(page.locator('#insightTrends')).toContainText('The tiny pit crew');await expect(page.locator('.sparkDay')).toHaveCount(7);
+ await page.locator('[data-chapter="10"]').click();await expect(page.locator('#ageDiscovery')).toContainText('cause-and-effect');await expect(page.locator('#ageDiscovery')).toContainText('peer-reviewing gravity');await expect(page.locator('[data-chapter="10"]')).toHaveAttribute('aria-pressed','true');
+ await page.locator('#insightTrends').scrollIntoViewIfNeeded();await page.screenshot({animations:'disabled',path:'test-results/p143-insights-patterns-390.png'});await page.locator('[data-chapter="11"]').click();await expect(page.locator('#ageDiscovery')).toContainText('Tiny gestures');await page.locator('#ageDiscovery').scrollIntoViewIfNeeded();await page.screenshot({animations:'disabled',path:'test-results/p143-insights-chapters-390.png'});
+});
+
 test("app loads and core tabs are reachable without a signed-in session",async({page})=>{
  await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
  await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
@@ -552,7 +579,7 @@ async function syntheticCareBackend(page){
       localStorage.setItem('qa-profiles',JSON.stringify(profiles));
       return {data:op==='update'?profiles.filter(x=>matched.includes(x.user_id)):profiles.filter(matches),error:null};
      }
-     if(table==='family_chat_messages'){let rows=JSON.parse(localStorage.getItem('qa-chat')||'[]');if(op==='insert'){rows.push({...payload,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('qa-chat',JSON.stringify(rows));}rows=rows.filter(x=>!filters.sender_id||x.sender_id===filters.sender_id);return {data:countRequested?null:rows,count:countRequested?rows.length:null,error:null};}
+     if(table==='family_chat_messages'){let rows=JSON.parse(localStorage.getItem('qa-chat')||'[]');if(op==='insert'){rows.push({...payload,id:crypto.randomUUID(),created_at:new Date().toISOString()});localStorage.setItem('qa-chat',JSON.stringify(rows));}rows=rows.filter(x=>!filters.sender_id||x.sender_id===filters.sender_id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));return {data:countRequested?null:rows,count:countRequested?rows.length:null,error:null};}
      if(table!=='baby_events')return {data:[],error:null};
      if(window.syntheticOffline)return {data:null,error:{code:'network'}};
      const rows=read();

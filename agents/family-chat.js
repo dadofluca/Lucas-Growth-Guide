@@ -3,8 +3,16 @@ import {profileBanner} from "./flair-ui.js";
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status,mediaInput,attachButton,mediaPreview}){
  let busy=false,requestId=0,disposed=false,selectedFile=null,profileCache=new Map(),cacheSession='';
+ let firstRender=true,forceLatest=false;
+ const latest=document.querySelector('#chatLatest'),remove=document.querySelector('#familyChatRemove');
+ const toLatest=()=>{feed.scrollTop=feed.scrollHeight;if(latest)latest.hidden=true;};
+ const onScroll=()=>{if(latest)latest.hidden=feed.scrollHeight-feed.clientHeight-feed.scrollTop<80;};
+ latest?.addEventListener('click',toLatest);feed.addEventListener('scroll',onScroll);
+ const resizeInput=()=>{input.style.height='auto';input.style.height=Math.min(104,input.scrollHeight)+'px';};
+ input.addEventListener('input',resizeInput);
  function say(message){status.textContent=message;}
  function show(rows,profiles=new Map()){
+  const follow=firstRender||forceLatest||feed.scrollHeight-feed.clientHeight-feed.scrollTop<80,position=feed.scrollTop;
   const portraits=new Map([...feed.querySelectorAll("[data-message-id]")].map(el=>[el.dataset.messageId,el.querySelector(".avatarPortrait")]));
   feed.replaceChildren();
   for(const m of rows){
@@ -16,7 +24,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
    avatar.style.borderRadius="50%";avatar.style.border="2px solid #fff6e7";
    const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profile.display_name||"Family member");
    const when=document.createElement("small");when.className="chatTimestamp";when.textContent=new Date(m.created_at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
-   const body=document.createElement("div");body.textContent=m.body;
+   const body=document.createElement("div");body.className='chatBody';body.textContent=m.body;
    const header=document.createElement("div");header.className="chatMessageHeader";const identity=document.createElement("div");identity.className="chatIdentity";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(profile.avatar_preset);identity.append(who,character);const banner=profileBanner(profile.flair);if(banner)identity.append(banner);identity.append(when);header.append(avatar,identity);line.append(header,body);
    if(m.media_path&&["image","gif","video"].includes(m.media_type)){
     const sb=getClient();
@@ -32,11 +40,14 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
    }
    feed.append(line);
   }
+  if(!rows.length){const empty=document.createElement('p');empty.className='chatEmpty';empty.textContent='The family group chat. Fewer formalities. More baby paparazzi.';feed.append(empty);}
+  if(follow)toLatest();else feed.scrollTop=position;
+  firstRender=false;forceLatest=false;onScroll();
  }
  async function load(){
   const request=++requestId;
   const sb=getClient(),family=getFamilyId(),user=getUser();
-  const session=family&&user?family+':'+user.id:'';if(session!==cacheSession){cacheSession=session;profileCache=new Map();}
+  const session=family&&user?family+':'+user.id:'';if(session!==cacheSession){cacheSession=session;profileCache=new Map();firstRender=true;}
   if(!sb||!family||!user){feed.replaceChildren();say("Sign in to Family Sync to use chat.");return;}
   let data,error;
   try{({data,error}=await sb.from("family_chat_messages").select("id,sender_id,body,created_at,media_path,media_type").eq("family_id",family).order("created_at",{ascending:false}).limit(100));}catch{error=true;}
@@ -57,8 +68,10 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   const file=mediaInput?.files?.[0]||null;
   const allowed=["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/quicktime","video/webm"];
   if(file&&(!allowed.includes(file.type)||file.size>26214400)){say("Use a GIF, photo, or video under 25 MB.");mediaInput.value="";selectedFile=null;return;}
-  selectedFile=file;mediaPreview.textContent=file?"Attached: "+file.name+" ("+Math.ceil(file.size/1024)+" KB)":"";
+  selectedFile=file;mediaPreview.textContent=file?"Attached: "+file.name+" ("+Math.ceil(file.size/1024)+" KB)":"";if(remove)remove.hidden=!file;
  };
+ const onRemove=()=>{selectedFile=null;if(mediaInput)mediaInput.value='';if(mediaPreview)mediaPreview.textContent='';if(remove)remove.hidden=true;};
+ remove?.addEventListener('click',onRemove);
  const onAttach=()=>mediaInput?.click();
  mediaInput?.addEventListener("change",onChoose);
  attachButton?.addEventListener("click",onAttach);
@@ -80,7 +93,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
    }
    const {error}=await sb.from("family_chat_messages").insert({family_id:family,sender_id:user.id,body,media_path,media_type});
    if(error)throw error;
-   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){input.value="";selectedFile=null;if(mediaInput)mediaInput.value="";if(mediaPreview)mediaPreview.textContent="";await load();}
+   if(!disposed&&getFamilyId()===family&&getUser()?.id===user.id){input.value="";onRemove();resizeInput();forceLatest=true;await load();}
   }catch{say("Couldn't send. Your message is still here; try again.");}
   finally{busy=false;send.disabled=false;}
  };
@@ -91,5 +104,15 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  const tab=document.querySelector('[data-tab="chat"]');
  tab?.addEventListener("click",load);
  const onFlair=e=>{if(e.detail?.family===getFamilyId())void load();};window.addEventListener("luca:profile-flair",onFlair);
- return ()=>{disposed=true;requestId++;clearInterval(timer);window.removeEventListener("luca:profile-flair",onFlair);tab?.removeEventListener("click",load);send.removeEventListener("click",onSend);mediaInput?.removeEventListener("change",onChoose);attachButton?.removeEventListener("click",onAttach);feed.replaceChildren();};
+ return ()=>{disposed=true;requestId++;clearInterval(timer);window.removeEventListener("luca:profile-flair",onFlair);tab?.removeEventListener("click",load);send.removeEventListener("click",onSend);mediaInput?.removeEventListener("change",onChoose);attachButton?.removeEventListener("click",onAttach);remove?.removeEventListener('click',onRemove);latest?.removeEventListener('click',toLatest);feed.removeEventListener('scroll',onScroll);input.removeEventListener('input',resizeInput);feed.replaceChildren();};
+}
+
+/** Follow the visible phone viewport, including the on-screen keyboard. */
+export function fitChatViewport(){
+ const fit=()=>{const v=window.visualViewport,nav=document.querySelector('nav'),height=v?.height||innerHeight;
+  document.documentElement.style.setProperty('--chat-top',(v?.offsetTop||0)+'px');
+  document.documentElement.style.setProperty('--chat-height',Math.max(180,height-(nav?.getBoundingClientRect().height||80))+'px');
+ };
+ fit();window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);window.visualViewport?.addEventListener('scroll',fit);
+ document.querySelector('#chatSync')?.addEventListener('click',()=>{document.querySelector('nav [data-tab="today"]')?.click();document.querySelector('#openFamilySync')?.click();});
 }
