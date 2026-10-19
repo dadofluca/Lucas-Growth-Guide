@@ -50,3 +50,13 @@ test('P140: KJ is recognized in natural-language and suffix caregiver attributio
  for(const text of ['Kj gave 8 oz at 12 pm','8 oz - KJ']){ctx.input=text;const items=JSON.parse(vm.runInContext('JSON.stringify(smartParseText(input))',ctx));assert.equal(items[0].credit,'KJ');assert.equal(items[0].oz,8);}
  ctx.input='Sam gave 8 oz at 9 am; KJ changed a poop diaper';const items=JSON.parse(vm.runInContext('JSON.stringify(smartParseText(input))',ctx));assert.equal(items.find(x=>x.kind==='feed').credit,'Sam');assert.equal(items.find(x=>x.kind==='poop').credit,'KJ');
 });
+
+test('P141: mentioning baby Luca does not steal caregiver credit; Luca remains a selectable choice',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),ctx=vm.createContext({a:[],localStorage:{getItem:()=>null}});
+ vm.runInContext(html.slice(html.indexOf('let smartItems=[]'),html.indexOf('function renderSmart()')),ctx);
+ ctx.input='Nona gave Luca 8 oz at 12 pm';const [named]=JSON.parse(vm.runInContext('JSON.stringify(smartParseText(input))',ctx));assert.equal(named.credit,'Nona');
+ ctx.input='Luca drank 8 oz at 12 pm';const [unnamed]=JSON.parse(vm.runInContext('JSON.stringify(smartParseText(input))',ctx));assert.notEqual(unnamed.credit,'Luca');
+ ctx.renderSmart=()=>{};vm.runInContext(html.slice(html.indexOf('function handleSmartAction(event)'),html.indexOf('for(const id of ["#quickText"')),ctx);
+ ctx.action={target:{closest:()=>({dataset:{changecredit:'0'}})}};vm.runInContext('smartItems=smartParseText(input);handleSmartAction(action)',ctx);assert.ok(JSON.parse(vm.runInContext('JSON.stringify(smartItems[0].creditChoices)',ctx)).includes('Luca'));
+ ctx.action={target:{closest:()=>({dataset:{creditchoice:'0',person:'Luca'}})}};vm.runInContext('handleSmartAction(action)',ctx);assert.equal(vm.runInContext('smartItems[0].credit',ctx),'Luca');
+});

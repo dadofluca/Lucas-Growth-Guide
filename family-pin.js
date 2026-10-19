@@ -22,6 +22,7 @@
         <option value="Yolanda">Yolanda</option>
         <option value="Lindsay">Lindsay</option>
         <option value="KJ">KJ</option>
+        <option value="Luca">Luca</option>
         <option value="Other">Other</option>
       </select>
     </div>

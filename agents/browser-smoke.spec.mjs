@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P140');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P141');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P140');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P141');
 });
 
 
@@ -931,14 +931,14 @@ test('P140: bottle estimate excludes overnight feeds and a logged nap in local t
  }finally{await context.close();}
 });
 
-test('P140: KJ can log quick care and retain credit through editing and reload',async({page})=>{
- await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.addInitScript(()=>localStorage.setItem('luca-caregiver','KJ'));
- await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#deviceCaregiver')).toHaveValue('KJ');
- await page.locator('#topQuickBottle').click();await expect(page.locator('.quickBottleCredit')).toContainText('KJ');await page.locator('[data-quick-oz="6"]').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
- await page.locator('#timeline [data-edit]').first().click();await expect(page.locator('#manualComposer [data-person="KJ"]')).toHaveClass(/on/);await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#saveEntry').click();await expect(page.locator('#manualComposer')).toBeHidden();await expect(page.locator('#oz')).toHaveText('7');
- await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption('KJ');await page.screenshot({animations:'disabled',path:'test-results/p140-kj-caregiver-390.png'});await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);
- await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#timeline .entry')).toHaveCount(2);await expect(page.locator('#manualComposer [data-person="KJ"]')).toHaveCount(1);
- const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>JSON.stringify(r.caregivers)==='["KJ"]')).toBe(true);expect(rows.find(r=>r.event_type==='feed').amount_oz).toBe(7);expect(rows.some(r=>r.tags.includes('poop'))).toBe(true);
+for(const caregiver of ['KJ','Luca'])test('P141: '+caregiver+' can log quick care and retain credit through editing and reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.addInitScript(name=>localStorage.setItem('luca-caregiver',name),caregiver);
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#deviceCaregiver')).toHaveValue(caregiver);
+ await page.locator('#topQuickBottle').click();await expect(page.locator('.quickBottleCredit')).toContainText(caregiver);await page.locator('[data-quick-oz="6"]').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
+ await page.locator('#timeline [data-edit]').first().click();await expect(page.locator('#manualComposer [data-person="'+caregiver+'"]')).toHaveClass(/on/);await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#saveEntry').click();await expect(page.locator('#manualComposer')).toBeHidden();await expect(page.locator('#oz')).toHaveText('7');
+ await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption(caregiver);await page.screenshot({animations:'disabled',path:'test-results/p141-'+caregiver.toLowerCase()+'-caregiver-390.png'});await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#timeline .entry')).toHaveCount(2);await expect(page.locator('#manualComposer [data-person="'+caregiver+'"]')).toHaveCount(1);
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.caregivers.length===1&&r.caregivers[0]===caregiver)).toBe(true);expect(rows.find(r=>r.event_type==='feed').amount_oz).toBe(7);expect(rows.some(r=>r.tags.includes('poop'))).toBe(true);
 });
 
 test('P139: a new phone can reopen family sign-in, correct a code and stay connected after reload',async({page})=>{
