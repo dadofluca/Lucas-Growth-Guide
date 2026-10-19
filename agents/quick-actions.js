@@ -8,6 +8,12 @@
   const size=poop.querySelector('#quickPoopSize'),wet=poop.querySelector('#quickPoopWet');
   const submit=poop.querySelector('#quickPoopSave');
   const names=['Sam','Maddie','Nona','Jay','Boppa','Yolanda','Lindsay','KJ','Luca'];
+  const helpers=new Map();
+  for(const [picker,id] of [[bottle,'quickBottleHelper'],[poop,'quickPoopHelper']]){
+   const details=document.createElement('details');details.className='quickSharedCredit';
+   details.innerHTML='<summary>＋ Share credit</summary><label for="'+id+'">Also credit</label><select id="'+id+'"><option value="">Just one person</option>'+names.map(n=>'<option>'+n+'</option>').join('')+'</select><small>One event. Each person gets credit.</small>';
+   (picker===poop?person:bottle.querySelector('.quickBottleCredit')).after(details);helpers.set(picker,details.querySelector('select'));details.addEventListener('toggle',place);
+  }
   function place(){
    if(!active||!anchor)return;
    const r=anchor.getBoundingClientRect(),vv=window.visualViewport;
@@ -33,6 +39,7 @@
    const next=kind==='bottle'?bottle:poop;
    if(active===next&&anchor===trigger){close(true);return;}
    close();beforeOpen?.();anchor=trigger||document.querySelector(kind==='bottle'?'#topQuickBottle':'#topQuickPoop');active=next;
+   helpers.get(next).value='';helpers.get(next).closest('details').open=false;
    if(next===poop){
     size.value='3';wet.checked=false;other.value='';other.hidden=true;
     const current=String(caregiver()||'').trim();
@@ -52,7 +59,7 @@
    busy=true;amounts.forEach(b=>b.disabled=true);
    const trigger=anchor;
    try{
-    const event={id:crypto.randomUUID(),at:new Date().toISOString(),oz:amount,tags:[],people:[caregiver()],notes:'',source:'quick-bottle'};
+    const event={id:crypto.randomUUID(),at:new Date().toISOString(),oz:amount,tags:[],people:root.LucaFamilyStars.names([caregiver(),helpers.get(bottle).value]),notes:'',source:'quick-bottle'};
     void save(event);close(true);toast(amount+' oz bottle saved on this phone ✓','feed');bottleSound?.();
     root.LucaPlayfulness?.savedBottle(trigger);
    }finally{busy=false;amounts.forEach(b=>b.disabled=false);}
@@ -66,7 +73,7 @@
    if(!labels[value])return;
    busy=true;submit.disabled=true;
    try{
-    const event={id:crypto.randomUUID(),at:new Date().toISOString(),oz:null,tags:['poop'],people:[who],notes:'Poop size: '+labels[value]+(wet.checked?'; wet/messy':''),details:{poop:{size:value,wet:wet.checked}},source:'quick-poop'};
+    const event={id:crypto.randomUUID(),at:new Date().toISOString(),oz:null,tags:['poop'],people:root.LucaFamilyStars.names([who,helpers.get(poop).value]),notes:'Poop size: '+labels[value]+(wet.checked?'; wet/messy':''),details:{poop:{size:value,wet:wet.checked}},source:'quick-poop'};
     void save(event);close(true);toast('Poop saved on this phone · '+who+' ✓','poop');poopFeedback?.();
    }finally{busy=false;submit.disabled=false;}
   });

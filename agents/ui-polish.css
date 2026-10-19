@@ -298,3 +298,39 @@ body#lucaApp .familySyncLink{display:block;margin:8px 0 12px;padding:9px 13px;mi
 body#lucaApp .pickerTitle{font-size:15px;letter-spacing:-.025em;background:transparent!important;border-color:transparent!important;padding:0!important;min-height:36px;text-align:left}
 @keyframes cardGlint{from{translate:-100% 0;opacity:0}30%{opacity:.8}to{translate:100% 0;opacity:0}}
 @media(prefers-reduced-motion:reduce){.masteryCard:after{animation:none!important}}
+.heroBtns #moreBtn{grid-column:1/-1;min-height:38px!important;flex-direction:row!important;gap:8px}
+.heroBtns #moreBtn span{font-size:18px!important}
+.clarifyBtns [aria-pressed="true"]{background:#d1e2d4!important;box-shadow:inset 0 0 0 2px #709882;color:#203f34!important}
+.quickSharedCredit{margin:9px 0;color:#425a4c;font-size:12px}
+.quickSharedCredit summary{min-height:36px;display:flex;align-items:center;cursor:pointer;font-weight:750}
+.quickSharedCredit select{width:100%;min-height:44px}
+.quickSharedCredit small{display:block;margin-top:6px}
+#starsView .card{padding:20px 17px}
+#starsRoot{color:#2d4439}
+#starsRoot h2{font-size:23px;margin:5px 0 8px;letter-spacing:-.035em}
+#starsRoot h3{font-size:17px;margin:0 0 12px;letter-spacing:-.02em}
+#starsRoot label{display:block;margin:13px 0 7px;font-size:12px;font-weight:750}
+#starsRoot input,#starsRoot select{width:100%;max-width:100%;min-height:46px;box-sizing:border-box;padding:11px 13px;border:1px solid #c9c9b7;border-radius:14px;background:#ebe5d8;color:#2c4338;-webkit-text-fill-color:#2c4338}
+#starsRoot small{display:block;font-size:12px;line-height:1.5;color:#607064}
+.starsIntro p{font-size:14px;line-height:1.5;color:#607064;margin:0 0 18px}
+.starHero{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:5px;margin:17px 0;padding:29px 18px;border-radius:25px;background:radial-gradient(ellipse at 75% 20%,#e7cc89b0,transparent 62%),linear-gradient(145deg,#e4d8b8,#d6ddc7);border:1px solid #c6c7a7;box-shadow:inset 0 1px #f7efd5,0 10px 24px #605b4210}
+.starHero strong{font-size:76px;font-weight:750;line-height:1.08;letter-spacing:-.07em;font-variant-numeric:tabular-nums;color:#35462e}
+.starHero>span:not(.starSpark){font-size:13px}.starHero small{margin-top:7px;text-align:center}
+.starSpark{position:absolute;font-size:90px;right:17px;top:6px;color:#c0a25b70;transform:rotate(14deg);pointer-events:none}
+.starPanel{margin-top:16px;padding:17px;border:1px solid #cdd0bc;border-radius:20px;background:#e8e3d4b0}
+.starPanel summary{cursor:pointer;font-weight:750;min-height:30px;line-height:1.5}
+.starPanel .confirm{margin-top:14px!important}
+.starPanel>small{margin-top:11px}
+.starPresets{display:flex;gap:8px;margin-top:12px}
+#starsRoot button:not(.confirm){min-height:44px;border-radius:12px;padding:9px 13px;background:#ddd9c3;color:#344735;-webkit-text-fill-color:#344735;border:1px solid #bbc4a9;font-weight:750}
+#starsRoot button:disabled{opacity:.55;cursor:default}
+.starProgress{height:9px;overflow:hidden;border-radius:10px;background:#cdd0b8;margin:15px 0 8px}
+.starProgress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#9ca66d,#c2a24e);transition:width .3s ease}
+.starReward p{font-size:13px;color:#5b6b57;margin:8px 0}
+.starReceipt,.starBonus{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #cbd0bb}
+.starReceipt>div,.starBonus>div{min-width:0;flex:1}.starReceipt span{display:block;font-size:13px;line-height:1.45;margin:5px 0;overflow-wrap:anywhere}
+.starReceipt button,.starBonus button{flex-shrink:0;font-size:12px;max-width:105px}
+.starBonus b{font-size:13px}.starBonus small{margin-top:5px}
+.starOpening,.starEmpty{font-size:12px;line-height:1.5;color:#62705e;padding:14px 2px 0}
+#starStatus{font-size:12px;color:#5d6c5a;line-height:1.5;min-height:20px;margin-top:16px}
+@media(prefers-reduced-motion:reduce){.starProgress span{transition:none}}

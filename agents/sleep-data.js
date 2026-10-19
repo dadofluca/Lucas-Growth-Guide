@@ -16,6 +16,7 @@
   return {version:1,kind:kind==="night"?"night":"nap",start_at:new Date(a).toISOString(),end_at:new Date(b).toISOString(),awake_minutes:optional(awake,"minutes awake",Math.floor(mins)),wakeups:optional(wakeups,"wake-ups",100)};
  }
  function baseSession(event){
+  if((event.tags||[]).includes('stars')||event.details?.starChart)return null;
   const data=event.details?.sleep,note=String(event.notes||event.sourceText||""),at=stamp(event.at);
   let start=NaN,end=NaN,kind="nap",awake=null,wakeups=null,legacy=false;
   if(data&&typeof data==="object"){

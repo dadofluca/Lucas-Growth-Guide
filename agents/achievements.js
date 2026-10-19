@@ -12,6 +12,7 @@ export const achievements=[
  {id:'crew-master',name:'Certified Chaos Crew',icon:'★',tone:'gold',mastery:true,description:'All four starter cards collected. The household is still chaos. You are now certified.',target:4,metric:'starterSet',hint:'Collect Fresh Recruit, Reporting for Duty, First Responder and Ceasefire Clerk.'},
  {id:'first-watch',tier:'starter',name:'Reporting for Duty',icon:'✦',tone:'sage',description:'Your first saved care entry. The tiny boss has staff.',target:1,metric:'total',hint:'Log your first care entry.'},
  {id:'bottle-service',name:'Bottle Service',icon:'🍼',tone:'gold',description:'Ten bottles logged. Your smallest regular tips in burps.',target:10,metric:'bottles',hint:'Log 10 bottles.'},
+ {id:'suds-and-regrets',name:'Suds & Regrets',icon:'🛁',tone:'sage',description:'One bath logged. The baby is clean. The bathroom has questions.',target:1,metric:'baths',hint:'Log a bath, shower or wash-up. Grown-ups can also claim a bonus star in Star chart.'},
  {id:'bottle-streak',name:'Milk Run',icon:'⚡',tone:'gold',description:'Bottles on three days in a row. A very small supply chain.',target:3,metric:'bottleStreak',hint:'Log a bottle on 3 consecutive days.'},
  {id:'diaper-streak',name:'Diaper Department',icon:'💩',tone:'clay',description:'Three days of diaper logs. Employee of the mess.',target:3,metric:'diaperStreak',hint:'Log a poop diaper on 3 consecutive days.'},
  {id:'code-brown',name:'Code Brown',icon:'☣',tone:'clay',description:'A wet, messy diaper disaster. You have seen things.',target:1,metric:'disasters',hint:'Log a diaper disaster with Wet / messy checked.'},
@@ -48,7 +49,7 @@ export function evaluateAchievements({events=[],userId,flair={},chatCount=null,n
  const f=normalizeFlair(flair),today=dateKey(now),nowMs=+new Date(now),seen=new Set();
  const valid=events.filter(e=>{
   const id=String(e.syncId||e.id||''),at=+new Date(e.at);
-  if(!id||seen.has(id)||!Number.isFinite(at)||at>nowMs+60000||(babyId&&e.babyId&&e.babyId!==babyId)||e.test_event||e.details?.test_event)return false;
+  if(!id||seen.has(id)||(e.tags||[]).includes('stars')||e.details?.starChart||!Number.isFinite(at)||at>nowMs+60000||(babyId&&e.babyId&&e.babyId!==babyId)||e.test_event||e.details?.test_event)return false;
   seen.add(id);return true;
  });
  // Author IDs survive edits. Caregiver credit remains independent in the leaderboard.
@@ -62,6 +63,7 @@ export function evaluateAchievements({events=[],userId,flair={},chatCount=null,n
  const leaders=[...current].filter(([,n])=>n===top).map(([id])=>id);
  const metrics={visits:f.visits.filter(k=>k<=today).length,sleep:mine.filter(e=>(e.tags||[]).includes('sleep')||e.event_type==='sleep').length,edits:mine.filter(e=>e.details?.edited_at).length,careTypes:[bottles.length>0,diapers.length>0,mine.some(e=>(e.tags||[]).includes('sleep')||e.event_type==='sleep')].filter(Boolean).length,total:mine.length,bottles:bottles.length,diapers:diapers.length,bottleStreak:maxStreak(bottles.map(e=>dateKey(e.at))),diaperStreak:maxStreak(diapers.map(e=>dateKey(e.at))),careStreak:maxStreak(mine.map(e=>dateKey(e.at))),disasters:diapers.filter(e=>(e.details?.poop?.size===5&&e.details?.poop?.wet===true)||/Poop size: diaper disaster; wet\/messy/i.test(e.notes||'')).length,night:mine.filter(e=>new Date(e.at).getHours()<5).length,weeklyWins,ghost:mine.length===0&&chatCount===0&&f.visits.filter(k=>k<=today).length>=3?1:0};
  metrics.starterSet=[metrics.visits>0,metrics.total>0,metrics.diapers>0,metrics.sleep>0].filter(Boolean).length;
+ metrics.baths=mine.filter(e=>(e.tags||[]).includes('bath')||e.event_type==='bath').length;
  const eligible=achievements.filter(a=>a.hidden?f.eggs.includes(a.id):metrics[a.metric]>=a.target).map(a=>a.id);
  const unlocked=unique([...f.unlocked,...eligible]);
  return {metrics,unlocked,newlyUnlocked:eligible.filter(id=>!f.unlocked.includes(id)),weekly:{leaders,count:top,mine:current.get(userId)||0,start:weekKey(now)}};

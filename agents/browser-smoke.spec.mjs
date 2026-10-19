@@ -538,9 +538,9 @@ async function syntheticCareBackend(page){
   const read=()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]');
   const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
   function query(table){
-   let op='read',payload=null,filters={},ignoreDuplicates=false,countRequested=false;
+   let op='read',payload=null,filters={},ignoreDuplicates=false,countRequested=false,rangeStart=0,rangeEnd=null;
    const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(columns,options){countRequested=!!options?.count;return q},eq(k,v){filters[k]=v;return q},in(){return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
-    then(resolve,reject){return Promise.resolve().then(async()=>{
+    range(start,end){rangeStart=start;rangeEnd=end;return q;},then(resolve,reject){return Promise.resolve().then(async()=>{
      if(table==='family_profiles'){
       if(op==='update'&&payload?.flair&&window.syntheticProfileOffline)return {data:null,error:{code:'network'}};
       if(op==='upsert'&&window.syntheticProfileSaveDelay)await new Promise(resolve=>setTimeout(resolve,window.syntheticProfileSaveDelay));
@@ -560,7 +560,7 @@ async function syntheticCareBackend(page){
      if(op==='update'){const old=rows.find(x=>x.id===filters.id);if(!old)return {error:{code:'PGRST116'}};const saved={...old,...payload};write(rows.map(x=>x.id===saved.id?saved:x));return {data:saved,error:null};}
      if(op==='delete'){write(rows.filter(x=>x.id!==filters.id));return {data:[{id:filters.id}],error:null};}
      const matching=rows.filter(x=>Object.entries(filters).every(([key,value])=>x[key]===value));
-     return {data:filters.id?matching[0]:matching,error:null};
+     return {data:filters.id?matching[0]:rangeEnd==null?matching:matching.slice(rangeStart,rangeEnd+1),error:null};
     }).then(resolve,reject);}
    };return q;
   }
@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P141');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P142');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P141');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P142');
 });
 
 
@@ -939,6 +939,41 @@ for(const caregiver of ['KJ','Luca'])test('P141: '+caregiver+' can log quick car
  await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption(caregiver);await page.screenshot({animations:'disabled',path:'test-results/p141-'+caregiver.toLowerCase()+'-caregiver-390.png'});await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#timeline .entry')).toHaveCount(2);await expect(page.locator('#manualComposer [data-person="'+caregiver+'"]')).toHaveCount(1);
  const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.caregivers.length===1&&r.caregivers[0]===caregiver)).toBe(true);expect(rows.find(r=>r.event_type==='feed').amount_oz).toBe(7);expect(rows.some(r=>r.tags.includes('poop'))).toBe(true);
+});
+
+test('P142: shared bottle credit and bath points survive save, edit and reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-20T16:00:00Z'));await page.addInitScript(()=>localStorage.setItem('luca-caregiver','Sam'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+ await page.locator('#topQuickBottle').click();await page.locator('#quickBottlePicker summary').click();await page.locator('#quickBottleHelper').selectOption('Luca');await page.locator('[data-quick-oz="8"]').click();await expect(page.locator('#oz')).toHaveText('8');await expect(page.locator('#feeds')).toHaveText('1');
+ await page.locator('#timeline [data-edit]').first().click();await expect(page.locator('#manualComposer [data-person="Sam"]')).toHaveClass(/on/);await expect(page.locator('#manualComposer [data-person="Luca"]')).toHaveClass(/on/);await page.locator('#notes').fill('Sam made it. Luca held it.');await page.locator('#saveEntry').click();
+ await page.locator('#quickText').fill('Sam and Luca shared 8 oz at 12 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems')).toContainText('Sam + Luca');await page.locator('#inlineItems [data-changecredit]').click();await page.locator('#inlineItems [data-creditchoice][data-person="Sam"]').click();await page.locator('#inlineItems [data-creditchoice][data-person="Luca"]').click();await page.locator('#inlineSave').click();await expect(page.locator('#feeds')).toHaveText('2');
+ await page.locator('#quickText').fill('Sam gave Luca a shower at 1:15 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartItem')).toHaveCount(1);await expect(page.locator('#inlineItems')).toContainText('Bath');await page.locator('#inlineSave').click();
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#bootCinematic .introSkip').click();await expect(page.locator('#bootCinematic')).toHaveCount(0);await expect(page.locator('#oz')).toHaveText('16');await expect(page.locator('#feeds')).toHaveText('2');await expect(page.locator('#timeline .entry')).toHaveCount(3);
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.filter(x=>x.event_type==='feed').every(x=>JSON.stringify(x.caregivers)==='["Sam","Luca"]')).toBe(true);expect(rows.find(x=>x.tags.includes('bath')).event_time).toBe('2026-10-20T13:15:00.000Z');
+ await page.locator('#navMore').click();await page.locator('#menuLeaderboard').click();await expect(page.locator('.lbRow').filter({hasText:'Sam'})).toContainText('4 pts');await expect(page.locator('.lbRow').filter({hasText:'Luca'})).toContainText('2 pts');await page.screenshot({animations:'disabled',path:'test-results/p142-shared-bath-390.png'});
+});
+
+test('P142: KJ starts at 33 stars, earns a reward, redeems, corrects and syncs offline awards',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>{if(!localStorage.getItem('qa-remote-events'))localStorage.setItem('qa-remote-events',JSON.stringify([{id:'qa-kj-opening',baby_id:'qa-baby',event_time:'2026-10-19T21:38:05Z',event_type:'other',tags:['stars'],caregivers:['KJ'],details:{starChart:{version:1,action:'opening',person:'KJ',delta:33}}}]));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuStars').click();await expect(page.locator('#starsView')).toHaveClass(/active/);await expect(page.locator('#starPerson')).toHaveValue('KJ');await expect(page.locator('#starBalance')).toHaveText('33');await page.screenshot({animations:'disabled',path:'test-results/p142-kj-stars-390.png'});
+ await page.locator('#starAmount').fill('2');await page.locator('#starReason').fill('Helped without being asked');await page.locator('#starAward').click();await expect(page.locator('#starBalance')).toHaveText('35');
+ await page.locator('#starGoalEditor summary').click();await page.locator('#starGoalTarget').fill('35');await page.locator('#starGoalReward').fill('Pick a new book');await page.locator('#starGoalForm button').click();await expect(page.locator('#starRedeem')).toBeVisible();page.once('dialog',d=>d.accept());await page.locator('#starRedeem').click();await expect(page.locator('#starBalance')).toHaveText('0');await expect(page.locator('.starReward')).toContainText('Reward claimed');
+ await page.evaluate(()=>window.syntheticOffline=true);await page.locator('#starAmount').fill('1');await page.locator('#starReason').fill('Offline kindness');await page.locator('#starAward').click();await expect(page.locator('#starBalance')).toHaveText('1');await expect(page.locator('#starStatus')).toContainText('waiting');await page.evaluate(()=>window.syntheticOffline=false);await page.locator('nav [data-tab="today"]').click();await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#timeline .entry')).toHaveCount(0);await expect(page.locator('#feeds')).toHaveText('0');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#bootCinematic .introSkip').click();await expect(page.locator('#bootCinematic')).toHaveCount(0);await page.locator('#navMore').click();await page.locator('#menuStars').click();await expect(page.locator('#starBalance')).toHaveText('1');page.once('dialog',d=>d.accept());await page.locator('.starReceipt').filter({hasText:'Offline kindness'}).locator('button').click();await expect(page.locator('#starBalance')).toHaveText('0');await expect(page.locator('.starReceipt').filter({hasText:'Offline kindness'})).toContainText('undone');
+ page.once('dialog',d=>d.accept());await page.locator('.starReceipt').filter({hasText:'Pick a new book'}).locator('button').click();await expect(page.locator('#starBalance')).toHaveText('35');await expect(page.locator('#starRedeem')).toBeVisible();
+});
+
+test('P142: adult bonus stars are claimable once and never inflate KJ or care totals',async({page})=>{
+ await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-20T16:00:00Z'));await page.addInitScript(()=>{const at='2026-10-20T15:00:00Z';localStorage.setItem('qa-remote-events',JSON.stringify([{id:'qa-kj-opening',baby_id:'qa-baby',event_time:'2026-10-19T21:38:05Z',event_type:'other',tags:['stars'],caregivers:['KJ'],details:{starChart:{version:1,action:'opening',person:'KJ',delta:33}}},{id:'qa-bath',baby_id:'qa-baby',event_time:at,event_type:'bath',tags:['bath'],caregivers:['Sam'],details:{}}]));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuStars').click();await page.locator('#starPerson').selectOption('Sam');await expect(page.locator('#starBalance')).toHaveText('0');await page.locator('[data-star-bonus="suds"]').click();await expect(page.locator('#starBalance')).toHaveText('1');await expect(page.locator('[data-star-bonus="suds"]')).toBeDisabled();await page.screenshot({animations:'disabled',path:'test-results/p142-adult-stars-320.png'});await page.locator('#starPerson').selectOption('KJ');await expect(page.locator('#starBalance')).toHaveText('33');
+ await page.locator('nav [data-tab="today"]').click();await expect(page.locator('#timeline .entry')).toHaveCount(1);await expect(page.locator('#feeds')).toHaveText('0');const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.filter(x=>x.tags.includes('stars')&&x.details?.starChart?.action!=='opening')).toHaveLength(1);
+});
+
+test('P142: a large history still loads KJ opening stars from later pages',async({page})=>{
+ await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-20T16:00:00Z'));
+ await page.addInitScript(()=>{const rows=Array.from({length:1000},(_,i)=>({id:'qa-old-'+i,baby_id:'qa-baby',event_time:'2026-10-01T12:00:00Z',event_type:'feed',amount_oz:8,tags:[],caregivers:['Sam']}));rows.push({id:'qa-old-opening',baby_id:'qa-baby',event_time:'2026-09-30T12:00:00Z',event_type:'other',tags:['stars'],caregivers:['KJ'],details:{starChart:{version:1,action:'opening',person:'KJ',delta:33}}});localStorage.setItem('qa-remote-events',JSON.stringify(rows));});
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuStars').click();await expect(page.locator('#starBalance')).toHaveText('33');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('luca-log-v2')).length)).toBe(1001);
 });
 
 test('P139: a new phone can reopen family sign-in, correct a code and stay connected after reload',async({page})=>{
