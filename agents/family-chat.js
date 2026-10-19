@@ -3,7 +3,7 @@ import {profileBanner} from "./flair-ui.js";
 /** Private family chat UI. Uses only the signed-in user's Supabase session. */
 export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,status,mediaInput,attachButton,mediaPreview}){
  let busy=false,requestId=0,disposed=false,selectedFile=null,profileCache=new Map(),cacheSession='';
- let firstRender=true,forceLatest=false;
+ let firstRender=true,forceLatest=false,lastSnapshot='';
  const latest=document.querySelector('#chatLatest'),remove=document.querySelector('#familyChatRemove');
  const toLatest=()=>{feed.scrollTop=feed.scrollHeight;if(latest)latest.hidden=true;};
  const onScroll=()=>{if(latest)latest.hidden=feed.scrollHeight-feed.clientHeight-feed.scrollTop<80;};
@@ -12,6 +12,10 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
  input.addEventListener('input',resizeInput);
  function say(message){status.textContent=message;}
  function show(rows,profiles=new Map()){
+  const snapshot=JSON.stringify([getUser()?.id,rows,[...profiles]]);
+  // Unchanged polling must not restart videos or repaint the conversation.
+  if(snapshot===lastSnapshot&&feed.children.length){if(forceLatest)toLatest();forceLatest=false;return;}
+  lastSnapshot=snapshot;
   const follow=firstRender||forceLatest||feed.scrollHeight-feed.clientHeight-feed.scrollTop<80,position=feed.scrollTop;
   const portraits=new Map([...feed.querySelectorAll("[data-message-id]")].map(el=>[el.dataset.messageId,el.querySelector(".avatarPortrait")]));
   feed.replaceChildren();
