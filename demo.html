@@ -708,7 +708,7 @@ function handleSmartAction(event){
   }
   if(key==="feedchoice"){it.feedChoice=d.choice;if(d.choice==="solids"){it.kind="solids";it.label="🥣 Solid food";it.note=$("#smartText").value.trim();it.needsFeedDetail=false;it.oz=null;}else it.label="🍼 Bottle — choose ounces";}
   if(key==="ozchoice"){it.oz=+d.oz;it.needsFeedDetail=false;it.label="🍼 Bottle — "+it.oz+" oz";}
-  if(key==="creditchoice"){if(it.creditSelecting){const chosen=new Set(it.credits||[]);chosen.has(d.person)?chosen.delete(d.person):chosen.add(d.person);it.credits=[...chosen];}else it.credits=[d.person];it.creditChoice=it.credits.join(" + ")||null;it.credit=it.creditChoice;}
+  if(key==="creditchoice"){if(it.creditSelecting){const chosen=new Set(it.credits||[]);chosen.has(d.person)?chosen.delete(d.person):chosen.add(d.person);it.credits=[...chosen];}else{it.credits=[d.person];it.creditSelecting=true;}it.creditChoice=it.credits.join(" + ")||null;it.credit=it.creditChoice;}
   if(key==="smartchoice")it[d.part+"Choice"]=d.choice;
  }
  renderSmart();
