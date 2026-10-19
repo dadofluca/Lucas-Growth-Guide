@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay','KJ'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility patches run.
 
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
@@ -204,7 +204,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
 
  // Quick poop: tap dock poop, then choose who changed it. Save immediately.
  const poop=document.getElementById("carePoop"),pop=document.createElement("div");pop.className="quickPoopPop";
- pop.innerHTML=["Sam","Maddie","Nona","Boppa","Jay","Other"].map(n=>'<button type="button" data-pooper="'+n+'">'+n+'</button>').join("");document.body.appendChild(pop);
+ pop.innerHTML=["Sam","Maddie","Nona","Boppa","Jay","KJ","Other"].map(n=>'<button type="button" data-pooper="'+n+'">'+n+'</button>').join("");document.body.appendChild(pop);
  function pos(){const r=poop.getBoundingClientRect();pop.style.top=Math.min(innerHeight-180,Math.max(90,r.top-40))+"px";pop.style.right=Math.max(72,innerWidth-r.left+6)+"px"}
  poop?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();pos();pop.classList.toggle("on")},true);
  document.addEventListener("click",e=>{if(!pop.contains(e.target)&&!poop?.contains(e.target))pop.classList.remove("on")});
@@ -505,7 +505,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  const iso=(day,m)=>{let p=day.split("-").map(Number);return new Date(p[0],p[1]-1,p[2],Math.floor(m/60),m%60).toISOString()};
  function parseTime(raw,ampm){let p=String(raw).replace(".",":").split(":"),h=+p[0],m=+(p[1]||0),a=(ampm||"").toLowerCase();if(a==="pm"&&h<12)h+=12;if(a==="am"&&h===12)h=0;return h*60+m}
  function parseScheduleText(text,day){
-   let out=[],parts=text.split(/\n|;|,(?=\s*(?:Sam|Maddie|Nona|Boppa|Jay|Yolanda|Lindsay)\b)/i);
+   let out=[],parts=text.split(/\n|;|,(?=\s*(?:Sam|Maddie|Nona|Boppa|Jay|Yolanda|Lindsay|KJ)\b)/i);
    const people=["Sam","Maddie",...LUCA_RUNTIME.schedule.coveragePeople];
    for(let part of parts){let person=people.find(n=>new RegExp("\\b"+n+"\\b","i").test(part));if(!person)continue;let m=part.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?\s*(?:-|–|to|until)\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)?/i);if(!m)continue;let ap1=m[2],ap2=m[4];if(!ap1&&ap2)ap1=ap2;let start=parseTime(m[1],ap1),end=parseTime(m[3],ap2);if(end<=start)continue;out.push({person,kind:/^(sam|maddie)$/i.test(person)?"work":"coverage",day,start,end})}
    return out

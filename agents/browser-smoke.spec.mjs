@@ -596,9 +596,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P139');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P140');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P139');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P140');
 });
 
 
@@ -866,9 +866,9 @@ test('P136: friend playground edits, deletes, chats, profiles and resets without
 
 test('P136: practice schedule changes persist locally and revert removes only sample coverage',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
- await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);await page.locator('.scheduleDay48').filter({hasText:'Sam'}).first().click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
+ await page.locator('#navMore').click();await page.locator('#menuSchedule').click();await expect(page.locator('.scheduleDay48')).toHaveCount(7);const card=page.locator('.scheduleDay48').filter({has:page.locator('.work48').filter({hasText:'Sam'})}).first(),day=await card.getAttribute('data-schedule-day');await card.locator('.scheduleDayTop48').click();await page.locator('.addMgr63').click();await page.locator('[data-p63="Nona"]').click();await expect(page.locator('.st57')).toHaveValue('07:00');await expect(page.locator('.en57')).toHaveValue('15:00');await page.locator('.save57').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).filter(r=>r.kind==='coverage').length)).toBe(1);await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#navMore').click();await page.locator('#menuSchedule').click();
- await page.locator('.scheduleDay48').filter({hasText:'Nona'}).first().click();page.once('dialog',dialog=>dialog.accept());await page.locator('.revertMgr63').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).length)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).every(r=>r.kind==='work'))).toBe(true);
+ await page.locator('[data-schedule-day="'+day+'"] .scheduleDayTop48').click();await expect(page.locator('.coverList63')).toContainText('Nona');page.once('dialog',dialog=>dialog.accept());await page.locator('.revertMgr63').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).length)).toBe(2);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('db:luca_schedule')).every(r=>r.kind==='work'))).toBe(true);
 });
 
 for(const locale of ['en-US','es-DO'])test('P137: practice schedule keeps the selected New Year date in '+locale,async({browser})=>{
@@ -912,6 +912,33 @@ test('P138: removing an unresolved bottle and correcting a draft cannot leave a 
  await page.locator('#quickText').fill('Nona gave banana at 12:50 pm');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineSave')).toBeEnabled();
  const corrected='Nona gave chicken and broccoli at 12:55 pm';await page.locator('#quickText').fill(corrected);await expect(page.locator('#inlineClarify')).toBeHidden();await expect(page.locator('#inlineSave')).toBeDisabled();await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems .smartMealNote')).toHaveText(corrected);await page.locator('#inlineSave').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')).length)).toBe(2);const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.amount_oz==null&&r.tags.includes('solids'))).toBe(true);expect(rows.find(r=>r.note===corrected).event_time).toBe('2026-10-18T12:55:00.000Z');expect(rows.some(r=>r.note==='Nona gave banana at 12:50 pm')).toBe(false);
+});
+
+test('P140: bottle estimate excludes overnight feeds and a logged nap in local time',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},timezoneId:'America/New_York',reducedMotion:'reduce'}),page=await context.newPage();
+ try{
+  await syntheticCareBackend(page);await page.clock.setFixedTime(new Date('2026-10-19T20:00:00Z'));
+  await page.addInitScript(()=>{
+   const at=h=>new Date(2026,9,19,h,0).toISOString();
+   const rows=[1,5,8,12,15].map(h=>({id:'qa-feed-'+h,baby_id:'qa-baby',event_type:'feed',event_time:at(h),amount_oz:8,tags:[],caregivers:['KJ'],note:'Synthetic bottle'}));
+   rows.push({id:'qa-nap',baby_id:'qa-baby',event_type:'sleep',event_time:at(9),amount_oz:null,tags:['sleep'],caregivers:['Nona'],note:'Synthetic nap',details:{sleep:{kind:'nap',start_at:at(9),end_at:at(10)}}});
+   if(!localStorage.getItem('qa-remote-events'))localStorage.setItem('qa-remote-events',JSON.stringify(rows));
+  });
+  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
+  await expect(page.locator('#heroWhy')).toContainText('1 recent daytime interval');await expect(page.locator('#heroWhy')).toContainText('180 minutes');await expect(page.locator('#heroWhy')).toContainText('Recorded sleep and overnight gaps');await expect(page.locator('#heroNext')).toHaveText('6:00 PM');
+  await page.locator('.heroNext').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p140-daytime-bottle-390.png'});
+  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#heroNext')).toHaveText('6:00 PM');await expect(page.locator('#heroWhy')).toContainText('180 minutes');
+ }finally{await context.close();}
+});
+
+test('P140: KJ can log quick care and retain credit through editing and reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.addInitScript(()=>localStorage.setItem('luca-caregiver','KJ'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#deviceCaregiver')).toHaveValue('KJ');
+ await page.locator('#topQuickBottle').click();await expect(page.locator('.quickBottleCredit')).toContainText('KJ');await page.locator('[data-quick-oz="6"]').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
+ await page.locator('#timeline [data-edit]').first().click();await expect(page.locator('#manualComposer [data-person="KJ"]')).toHaveClass(/on/);await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#saveEntry').click();await expect(page.locator('#manualComposer')).toBeHidden();await expect(page.locator('#oz')).toHaveText('7');
+ await page.locator('#topQuickPoop').click();await page.locator('#quickPoopCaregiver').selectOption('KJ');await page.screenshot({animations:'disabled',path:'test-results/p140-kj-caregiver-390.png'});await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#timeline .entry')).toHaveCount(2);await expect(page.locator('#manualComposer [data-person="KJ"]')).toHaveCount(1);
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>JSON.stringify(r.caregivers)==='["KJ"]')).toBe(true);expect(rows.find(r=>r.event_type==='feed').amount_oz).toBe(7);expect(rows.some(r=>r.tags.includes('poop'))).toBe(true);
 });
 
 test('P139: a new phone can reopen family sign-in, correct a code and stay connected after reload',async({page})=>{
