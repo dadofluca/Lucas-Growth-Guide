@@ -9,6 +9,8 @@
 - **250 Node + 83 Chromium checks passed**, zero failures/flakes/skips. Final phone layouts reviewed before merging. Final source `f0eb08ffea35f07f0109c80a3232f7c9cc0a021a`, CI checkout `526b1f8900f809abdd92be948951d5bb3f1de610`; release merge `243a1e9da9291fd42e5b8f632fded2b7c8e9f42f`; identical tree `d1888cf8a392160d270f40209b64cccd9a858942`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39356207758) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39356207796).
 - Additive voting/review schema and an explicit Sam manager grant are deployed. Transaction-only RLS tests passed and every sample was rolled back. No real care records or old suggestions were changed. Physical signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
 
+- Public app and friend demo verified P146; all 29 SHA-256 file comparisons matched the tested runtime and current protocol/playbook. Evidence: artifacts/p146-public-verification.json. Final release-note edits are documentation only.
+
 ## Previous release: P145 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Bedtime and shared names #96](https://github.com/dadofluca/Lucas-Growth-Guide/pull/96)
