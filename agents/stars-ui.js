@@ -23,7 +23,7 @@
   $('starAwardForm').onsubmit=e=>{e.preventDefault();const amount=Number($('starAmount').value),s=api.state(getEntries(),selected);if(s.balance+amount<0){$('starStatus').textContent='That would take the balance below zero.';return;}if(commit('award',{delta:amount,reason:$('starReason').value.trim()})){$('starReason').value='';$('starAmount').value='1';render();}};
   host.querySelectorAll('[data-star-amount]').forEach(b=>b.onclick=()=>{$('starAmount').value=b.dataset.starAmount;});
   $('starGoalForm').onsubmit=e=>{e.preventDefault();if(commit('goal',{stars:Number($('starGoalTarget').value),reward:$('starGoalReward').value.trim()})){$('starGoalEditor').open=false;render();}};
-  window.addEventListener('luca:care-updated',render);window.addEventListener('luca:session-changed',render);render();return {render};
+  window.addEventListener('luca:care-updated',render);window.addEventListener('luca:session-changed',render);render();return {render,selectPerson(person){if(!person)return;selected=String(person).trim();$('starGoalTarget').value='';$('starGoalReward').value='';render();}};
  }
  root.LucaStarsUI={mount};
 })(typeof window!=='undefined'?window:globalThis);

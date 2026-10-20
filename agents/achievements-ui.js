@@ -18,11 +18,13 @@ export function mountAchievements({getContext,getEntries,host}){
   result=evaluateAchievements({events:getEntries(),userId:c.user.id,babyId:c.baby,flair,chatCount});
   if(result.newlyUnlocked.length){flair={...flair,unlocked:result.unlocked};changed(c);}
  }
+ function publishPersonal(){const c=context();if(!self||!session||key(c)!==session)return;window.dispatchEvent(new CustomEvent('luca:personal-achievements',{detail:{family:c.family,baby:c.baby,user:c.user.id,cards:achievements.filter(a=>flair.unlocked.includes(a.id)).map(({id,name,icon,description})=>({id,name,icon,description}))}}));}
  function paint(){
   const oldPortrait=host.querySelector('.achievementHero .avatarPortrait');
   host.replaceChildren();const c=context();const teaser=document.getElementById('starterCardTeaser');if(teaser){teaser.hidden=!self||!!flair.banner||!result?.unlocked.length;const count=result?.unlocked.length||1;teaser.textContent='✦ '+count+' calling card'+(count===1?'':'s')+' ready · choose yours ↗';}
   if(!session||key(c)!==session){host.append(element('p','muted','Sign in to Family Sync to collect achievements.'));return;}
   if(!self){host.append(element('p','muted',notice||'Opening your trophy cabinet…'));return;}
+  publishPersonal();
   const hero=element('div','achievementHero');
   hero.append(oldPortrait?.dataset.avatarKey===(self.avatar_preset||'bear')?oldPortrait:avatarImage(self.avatar_preset||'bear',64,true));
   const identity=element('div','achievementIdentity');identity.append(element('strong','',self.display_name||'You'),element('span','avatarCharacter',avatarLabel(self.avatar_preset)));
@@ -117,6 +119,7 @@ export function mountAchievements({getContext,getEntries,host}){
  });
  window.addEventListener('luca:care-updated',()=>{clearTimeout(debounce);debounce=setTimeout(update,350);});
  window.addEventListener('luca:family-session-ready',refresh);window.addEventListener('luca:session-changed',refresh);
+ window.addEventListener('luca:request-personal-achievements',publishPersonal);
  window.addEventListener('online',refresh);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh();});
  document.querySelector('[data-tab="achievements"]')?.addEventListener('click',refresh);
