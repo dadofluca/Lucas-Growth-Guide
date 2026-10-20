@@ -26,5 +26,14 @@
   return {key:'feed:'+String(rhythm.last.syncId||rhythm.last.id),nextAt:rhythm.nextAt,learned:rhythm.learned};
  }
  function validPushEndpoint(value){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&['push.apple.com','fcm.googleapis.com','push.services.mozilla.com','notify.windows.com'].some(h=>u.hostname===h||u.hostname.endsWith('.'+h))&&u.pathname.length>1;}catch{return false;}}
- const api={safeProductURL,validTimeZone,quiet,asleep,feedReminder,validPushEndpoint};root.LucaNotificationRules=api;if(typeof module==='object'&&module.exports)module.exports=api;
+ function careKinds(row){
+  if(!row||(row.tags||[]).includes('stars')||row.details?.starChart)return [];
+  const tags=new Set([...(row.tags||[]),row.event_type]),kinds=[];
+  if(Number(row.amount_oz??row.oz)>0||tags.has('feed')||tags.has('bottle'))kinds.push('bottle');
+  if(['poop','pee','diaper'].some(t=>tags.has(t)))kinds.push('diaper');
+  if(tags.has('sleep')||tags.has('nap')||row.details?.sleep)kinds.push('sleep');
+  if(!kinds.length||[...tags].some(t=>t&&!['feed','bottle','poop','pee','diaper','sleep','nap','other'].includes(t)))kinds.push('other');
+  return kinds;
+ }
+ const api={safeProductURL,validTimeZone,quiet,asleep,feedReminder,validPushEndpoint,careKinds};root.LucaNotificationRules=api;if(typeof module==='object'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -62,3 +62,15 @@ test('P148: visible chat and another designated buyer suppress the recipient-spe
 test('P148: worker authentication and family membership protect config; clients receive only a public key',async()=>{
  const f=fixture();assert.equal((await f.call({action:'dispatch'})).status,401);assert.equal((await f.call({action:'config',family:f.family},{Authorization:'Bearer foreign'})).status,403);const result=await f.call({action:'config',family:f.family},{Authorization:'Bearer own'});assert.deepEqual(await result.json(),{publicKey:'synthetic-public',ready:true});assert.equal(f.sent.length,0);
 });
+test('P150: selected care categories send once; own, deleted, foreign-baby and disabled entries stay quiet',async()=>{
+ const f=fixture();f.device.care_types=['diaper'];
+ const add=(id,tags,extra={})=>{f.tables.baby_events.push({id,baby_id:'baby-a',created_by:'user-c',event_time:f.iso(-1),tags,...extra});f.tables.notification_jobs.push({id:'job-'+id,family_id:f.family,kind:'care',source_id:id,actor_id:extra.created_by||'user-c',happened_at:f.iso(-1),expires_at:f.iso(10)});};
+ add('diaper',['pee']);add('bottle',[],{amount_oz:8});add('own',['poop'],{created_by:'user-a'});add('foreign',['pee'],{baby_id:'baby-b'});add('deleted',['pee']);f.tables.baby_events=f.tables.baby_events.filter(e=>e.id!=='deleted');
+ assert.equal((await f.dispatch()).status,200);assert.deepEqual(f.sent.filter(n=>n.data.kind==='care').map(n=>n.data.event),['diaper']);assert.match(f.sent.find(n=>n.data.kind==='care').data.url,/notify=history/);await f.dispatch();assert.equal(f.sent.filter(n=>n.data.kind==='care').length,1);
+ f.device.care_types=[];add('new-diaper',['poop']);await f.dispatch();assert.equal(f.sent.filter(n=>n.data.kind==='care').length,1);
+});
+test('P150: all-alert quiet hours suppress care and turning off existing categories prevents their delivery',async()=>{
+ const f=fixture();Object.assign(f.device,{care_types:['sleep'],feed_enabled:false,chat_enabled:false,supplies_enabled:false,quiet_all:true,quiet_start:'13:00',quiet_end:'15:00'});
+ f.tables.baby_events.push({id:'sleep-new',baby_id:'baby-a',created_by:'user-c',tags:['sleep'],event_time:f.iso(-1)});f.tables.notification_jobs.push({kind:'care',family_id:f.family,source_id:'sleep-new',actor_id:'user-c',happened_at:f.iso(-1),expires_at:f.iso(10)});
+ await f.dispatch();assert.equal(f.sent.length,0);f.device.quiet_all=false;await f.dispatch();assert.deepEqual(f.sent.map(n=>n.data.kind),['care']);
+});
