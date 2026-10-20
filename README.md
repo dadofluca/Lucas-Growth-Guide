@@ -1,4 +1,15 @@
-## Current release: P147 — 2026-10-19
+## Current release: P148 — 2026-10-19
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Notifications and product links #99](https://github.com/dadofluca/Lucas-Growth-Guide/pull/99)
+
+- More → Notifications offers per-phone feed, family-chat and low-supply alerts. Feed reminders use the existing daytime rhythm, pause for logged sleep/quiet hours, and reset on a new bottle. Chat groups recent messages and keeps previews off by default.
+- Supplies → Choose product saves the exact item, size/variant, secure product/checkout link and optional family buyer. Low-stock alerts open the saved store link; ordering stays with the person at the store. Offline status changes stay scoped to their family and retry without losing the pending change.
+- On iPhone, open the Home Screen app, tap Enable on this phone, allow notifications, then tap Test this phone. Every person opts in on their own device. A browser test cannot grant this permission or prove real Apple delivery.
+- **268 Node + 92 Chromium checks passed**, with no failures or flakes. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39362804898) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39362804969). Source `76bb057b32d17f265caaf1b16ff640eacffe3ebc`, CI `03fcd241e396962dd773c923159c5a34a97b02aa`, release merge `83328cc687bd9b24ea5d3013aa3c517ccf01160a`; identical source tree. Phone screenshots and all 23 public runtime byte comparisons verified; app/demo both serve P148.
+- The background function, private subscriptions/queue/receipts and minute scheduler are deployed. Rollback-only database isolation tests, encryption/VAPID checks and authenticated empty-dispatch smoke checks passed. No real subscription was seeded, and no purchase was made. Actual signed-in iPhone delivery and a second production device remain manual checks.
+- New notification/product state is family scoped. [Family portability](docs/FAMILY_PORTABILITY.md) records the remaining blank-family onboarding, configuration/cache work and native/App Store requirements. P148 adds no destructive reset or clone of live family history. Account/dashboard login and Teddy key work remain deferred.
+
+## Previous release: P147 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Profiles, themes, rewards and Star controls #98](https://github.com/dadofluca/Lucas-Growth-Guide/pull/98)
 
