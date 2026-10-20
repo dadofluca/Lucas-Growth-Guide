@@ -1,4 +1,13 @@
-## Current release: P144 — 2026-10-19
+## Current release: P145 — 2026-10-19
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Bedtime and shared names #96](https://github.com/dadofluca/Lucas-Growth-Guide/pull/96)
+
+- Start Night sleep with Still asleep selected. Save the real bedtime now; wake time, wake-ups and minutes awake remain TBD. A red reminder survives midnight and opens the same entry to add the actual wake time in the morning. Unknown wake-up counts may stay blank. Unfinished sleep never inflates completed sleep totals or daytime bottle spacing.
+- Type Sam and Maddie (or use commas, & or +) to credit separate caregivers. Existing event IDs, offline retry and Undo stay on the shared care queue.
+- **246 Node + 80 Chromium checks passed**, zero failures/flakes/skips. Final source `c262951b36be08d90077a46645002317412a385d`, CI checkout `255601335409c841a0613c4811fabecc9a9a5ce7`, merge `4bd234d9fd748fbca2850d16598ec692b06a47b3`; identical tree `f494d1e6e71c665949b768fc0b4073112ba721ed`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39354333349) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39354333293). Reviewed final phone screenshots before merging. Exact evidence and source owners are in DEVELOPER_HANDOFF.md.
+- No production records or schema changes. Physical signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
+
+## Previous release: P144 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Shared caregivers and personal updates #95](https://github.com/dadofluca/Lucas-Growth-Guide/pull/95)
 

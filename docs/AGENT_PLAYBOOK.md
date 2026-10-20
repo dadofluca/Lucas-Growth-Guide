@@ -20,6 +20,7 @@ The existing PR browser workflow supplies both reports. The existing daily mobil
 | --- | --- | --- |
 | Care missing, duplicate, edit lost, delete wrong | `care-sync.js`, `agents/quick-actions.js` | `node --test agents/care-sync.test.mjs agents/delete-integrity.test.mjs` |
 | Sleep note missing or double-counted | `agents/sleep-inference.js`, `agents/sleep-data.js` | `node --test agents/p136-sleep-inference.test.mjs agents/p134-sleep-data.test.mjs` |
+| Cannot start sleep before wake time; unresolved sleep/reminder lost next day | `agents/sleep-ui.js`, `agents/sleep-data.js`, canonical `renderUnfinishedSleep()` in `index.html` | `node --test agents/p145-open-sleep.test.mjs`; browser `P145:` overnight/offline flows. Complete the same ID; null TBD values must never become zero or an invented wake time |
 | Friend mode leaks storage or uses real service | `agents/demo-mode.js`, `agents/build-friend-demo.mjs`, `sw.js` | `node --test agents/p136-friend-demo.test.mjs` |
 | Banner missing, stale or overwritten | `agents/achievements.js`, `agents/achievements-ui.js` | `node --test agents/p135-achievements.test.mjs` |
 | Avatar/profile/chat stale or blank | `agents/family-profiles.js`, `agents/family-chat.js` | `node --test agents/family-chat.test.mjs agents/family-profiles.test.mjs` |
