@@ -3,7 +3,7 @@ import {profileBanner} from './flair-ui.js';
 import {avatarImage,avatarLabel} from './family-profiles.js';
 
 export function mountAchievements({getContext,getEntries,host}){
- let session='',generation=0,profiles=[],self=null,flair=normalizeFlair({}),chatCount=null,result=null;
+ let session='',generation=0,profiles=[],identities=[],self=null,flair=normalizeFlair({}),chatCount=null,result=null;
  let category='all';let loading=false,saving=false,dirty=false,revision=0,debounce=null,notice='',pendingBanner;
  const context=()=>{const c=getContext();return {...c,family:typeof c.family==='object'?c.family?.id:c.family};};
  const key=c=>c.family&&c.user?.id?c.family+':'+c.user.id:'';
@@ -15,7 +15,7 @@ export function mountAchievements({getContext,getEntries,host}){
  const element=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;};
  function changed(c){dirty=true;revision++;storePending(c);}
  function calculate(c){
-  result=evaluateAchievements({events:getEntries(),userId:c.user.id,babyId:c.baby,flair,chatCount});
+  result=evaluateAchievements({events:getEntries(),userId:c.user.id,babyId:c.baby,flair,chatCount,identities});
   if(result.newlyUnlocked.length){flair={...flair,unlocked:result.unlocked};changed(c);}
  }
  function publishPersonal(){const c=context();if(!self||!session||key(c)!==session)return;window.dispatchEvent(new CustomEvent('luca:personal-achievements',{detail:{family:c.family,baby:c.baby,user:c.user.id,cards:achievements.filter(a=>flair.unlocked.includes(a.id)).map(({id,name,icon,description})=>({id,name,icon,description}))}}));}
@@ -38,7 +38,7 @@ export function mountAchievements({getContext,getEntries,host}){
   week.append(element('small','',names.length?result.weekly.count+' entries logged'+(names.length>1?' · shared lead':''):'The first care log starts the week.'));host.append(week);
   const tools=element('div','achievementTools');tools.append(element('h2','','Calling cards'));
   if(flair.banner){const clear=element('button','tiny','No banner');clear.type='button';clear.dataset.equipBanner='';tools.append(clear);}
-  host.append(tools,element('p','achievementFoot','Earned from entries you logged. Caregiver credit stays on the Leaderboard. Hidden finds reveal themselves along the way.'));
+  host.append(tools,element('p','achievementFoot','Most cards celebrate entries you logged. Quiet Legend celebrates care others credited to you. Hidden finds reveal themselves along the way.'));
   const grid=element('div','achievementGrid');
   const filters=element('div','callingCardFilters');for(const [value,label] of [['all','All cards'],['starter','Easy starters'],['ready','Unlocked'],['hidden','Classified']]){const button=element('button','',label);button.type='button';button.dataset.cardCategory=value;button.setAttribute('aria-pressed',String(category===value));filters.append(button);}host.append(filters);
   const ordered=[...achievements].sort((a,b)=>(a.tier==='starter'?0:a.hidden?2:1)-(b.tier==='starter'?0:b.hidden?2:1));
@@ -78,19 +78,21 @@ export function mountAchievements({getContext,getEntries,host}){
  }
  async function refresh(){
   const c=context(),next=key(c);
-  if(next!==session){session=next;generation++;profiles=[];self=null;flair=normalizeFlair({});chatCount=null;result=null;loading=false;saving=false;dirty=false;pendingBanner=undefined;notice='';}
+  if(next!==session){session=next;generation++;profiles=[];identities=[];self=null;flair=normalizeFlair({});chatCount=null;result=null;loading=false;saving=false;dirty=false;pendingBanner=undefined;notice='';}
   if(!next||!c.client||!c.user){paint();return;}
   if(loading)return;loading=true;const g=generation;
   try{
    const responses=await Promise.allSettled([
     c.client.from('family_profiles').select('user_id,display_name,avatar_preset,flair').eq('family_id',c.family),
-    c.client.from('family_chat_messages').select('id',{count:'exact',head:true}).eq('family_id',c.family).eq('sender_id',c.user.id)
+    c.client.from('family_chat_messages').select('id',{count:'exact',head:true}).eq('family_id',c.family).eq('sender_id',c.user.id),
+    c.client.from('family_star_identities').select('user_id,person').eq('family_id',c.family)
    ]);
    if(!current(c,g))return;
    const people=responses[0];if(people.status!=='fulfilled'||people.value.error)throw new Error('Profile unavailable');
    profiles=people.value.data||[];self=profiles.find(p=>p.user_id===c.user.id)||null;
    if(!self){notice='Finish Family Sync, then refresh your collection.';paint();return;}
    const chat=responses[1];chatCount=chat.status==='fulfilled'&&!chat.value.error&&Number.isInteger(chat.value.count)?chat.value.count:null;
+   const linked=responses[2];identities=linked.status==='fulfilled'&&!linked.value.error?linked.value.data||[]:[];
    const pending=readPending(c);if(pending&&pendingBanner===undefined&&Object.hasOwn(pending,'banner'))pendingBanner=pending.banner;
    const local=mergeFlair(pending?.flair,flair,{banner:pendingBanner});
    flair=mergeFlair(self.flair,local,{banner:pendingBanner});

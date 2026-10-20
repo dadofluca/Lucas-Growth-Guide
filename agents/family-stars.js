@@ -41,5 +41,6 @@
   if(action==='goal'&&(!Number.isInteger(stars)||stars<1||stars>1000||!reward.trim()))throw Error('Add a reward and a target from 1 to 1,000 stars.');
   return {id,at:new Date(now).toISOString(),oz:null,tags:['stars'],people:[person],notes:reason.slice(0,240),event_type:'other',source:'star-chart',details:{starChart:{version:1,action,person,delta,reason:reason.slice(0,240),...(action==='goal'?{stars,reward:reward.trim().slice(0,120)}:{}),ref,key,source}}};
  }
- const api={people,names,isLedger,points,state,bonuses,entry};root.LucaFamilyStars=api;if(typeof module==='object'&&module.exports)module.exports=api;
+ function canChangeStars(access,person){return !!access?.manager||!!access?.person&&identity(access.person)!==identity(person);}
+ const api={canChangeStars,people,names,isLedger,points,state,bonuses,entry};root.LucaFamilyStars=api;if(typeof module==='object'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -29,7 +29,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
    const who=document.createElement("strong");who.textContent=m.sender_id===getUser()?.id?"You":(profile.display_name||"Family member");
    const when=document.createElement("small");when.className="chatTimestamp";when.textContent=new Date(m.created_at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
    const body=document.createElement("div");body.className='chatBody';body.textContent=m.body;
-   const header=document.createElement("div");header.className="chatMessageHeader";const identity=document.createElement("div");identity.className="chatIdentity";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(profile.avatar_preset);identity.append(who,character);const banner=profileBanner(profile.flair);if(banner)identity.append(banner);identity.append(when);header.append(avatar,identity);line.append(header,body);
+   const header=document.createElement("div");header.className="chatMessageHeader";const identity=document.createElement("div");identity.className="chatIdentity";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(profile.avatar_preset);identity.append(who,character);const banner=profileBanner(profile.flair);if(banner)identity.append(banner);identity.append(when);const portraitButton=document.createElement("button");portraitButton.type="button";portraitButton.className="chatProfileTrigger";portraitButton.dataset.familyMember=m.sender_id;portraitButton.setAttribute("aria-label","View "+(profile.display_name||"family member")+" profile");portraitButton.append(avatar);const nameButton=document.createElement("button");nameButton.type="button";nameButton.className="chatNameTrigger";nameButton.dataset.familyMember=m.sender_id;nameButton.setAttribute("aria-label","View "+(profile.display_name||"family member")+" profile");who.remove();identity.prepend(nameButton);nameButton.append(who);header.append(portraitButton,identity);line.append(header,body);
    if(m.media_path&&["image","gif","video"].includes(m.media_type)){
     const sb=getClient();
     const media=document.createElement(m.media_type==="video"?"video":"img");
@@ -62,7 +62,7 @@ export function mountFamilyChat({getClient,getFamilyId,getUser,feed,input,send,s
   const messages=(data||[]).slice().reverse();
   show(messages,profileCache);say("");
   let people=[];
-  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,avatar_preset,flair").eq("family_id",family));}catch{}
+  try{({data:people}=await sb.from("family_profiles").select("user_id,display_name,bio,avatar_preset,flair").eq("family_id",family));}catch{}
   const names=new Map((people||[]).map(p=>[p.user_id,p]));
   if(disposed||request!==requestId)return;
   if(getFamilyId()!==family||getUser()?.id!==user.id){feed.replaceChildren();say("Family session changed. Refresh chat.");return;}

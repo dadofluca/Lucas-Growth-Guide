@@ -1,3 +1,4 @@
+import './caregiver-credit.js';
 // Cosmetic achievements, derived from real records. No points affect care decisions.
 export const achievements=[
  {id:'first-checkin',name:'Fresh Recruit',icon:'✦',tone:'sage',tier:'starter',description:'You showed up. The tiny boss appreciates a warm body.',target:1,metric:'visits',hint:'Open the app while signed in. Your first card is ready.'},
@@ -21,6 +22,7 @@ export const achievements=[
  {id:'night-shift',name:'Graveyard Shift',icon:'☾',tone:'lavender',description:'Care recorded between midnight and 5 AM. Coffee has entered the chat.',target:1,metric:'night',hint:'Log a care event that happened between midnight and 5 AM.'},
  {id:'weekly-mvp',name:'Weekly MVP',icon:'🏆',tone:'gold',description:'Most entries in a completed week with at least two active loggers. Ties share the crown.',target:1,metric:'weeklyWins',hint:'Lead a completed calendar week with 5+ logs and at least 2 active family loggers.'},
  {id:'ghost-mode',name:'Ghost Mode',icon:'👻',tone:'lavender',description:'Three days checking in, no logs or messages yet. Elite lurking.',target:1,metric:'ghost',hint:'Visit on 3 different days before your first care log or chat message.'},
+ {id:'quiet-legend',name:'Quiet Legend',icon:'☀',tone:'gold',description:'You did the care. Someone else kept the notes. Five care moments across three days, seen and appreciated.',target:1,metric:'quietLegend',hint:'Care credited to you by another verified family account can earn a little quiet recognition.'},
  {id:'off-the-rails',name:'Off the Rails',icon:'💨',tone:'clay',description:'You found the limits of diaper engineering.',hidden:true,hint:'Some messes are beyond measurement.'},
  {id:'block-party',name:'Block Party',icon:'🧸',tone:'sage',description:'You found a party hiding in a very small block.',hidden:true,hint:'The little L has a surprisingly active social life.'},
  {id:'bottle-orbit',name:'Launch Control',icon:'🚀',tone:'gold',description:'A bottle briefly escaped Earth. The log stayed put.',hidden:true,hint:'Bottle service occasionally achieves escape velocity.'}
@@ -45,7 +47,7 @@ export function maxStreak(keys){
  for(const d of days){run=previous!==null&&d-previous===1?run+1:1;best=Math.max(best,run);previous=d;}return best;
 }
 export function weekKey(value){const d=new Date(value);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateKey(d);}
-export function evaluateAchievements({events=[],userId,flair={},chatCount=null,now=new Date(),babyId=null}={}){
+export function evaluateAchievements({events=[],userId,flair={},chatCount=null,now=new Date(),babyId=null,identities=[]}={}){
  const f=normalizeFlair(flair),today=dateKey(now),nowMs=+new Date(now),seen=new Set();
  const valid=events.filter(e=>{
   const id=String(e.syncId||e.id||''),at=+new Date(e.at);
@@ -64,6 +66,8 @@ export function evaluateAchievements({events=[],userId,flair={},chatCount=null,n
  const metrics={visits:f.visits.filter(k=>k<=today).length,sleep:mine.filter(e=>(e.tags||[]).includes('sleep')||e.event_type==='sleep').length,edits:mine.filter(e=>e.details?.edited_at).length,careTypes:[bottles.length>0,diapers.length>0,mine.some(e=>(e.tags||[]).includes('sleep')||e.event_type==='sleep')].filter(Boolean).length,total:mine.length,bottles:bottles.length,diapers:diapers.length,bottleStreak:maxStreak(bottles.map(e=>dateKey(e.at))),diaperStreak:maxStreak(diapers.map(e=>dateKey(e.at))),careStreak:maxStreak(mine.map(e=>dateKey(e.at))),disasters:diapers.filter(e=>(e.details?.poop?.size===5&&e.details?.poop?.wet===true)||/Poop size: diaper disaster; wet\/messy/i.test(e.notes||'')).length,night:mine.filter(e=>new Date(e.at).getHours()<5).length,weeklyWins,ghost:mine.length===0&&chatCount===0&&f.visits.filter(k=>k<=today).length>=3?1:0};
  metrics.starterSet=[metrics.visits>0,metrics.total>0,metrics.diapers>0,metrics.sleep>0].filter(Boolean).length;
  metrics.baths=mine.filter(e=>(e.tags||[]).includes('bath')||e.event_type==='bath').length;
+ const person=identities.find(x=>x.user_id===userId)?.person;
+ metrics.quietLegend=globalThis.LucaCaregiverCredit.summary(valid,person,{identities,babyId,now}).earned?1:0;
  const eligible=achievements.filter(a=>a.hidden?f.eggs.includes(a.id):metrics[a.metric]>=a.target).map(a=>a.id);
  const unlocked=unique([...f.unlocked,...eligible]);
  return {metrics,unlocked,newlyUnlocked:eligible.filter(id=>!f.unlocked.includes(id)),weekly:{leaders,count:top,mine:current.get(userId)||0,start:weekKey(now)}};

@@ -1,6 +1,6 @@
-const CACHE="luca-shell-p146";
+const CACHE="luca-shell-p147";
 const EMERGENCY="./emergency.html";
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./index.html","./care-sync.js?v=146","./sync-fix.js?v=146","./family-pin.js?v=146","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/quick-actions.js?v=146","./agents/playfulness.js?v=146","./agents/achievements.js","./agents/achievements-ui.js","./agents/flair-ui.js","./agents/sleep-inference.js?v=146","./agents/sleep-data.js?v=146","./agents/bottle-rhythm.js?v=146","./agents/insights.js?v=146","./agents/personal-updates.js?v=146","./agents/sleep-ui.js?v=146","./agents/family-stars.js?v=146","./agents/stars-ui.js?v=146","./agents/ui-polish.css?v=146","./agents/report-widget.js","./agents/family-ideas.js","./agents/family-ideas-model.js"]);}))});
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./index.html","./care-sync.js?v=147","./sync-fix.js?v=147","./family-pin.js?v=147","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/quick-actions.js?v=147","./agents/playfulness.js?v=147","./agents/achievements.js","./agents/achievements-ui.js","./agents/flair-ui.js","./agents/sleep-inference.js?v=147","./agents/sleep-data.js?v=147","./agents/bottle-rhythm.js?v=147","./agents/insights.js?v=147","./agents/personal-updates.js?v=147","./agents/sleep-ui.js?v=147","./agents/family-stars.js?v=147","./agents/caregiver-credit.js?v=147","./agents/caregiver-credit.js","./agents/stars-ui.js?v=147","./agents/ui-polish.css?v=147","./agents/report-widget.js","./agents/family-ideas.js","./agents/family-ideas-model.js","./agents/themes.js","./agents/member-viewer.js"]);}))});
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith("luca-")&&k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
@@ -11,8 +11,8 @@ self.addEventListener("fetch",e=>{
  if(e.request.mode==="navigate"){
   e.respondWith((async()=>{try{
    const r=await fetch(e.request,{cache:"no-store"});if(!r.ok)return r;let html=await r.text();
-   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=146"></script></body>');
-   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=146"></script></body>');
+   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=147"></script></body>');
+   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=147"></script></body>');
    return new Response(html,{status:r.status,statusText:r.statusText,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
   }catch(err){return (await caches.match("./index.html"))||(await caches.match(EMERGENCY))||Response.error()}})());return;
  }
