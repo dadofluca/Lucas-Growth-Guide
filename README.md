@@ -1,4 +1,15 @@
-## Current release: P143 — 2026-10-19
+## Current release: P144 — 2026-10-19
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Shared caregivers and personal updates #95](https://github.com/dadofluca/Lucas-Growth-Guide/pull/95)
+
+- Caregiver buttons now add/remove people during both logging and editing. Removed the legacy edit-mode listener that cleared previous selections; highlights and pressed states restore from the saved people array. One shared event keeps its stable ID and single intake total.
+- Each age chapter has three ideas (12 total), a fresh daily selection, Another idea and Previous controls. Rotation follows the local calendar and works offline without a model key.
+- The ✦ side bubble and More → Your updates collect your unlocked calling cards and selected caregiver's Star receipts, bonus invitations and ready rewards. Read marks persist on this device for the specific family/baby/user/person. Undo removes revoked Star receipts; notifications never award Stars themselves.
+- Fresh out of the chaos lab is a compact release brief, opened from a dismissible teaser or the inbox. It explains the actual new features without interrupting typing or asking for push permission.
+- **242 Node + 78 Chromium checks passed**, zero failures/flakes/skips. Source `3c8b8f31a4c5dea6d96542d4fba7c13f03a9b3a4`, CI checkout `6476f2f7d802f983e5fe7965e7f0b4a18c04923a`, merge `f41f40d2b030b6b29f8b6214f71ad7cf64e1c832`; identical tree `d7a40adfed0f80184dca9b70fb4358d361e2c7a6`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39352038605) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39352038604). Reviewed phone screenshots before merging. See DEVELOPER_HANDOFF.md for exact artifacts and source owners.
+- No production records, schema or access policies changed. Actual signed-in iPhone/PWA, second production family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
+
+## Previous release: P143 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Chat and Insights #94](https://github.com/dadofluca/Lucas-Growth-Guide/pull/94)
 

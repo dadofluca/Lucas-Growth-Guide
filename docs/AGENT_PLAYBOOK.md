@@ -24,6 +24,8 @@ The existing PR browser workflow supplies both reports. The existing daily mobil
 | Banner missing, stale or overwritten | `agents/achievements.js`, `agents/achievements-ui.js` | `node --test agents/p135-achievements.test.mjs` |
 | Avatar/profile/chat stale or blank | `agents/family-profiles.js`, `agents/family-chat.js` | `node --test agents/family-chat.test.mjs agents/family-profiles.test.mjs` |
 | Insights numbers, unknown days, age chapters | `agents/insights.js`, canonical `render()` in `index.html` | `node --test agents/p143-insights.test.mjs agents/p74-insights.test.mjs`; browser `P143:` flows |
+| Caregiver buttons replace instead of adding people | canonical manual handler/edit in `index.html`; remove obsolete handlers in `sync-fix.js` | Browser `P144: caregiver buttons` must add/remove caregivers while editing and verify the same remote record after reload |
+| Daily ideas repeat or personal inbox/read marks are wrong | `agents/insights.js`, `agents/personal-updates.js`, unlocked metadata in `agents/achievements-ui.js` | `node --test agents/p144-updates.test.mjs`; browser `P144:` age and updates flows; notifications must remain read-only |
 | Chat composer covered, refresh jumps, large banners | `agents/family-chat.js`, `agents/ui-polish.css`, canonical chat markup | Browser `P143:` flow at 390px and reduced 320px viewport; real iPhone keyboard remains a separate check |
 | Wrong schedule day/year or translated day label | `sync-fix.js` (use `data-schedule-day`, never parse display text) | Browser workflow: `practice schedule` tests |
 | Browser evidence missing, invalid or stale | `agents/doctor.mjs`, `playwright.config.mjs` | Fresh browser workflow for the current commit, then Doctor with both JSON reports |
