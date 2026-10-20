@@ -25,26 +25,13 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
 
 })();
 
-/* P36 — edit mode is single-choice, truthful, and visually obvious */
+/* Edit mode: amounts stay single-choice; caregiver toggles belong to index.html. */
 (function(){
  const st=document.createElement("style");
  st.textContent=`
  #manualComposer .choice.on{background:#173c58!important;color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important;border-color:#173c58!important;box-shadow:0 0 0 3px #173c5830!important;transform:translateY(-1px)}
  #manualComposer .choice.on small,#manualComposer .choice.on span{color:#fffaf2!important;-webkit-text-fill-color:#fffaf2!important}
  `;document.head.appendChild(st);
-
- // Editing a caregiver means replacing the old caregiver, not adding another.
- document.querySelectorAll("#manualComposer [data-person]").forEach(b=>{
-   b.addEventListener("click",()=>{
-     if(!editId)return;
-     const chosen=b.dataset.person;
-     people.clear();
-     document.querySelectorAll("#manualComposer [data-person]").forEach(x=>x.classList.remove("on"));
-     people.add(chosen);b.classList.add("on");
-     if(chosen!=="Other"){const o=document.getElementById("otherPerson");o.value="";o.style.display="none"}
-     else document.getElementById("otherPerson").style.display="block";
-   });
- });
 
  // In edit mode, ounce buttons are radio buttons and update displayed details.
  document.querySelectorAll("#manualComposer [data-oz]").forEach(b=>{
