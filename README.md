@@ -9,6 +9,8 @@
 - **256 Node + 88 Chromium checks passed**, zero failures/flakes. Reviewed final phone layouts before merging. Final source `af5f823841fdd5c3685865036eddc99e24f0a3ef`, CI checkout `cefd0355445e7b1c0b8e096721f5f6fc2f609c63`, merge `05b39fec64000d2b1d1d689074203963d7eef7ea`; matching tree `0dfe6bcd9ad8da3aa6c2493ff4d174bc5ede6cbb`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39359507442) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39359507440).
 - Deployed and transaction-tested family database access hardening, preserving legitimate family reads/saves/edits/deletes and private chat media. Account-wide dashboard settings and Teddy key configuration remain unverified pending authenticated access. Actual signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing storage.
 
+- Public app and practice playground verified P147; all 32 file byte comparisons match the tested runtime. Final release-note updates change documentation only.
+
 ## Previous release: P146 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Family Ideas and Star chart #97](https://github.com/dadofluca/Lucas-Growth-Guide/pull/97)
