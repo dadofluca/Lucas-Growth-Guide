@@ -44,7 +44,7 @@
   if(complete&&awake!=null&&awake>mins)awake=null;
   return {id:event.syncId||event.id,kind,start,end,minutes:complete?mins:null,awake,wakeups,complete,legacy,ongoing};
  }
- function resolve(entries,now=Date.now()){return root.LucaSleepInference?root.LucaSleepInference.resolve(entries,{baseSession,now}):new Map(entries.map(e=>[String(e.syncId||e.id),baseSession(e)]).filter(([,s])=>s));}
+ function resolve(entries,now=Date.now(),timeZone){return root.LucaSleepInference?root.LucaSleepInference.resolve(entries,{baseSession,now,timeZone}):new Map(entries.map(e=>[String(e.syncId||e.id),baseSession(e)]).filter(([,s])=>s));}
  function session(event,entries=null,now=Date.now()){return resolve(entries||[event],now).get(String(event.syncId||event.id))||null;}
  function uniqueSessions(entries,now){
   const result=new Map();

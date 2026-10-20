@@ -1,0 +1,24 @@
+body#lucaApp .notificationPanel p{line-height:1.5}
+body#lucaApp .notificationPanel fieldset{border:1px solid var(--theme-line,#b7c5b8);border-radius:16px;padding:14px;margin:18px 0;min-width:0}
+body#lucaApp .notificationPanel legend{font-weight:800;padding:0 6px}
+body#lucaApp .notificationPanel label,body#lucaApp .supplyProductDialog label{display:flex;flex-direction:column;gap:7px;margin:10px 0;font-weight:650}
+body#lucaApp .notificationPanel .notificationChoice{display:flex;flex-direction:row;gap:12px;align-items:flex-start;font-weight:500;padding:8px 0;cursor:pointer}
+body#lucaApp .notificationChoice input[type=checkbox]{width:22px;height:22px;min-width:22px;accent-color:#346449;margin:0;flex-shrink:0}
+body#lucaApp .notificationChoice small{display:block;margin-top:4px;line-height:1.45}
+body#lucaApp .notificationPanel small,body#lucaApp .supplyRetailer{color:var(--theme-muted,#465d50);opacity:1;line-height:1.5}
+body#lucaApp .notificationPanel input:not([type=checkbox]),body#lucaApp .supplyProductDialog input,body#lucaApp .supplyProductDialog select{box-sizing:border-box;width:100%;min-width:0;min-height:46px;border-radius:12px;border:1px solid var(--theme-line,#a3b4a6);background:var(--theme-input,#fffcf5);color:var(--theme-ink,#243d34);padding:10px;font:inherit}
+body#lucaApp .notificationTimes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media(max-width:480px){body#lucaApp .notificationTimes{grid-template-columns:minmax(0,1fr);gap:0}}
+body#lucaApp .notificationActions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+body#lucaApp .notificationActions button,body#lucaApp .supplyCard .tiny{min-height:44px}
+body#lucaApp #pushState{font-weight:650;padding:12px;border-radius:12px;background:var(--theme-soft,#e3ecdf);color:var(--theme-ink,#243d34)}
+body#lucaApp .supplyProductDialog{box-sizing:border-box;width:min(94vw,490px);max-height:85dvh;overflow:auto;border:1px solid var(--theme-line,#a3b4a6);border-radius:22px;background:var(--theme-surface,#f7f2e8);color:var(--theme-ink,#243d34);padding:22px;box-shadow:0 18px 70px #0005}
+body#lucaApp .supplyProductDialog::backdrop{background:#152b246e;backdrop-filter:blur(3px)}
+body#lucaApp .supplyProductDialog .confirm{margin-top:0}
+body#lucaApp .supplyProductDialog .tiny{border:1px solid #a3b4a6;background:#eef1e5;color:#243d34;min-height:44px;border-radius:12px;padding:10px 14px}
+body#lucaApp .supplyRetailer{display:block;overflow-wrap:anywhere;margin:5px 0}
+body#lucaApp .supplyProductName{font-weight:650;line-height:1.4;margin:10px 0 4px}
+body#lucaApp .supplyBuy{display:inline-flex;align-items:center;text-decoration:none;padding:10px 13px;box-sizing:border-box;border-radius:12px}
+body#lucaApp .supplyCard .actions{flex-wrap:wrap;gap:8px}
+body#lucaApp .supplyImport{border:1px solid #b9a88e;border-radius:14px;padding:12px;margin-top:15px}
+body#lucaApp #notificationsView{padding-bottom:100px}

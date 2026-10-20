@@ -1,6 +1,35 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P148: practice notification choices never request OS permission or send a push',async({page})=>{
+ await page.setViewportSize({width:320,height:740});let outgoing=0;page.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:8765/'))outgoing++;});
+ await page.addInitScript(()=>{window.qaPermissionCalls=0;Object.defineProperty(window,'Notification',{value:{permission:'default',requestPermission(){window.qaPermissionCalls++;return Promise.resolve('granted');}}});});
+ await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuNotifications').click();
+ await expect(page.locator('#pushState')).toContainText('Practice settings only');await page.locator('#pushPreviews').check();await page.locator('#pushQuietAll').check();await page.locator('#pushEnable').click();await page.locator('#pushTest').click();await expect(page.locator('#pushState')).toContainText('Practice mode sends nothing');expect(await page.evaluate(()=>window.qaPermissionCalls)).toBe(0);await page.locator('#pushQuietStart').scrollIntoViewIfNeeded();expect(await page.locator('#pushQuietStart').evaluate(el=>el.getBoundingClientRect().width)).toBeGreaterThan(180);await expect(page.locator('#toast')).not.toHaveClass(/on/);await page.screenshot({animations:'disabled',path:'test-results/p148-notification-choices-320.png'});await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#pushPreviews')).toBeChecked();expect(outgoing).toBe(0);
+});
+
+test('P148: exact supply product and buyer persist; offline low-stock updates stay queued until sync',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuSupplies').click();
+ const formula=page.locator('.supplyCard').filter({has:page.getByText('Formula',{exact:true})});await formula.getByRole('button',{name:'Choose product',exact:true}).click();await page.locator('#supplyProductName').fill('Sample gentle formula');await page.locator('#supplyProductVariant').fill('32 oz refill');await page.locator('#supplyProductURL').fill('https://store.example/formula?variant=32oz');await page.locator('#supplyBuyer').selectOption('qa-user');await page.screenshot({animations:'disabled',path:'test-results/p148-product-picker-390.png'});await page.locator('#supplyProductSave').click();await expect(page.locator('#supplyProductDialog')).not.toBeVisible();await expect(formula.getByRole('link',{name:'Open saved product'})).toHaveAttribute('href','https://store.example/formula?variant=32oz');await expect(formula).toContainText('32 oz refill');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-family_supplies')).find(s=>s.name==='Formula').buyer_user_id)).toBe('qa-user');
+ await page.evaluate(()=>window.syntheticSuppliesOffline=true);await formula.getByRole('button',{name:'Running low',exact:true}).click();await expect(formula).toContainText('waiting to sync');await expect(formula).toContainText('Running low');await page.evaluate(()=>{window.syntheticSuppliesOffline=false;window.dispatchEvent(new Event('online'));});await expect(formula).not.toContainText('waiting to sync');await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuSupplies').click();await expect(formula).toContainText('Sample gentle formula');await expect(formula).toContainText('Running low');
+ await formula.getByRole('button',{name:'Edit product'}).click();await page.locator('#supplyProductURL').fill('https://localhost/unsafe');await page.locator('#supplyProductSave').click();await expect(page.locator('#supplyProductStatus')).toContainText('secure https');
+});
+
+test('P148: changing family keeps an offline supply status out of the new family',async({page})=>{
+ await syntheticCareBackend(page);await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuSupplies').click();const formula=page.locator('.supplyCard').filter({has:page.getByText('Formula',{exact:true})});await expect(formula).toBeVisible();await page.evaluate(()=>window.syntheticSuppliesOffline=true);await formula.getByRole('button',{name:'Running low',exact:true}).click();await expect(formula).toContainText('waiting to sync');
+ await page.evaluate(()=>{syncFamily='qa-other-family';syncBaby='qa-other-baby';window.syntheticSuppliesOffline=false;window.dispatchEvent(new Event('luca:session-changed'));});await expect(page.locator('#supplyList')).not.toContainText('Formula');const state=await page.evaluate(()=>({pending:JSON.parse(localStorage.getItem('luca-supplies-pending-v2:qa-family:qa-user')),foreign:JSON.parse(localStorage.getItem('qa-family_supplies')||'[]').filter(x=>x.family_id==='qa-other-family')}));expect(state.pending.Formula.status).toBe('low');expect(state.foreign).toHaveLength(0);
+});
+
+test('P148: push subscription requires an explicit tap, saves per-device choices and can be disabled',async({page})=>{
+ await syntheticCareBackend(page);await page.addInitScript(()=>{
+  window.qaPermissionCalls=0;Object.defineProperty(window,'Notification',{value:{permission:'granted',requestPermission(){window.qaPermissionCalls++;return Promise.resolve('granted');}}});window.PushManager=class{};
+  const sub={toJSON:()=>({endpoint:'https://web.push.apple.com/qa-only-not-a-real-subscription',keys:{p256dh:'A'.repeat(87),auth:'A'.repeat(22)}}),unsubscribe:async()=>{window.qaUnsubscribed=true;return true;}};
+  const registration={pushManager:{getSubscription:async()=>sub,subscribe:async()=>sub}};Object.defineProperty(navigator,'serviceWorker',{value:{ready:Promise.resolve(registration),getRegistration:async()=>registration,register:async()=>registration,addEventListener(name,callback){if(name==='message')window.qaSWmessage=callback;}}});
+ });
+ await page.goto('http://127.0.0.1:8765/index.html?notify=notifications&family=qa-family',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>{window.syntheticClient.functions={invoke:async(_name,{body})=>({data:body.action==='config'?{publicKey:btoa(String.fromCharCode(...new Uint8Array(65).fill(1))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}:{sent:true},error:null})};});
+ expect(await page.evaluate(()=>window.qaPermissionCalls)).toBe(0);await expect(page.locator('#bootCinematic')).toHaveCount(0);await expect(page.locator('#notificationsView')).toHaveClass(/active/);await page.locator('#pushEnable').click();await expect(page.locator('#pushState')).toContainText('Enabled on this phone');expect(await page.evaluate(()=>window.qaPermissionCalls)).toBe(1);await page.locator('#pushPreviews').check();await page.locator('#pushQuietAll').check();await page.locator('#pushSave').click();await expect(page.locator('#pushState')).toContainText('choices saved');await page.locator('#pushTest').click();await expect(page.locator('#pushState')).toContainText('Test accepted');await page.locator('#pushDisable').click();await expect(page.locator('#pushState')).toContainText('off on this phone');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-push_devices'))[0].enabled)).toBe(false);expect(await page.evaluate(()=>window.qaUnsubscribed)).toBe(true);await page.evaluate(()=>window.qaSWmessage({data:{type:'luca:notification-open',url:new URL('/?notify=chat&family=qa-family',location.href).href}}));await expect(page.locator('#chatView')).toHaveClass(/active/);expect(await page.evaluate(()=>window.qaPermissionCalls)).toBe(1);
+});
+
 test('P147: intro Skip has opaque high contrast on every video frame and dismisses the intro',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
  const skip=page.getByRole('button',{name:'Skip intro',exact:true});await expect(skip).toBeVisible();const colors=await skip.evaluate(el=>{const s=getComputedStyle(el);return {foreground:s.webkitTextFillColor,background:s.backgroundColor,opacity:s.opacity,height:el.getBoundingClientRect().height};});
@@ -634,7 +663,7 @@ async function syntheticCareBackend(page){
   const write=rows=>localStorage.setItem('qa-remote-events',JSON.stringify(rows));
   function query(table){
    let op='read',payload=null,filters={},ignoreDuplicates=false,countRequested=false,rangeStart=0,rangeEnd=null;
-   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(columns,options){countRequested=!!options?.count;return q},eq(k,v){filters[k]=v;return q},in(){return q},order(){return q},limit(){return q},single(){return q},gte(){return q},lt(){return q},abortSignal(){return q},
+   const q={insert(v){op='insert';payload=v;return q},update(v){op='update';payload=v;return q},upsert(v,options){op='upsert';payload=v;ignoreDuplicates=!!options?.ignoreDuplicates;return q},delete(){op='delete';return q},select(columns,options){countRequested=!!options?.count;return q},eq(k,v){filters[k]=v;return q},in(){return q},order(){return q},limit(){return q},single(){return q},maybeSingle(){q._maybeSingle=true;return q},gte(){return q},lt(){return q},abortSignal(){return q},
     range(start,end){rangeStart=start;rangeEnd=end;return q;},then(resolve,reject){return Promise.resolve().then(async()=>{
      if(['family_ideas','family_idea_votes','family_idea_reviews','family_idea_managers','family_star_identities'].includes(table)){
       if(window.syntheticIdeasOffline)return {data:null,error:{code:'network'}};
@@ -646,6 +675,14 @@ async function syntheticCareBackend(page){
       if(op==='update'){rows=rows.map(r=>match(r)?{...r,...payload,updated_at:new Date().toISOString()}:r);localStorage.setItem(key,JSON.stringify(rows));}
       if(op==='delete'){rows=rows.filter(r=>!match(r));localStorage.setItem(key,JSON.stringify(rows));return {data:null,error:null};}
       return {data:rows.filter(match),error:null};
+     }
+     if(table==='family_members')return {data:[{family_id:'qa-family',user_id:'qa-user'},{family_id:'qa-family',user_id:'qa-nona'}].filter(row=>Object.entries(filters).every(([k,v])=>row[k]===v)),error:null};
+     if(['family_supplies','push_devices'].includes(table)){
+      if(window.syntheticSuppliesOffline&&table==='family_supplies')return {data:null,error:{code:'network'}};
+      const store='qa-'+table;let rows=JSON.parse(localStorage.getItem(store)||'[]');const match=row=>Object.entries(filters).every(([k,v])=>row[k]===v);
+      if(op==='insert'||op==='upsert'){const old=op==='upsert'?rows.find(row=>row.id===payload.id):null;const row={id:crypto.randomUUID(),status:'good',...old,...payload};rows=old?rows.map(x=>x===old?row:x):[...rows,row];localStorage.setItem(store,JSON.stringify(rows));return {data:[row],error:null};}
+      if(op==='update'){rows=rows.map(row=>match(row)?{...row,...payload}:row);localStorage.setItem(store,JSON.stringify(rows));}
+      return {data:q._maybeSingle?rows.filter(match)[0]||null:rows.filter(match),error:null};
      }
      if(table==='family_profiles'){
       if(op==='update'&&payload?.flair&&window.syntheticProfileOffline)return {data:null,error:{code:'network'}};
@@ -671,7 +708,7 @@ async function syntheticCareBackend(page){
    };return q;
   }
   const channel={on(){return channel},subscribe(){return channel}};
-  window.syntheticClient={auth:{getUser:async()=>({data:{user:{id:'qa-user',email:'synthetic@example.invalid'}}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},rpc:async()=>({data:[{baby_id:'qa-baby',family_id:'qa-family'}]}),from:query,channel:()=>channel,removeChannel:async()=>{}};
+  window.syntheticClient={auth:{getUser:async()=>({data:{user:{id:'qa-user',email:'synthetic@example.invalid'}}}),onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}}},rpc:async(name,args)=>{if(name==='ensure_default_supplies'){let rows=JSON.parse(localStorage.getItem('qa-family_supplies')||'[]');for(const supply of ['Formula','Water','Diapers','Wipes'])if(!rows.some(row=>row.family_id===args.target_family&&row.name===supply))rows.push({id:crypto.randomUUID(),family_id:args.target_family,name:supply,status:'good'});localStorage.setItem('qa-family_supplies',JSON.stringify(rows));return {data:null,error:null};}return {data:[{baby_id:'qa-baby',family_id:'qa-family'}]};},from:query,channel:()=>channel,removeChannel:async()=>{}};
   if(!localStorage.getItem('luca-caregiver'))localStorage.setItem('luca-caregiver','Synthetic caregiver');localStorage.setItem('luca-sound','off');sessionStorage.setItem('hideSync','1');
  });
 }
@@ -702,9 +739,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P147');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P148');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P147');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P148');
 });
 
 

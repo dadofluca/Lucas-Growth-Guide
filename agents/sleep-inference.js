@@ -3,20 +3,27 @@
  'use strict';
  const minute=60000,id=e=>String(e.syncId||e.id),time=v=>new Date(v).getTime();
  const clockPattern='(\\d{1,2}(?::\\d{2})?\\s*(?:a\\.?m\\.?|p\\.?m\\.?)?)';
- function clocks(raw,anchor){
+ function clocks(raw,anchor,timeZone){
   const m=String(raw).trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?$/i);if(!m)return [];
   const h=+m[1],mins=+(m[2]||0),ap=(m[3]||'').replaceAll('.','').toLowerCase();
   if(mins>59||h>23||(ap&&(h<1||h>12)))return [];
   const hours=ap?[h%12+(ap==='pm'?12:0)]:h>12||h===0?[h]:[h%12,h%12+12];
+  if(timeZone){
+   const parts=t=>Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(t).map(p=>[p.type,p.value]));
+   const base=parts(anchor);
+   return [-1,0,1].flatMap(offset=>hours.map(hour=>{const target=Date.UTC(+base.year,+base.month-1,+base.day+offset,hour,mins);let at=target;
+    for(let i=0;i<4;i++){const p=parts(at),shown=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute),diff=target-shown;if(!diff)return at;at+=diff;}return NaN;
+   })).filter(Number.isFinite);
+  }
   return [-1,0,1].flatMap(offset=>hours.map(hour=>{const d=new Date(anchor);d.setDate(d.getDate()+offset);d.setHours(hour,mins,0,0);return +d;}));
  }
- function pastClock(raw,anchor){return clocks(raw,anchor).filter(t=>t<=anchor+minute&&anchor-t<18*3600000).sort((a,b)=>Math.abs(a-anchor)-Math.abs(b-anchor))[0]??NaN;}
+ function pastClock(raw,anchor,timeZone){return clocks(raw,anchor,timeZone).filter(t=>t<=anchor+minute&&anchor-t<18*3600000).sort((a,b)=>Math.abs(a-anchor)-Math.abs(b-anchor))[0]??NaN;}
  function counts(note){
   const exact=note.match(/(?:wake[- ]?ups?\s*:\s*(\d+)(?![\d+])|(\d+)\s*(?:wake[- ]?ups?|wakings))/i);
   const around=exact?note.slice(Math.max(0,exact.index-14),exact.index+exact[0].length):'';
   return {wakeups:exact&&!/maybe|about|around|roughly|~|\?/i.test(around)?+(exact[1]||exact[2]):null,awake:note.match(/awake minutes:\s*(\d+)/i)?.[1]??null};
  }
- function fromNote(e,base,now){
+ function fromNote(e,base,now,timeZone){
   if(e.details?.sleep&&typeof e.details.sleep==='object')return base;
   const note=String(e.notes||e.sourceText||'').replace(/[–—]/g,'-'),at=time(e.at);
   if(!Number.isFinite(at)||! /\b(?:nap(?:ped|ping)?|slept|sleep|asleep|bedtime|down for (?:the )?night|woke|wake[ -]?up)\b/i.test(note))return base;
@@ -25,7 +32,7 @@
   const stats=counts(note);
   if(range){
    const candidates=[];
-   for(const start of clocks(range[1],at))for(const end of clocks(range[2],at)){
+   for(const start of clocks(range[1],at,timeZone))for(const end of clocks(range[2],at,timeZone)){
     const mins=(end-start)/minute;
     if(mins<=0||mins>480||end>now+minute||Math.min(Math.abs(start-at),Math.abs(end-at))>6*3600000)continue;
     candidates.push({start,end,score:Math.min(Math.abs(start-at),Math.abs(end-at))+Math.abs(start-at)*.05});
@@ -37,21 +44,21 @@
   const bedtime=/down for (?:the )?night|fell asleep|went (?:down|to sleep)|\bbedtime\b|asleep (?:at|since)/i.test(note);
   if(wake&&bedtime){
    const before=note.slice(0,wake.index),clock=before.match(new RegExp('(?:\\bat\\b|@|since)\\s*'+clockPattern,'i'));
-   const end=pastClock(wake[1],at),start=clock?pastClock(clock[1],end-minute):NaN,mins=(end-start)/minute;
+   const end=pastClock(wake[1],at,timeZone),start=clock?pastClock(clock[1],end-minute,timeZone):NaN,mins=(end-start)/minute;
    if(Number.isFinite(mins)&&mins>0&&mins<=(night?1080:480)&&end<=now+minute)return {...base,id:id(e),kind:night?'night':'nap',start,end,minutes:mins,awake:stats.awake==null?null:+stats.awake,wakeups:stats.wakeups,complete:true,legacy:true,inferred:true,basis:'start-and-wake-note',evidenceIds:[id(e)]};
   }
-  if(wake){const end=pastClock(wake[1],at);if(Number.isFinite(end))return {...base,id:id(e),kind:night?'night':base?.kind||'nap',start:NaN,end,minutes:null,awake:stats.awake==null?null:+stats.awake,wakeups:stats.wakeups,complete:false,legacy:true,inferred:true,basis:'wake-note',evidenceIds:[id(e)]};}
+  if(wake){const end=pastClock(wake[1],at,timeZone);if(Number.isFinite(end))return {...base,id:id(e),kind:night?'night':base?.kind||'nap',start:NaN,end,minutes:null,awake:stats.awake==null?null:+stats.awake,wakeups:stats.wakeups,complete:false,legacy:true,inferred:true,basis:'wake-note',evidenceIds:[id(e)]};}
   if(bedtime){
    const explicit=note.match(new RegExp('(?:\\bat\\b|@|since)\\s*'+clockPattern,'i'));
-   const start=explicit?pastClock(explicit[1],at):at;
+   const start=explicit?pastClock(explicit[1],at,timeZone):at;
    if(Number.isFinite(start))return {...base,id:id(e),kind:night?'night':'nap',start,end:NaN,minutes:null,awake:null,wakeups:null,complete:false,legacy:true,inferred:true,basis:'bedtime-note',evidenceIds:[id(e)]};
   }
   return base;
  }
- function resolve(entries,{baseSession,now=Date.now()}={}){
+ function resolve(entries,{baseSession,now=Date.now(),timeZone}={}){
   now=time(now);const result=new Map(),events=new Map(entries.map(e=>[id(e),e]));
   const sameBaby=(a,b)=>{const x=events.get(String(a.id))?.babyId,y=events.get(String(b.id))?.babyId;return !x||!y||x===y;};
-  for(const e of entries){if((e.tags||[]).includes('stars')||e.details?.starChart)continue;const s=fromNote(e,baseSession(e),now);if(s)result.set(id(e),s);}
+  for(const e of entries){if((e.tags||[]).includes('stars')||e.details?.starChart)continue;const s=fromNote(e,baseSession(e),now,timeZone);if(s)result.set(id(e),s);}
   const complete=[...result.values()].filter(s=>s.complete&&!s.legacy),used=new Set();
   const starts=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&!s.ongoing&&Number.isFinite(s.start)).sort((a,b)=>b.start-a.start);
   const wakes=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.end)).sort((a,b)=>a.end-b.end);
