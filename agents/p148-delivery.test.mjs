@@ -48,6 +48,11 @@ test('P148: dispatcher sends one feed, one grouped chat and one designated suppl
 test('P148: logged sleep and a restocked product suppress their pending reminders',async()=>{
  const f=fixture();f.tables.baby_events.push({id:'sleep',baby_id:'baby-a',event_time:f.iso(-20),tags:['sleep'],details:{sleep:{kind:'nap',status:'in_progress',start_at:f.iso(-20),end_at:null}}});f.tables.family_supplies[0].status='good';await f.dispatch();assert.deepEqual(f.sent.map(n=>n.data.kind),['chat']);
 });
+test('P149: an unresolvable legacy wake clock does not crash feed, chat and supply dispatch',async()=>{
+ const f=fixture();
+ f.tables.baby_events.push({id:'legacy-note',baby_id:'baby-a',event_time:'2026-10-19T02:00:00-04:00',tags:['other'],note:'Fell asleep at 9 pm and woke at 7 am',details:{}});
+ const result=await f.dispatch();assert.equal(result.status,200);assert(f.sent.some(n=>n.data.kind==='chat'));assert(f.sent.some(n=>n.data.kind==='supply'));
+});
 test('P148: a bottle arriving between calculation and send cancels the stale feed alert',async()=>{
  const f=fixture();f.race();await f.dispatch();assert(!f.sent.some(n=>n.data.kind==='feed'));assert(f.sent.some(n=>n.data.kind==='chat'));
 });

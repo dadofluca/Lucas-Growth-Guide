@@ -4,6 +4,9 @@
  const minute=60000,id=e=>String(e.syncId||e.id),time=v=>new Date(v).getTime();
  const clockPattern='(\\d{1,2}(?::\\d{2})?\\s*(?:a\\.?m\\.?|p\\.?m\\.?)?)';
  function clocks(raw,anchor,timeZone){
+  // An unresolved wake clock cannot anchor a bedtime. Intl rejects NaN,
+  // which otherwise aborts the entire background notification dispatch.
+  if(!Number.isFinite(anchor))return [];
   const m=String(raw).trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?$/i);if(!m)return [];
   const h=+m[1],mins=+(m[2]||0),ap=(m[3]||'').replaceAll('.','').toLowerCase();
   if(mins>59||h>23||(ap&&(h<1||h>12)))return [];
