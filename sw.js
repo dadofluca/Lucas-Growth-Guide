@@ -1,7 +1,7 @@
-importScripts("./agents/notification-rules.js?v=149");
-const CACHE="luca-shell-p149";
+importScripts("./agents/notification-rules.js?v=150");
+const CACHE="luca-shell-p150";
 const EMERGENCY="./emergency.html";
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./agents/notification-rules.js?v=149","./agents/notifications.js?v=149","./agents/supplies.js?v=149","./agents/notifications.css?v=149","./index.html","./care-sync.js?v=149","./sync-fix.js?v=149","./family-pin.js?v=149","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/quick-actions.js?v=149","./agents/playfulness.js?v=149","./agents/achievements.js","./agents/achievements-ui.js","./agents/flair-ui.js","./agents/sleep-inference.js?v=149","./agents/sleep-data.js?v=149","./agents/bottle-rhythm.js?v=149","./agents/insights.js?v=149","./agents/personal-updates.js?v=149","./agents/sleep-ui.js?v=149","./agents/family-stars.js?v=149","./agents/caregiver-credit.js?v=149","./agents/caregiver-credit.js","./agents/stars-ui.js?v=149","./agents/ui-polish.css?v=149","./agents/report-widget.js","./agents/family-ideas.js","./agents/family-ideas-model.js","./agents/themes.js","./agents/member-viewer.js"]);}))});
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(async c=>{await c.add(EMERGENCY);await c.addAll(["./agents/notification-rules.js?v=150","./agents/notifications.js?v=150","./agents/supplies.js?v=150","./agents/notifications.css?v=150","./index.html","./care-sync.js?v=150","./sync-fix.js?v=150","./family-pin.js?v=150","./agents/family-chat.js","./agents/family-profiles.js","./agents/avatar-characters.js","./agents/avatar-art.js","./agents/personality.js","./agents/quick-actions.js?v=150","./agents/playfulness.js?v=150","./agents/achievements.js","./agents/achievements-ui.js","./agents/flair-ui.js","./agents/sleep-inference.js?v=150","./agents/sleep-data.js?v=150","./agents/bottle-rhythm.js?v=150","./agents/insights.js?v=150","./agents/personal-updates.js?v=150","./agents/sleep-ui.js?v=150","./agents/family-stars.js?v=150","./agents/caregiver-credit.js?v=150","./agents/caregiver-credit.js","./agents/stars-ui.js?v=150","./agents/ui-polish.css?v=150","./agents/report-widget.js","./agents/family-ideas.js","./agents/family-ideas-model.js","./agents/themes.js","./agents/member-viewer.js"]);}))});
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith("luca-")&&k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener("fetch",e=>{
@@ -12,8 +12,8 @@ self.addEventListener("fetch",e=>{
  if(e.request.mode==="navigate"){
   e.respondWith((async()=>{try{
    const r=await fetch(e.request,{cache:"no-store"});if(!r.ok)return r;let html=await r.text();
-   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=149"></script></body>');
-   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=149"></script></body>');
+   if(!html.includes("family-pin.js"))html=html.replace("</body>",'<script src="./family-pin.js?v=150"></script></body>');
+   if(!html.includes("sync-fix.js"))html=html.replace("</body>",'<script src="./sync-fix.js?v=150"></script></body>');
    return new Response(html,{status:r.status,statusText:r.statusText,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}});
   }catch(err){return (await caches.match("./index.html"))||(await caches.match(EMERGENCY))||Response.error()}})());return;
  }

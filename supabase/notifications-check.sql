@@ -13,6 +13,8 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub',current_setting('push.test.user'),true);
 insert into public.push_devices(id,family_id,baby_id,user_id,endpoint,p256dh,auth) values(current_setting('push.test.device')::uuid,current_setting('push.test.family')::uuid,current_setting('push.test.baby')::uuid,auth.uid(),'https://web.push.apple.com/temporary-fixture-'||gen_random_uuid(),repeat('A',87),repeat('B',22));
 update public.push_devices set feed_enabled=false,timezone='America/New_York',quiet_start='20:30' where id=current_setting('push.test.device')::uuid;
+update public.push_devices set care_types=array['diaper','sleep'],chat_enabled=false where id=current_setting('push.test.device')::uuid;
+do $$begin if (select care_types from public.push_devices where id=current_setting('push.test.device')::uuid)<>array['diaper','sleep'] then raise exception 'care choices not saved';end if;end $$;
 select public.ensure_default_supplies(current_setting('push.test.family')::uuid);
 select public.ensure_default_supplies(current_setting('push.test.family')::uuid);
 do $$declare denied boolean;begin
@@ -26,6 +28,8 @@ insert into public.family_supplies(id,family_id,name,status,product_name,product
 update public.family_supplies set status='low',updated_by=auth.uid() where id=current_setting('push.test.supply')::uuid;
 update public.family_supplies set product_name='Edited sample product',updated_by=auth.uid() where id=current_setting('push.test.supply')::uuid;
 insert into public.family_chat_messages(family_id,sender_id,body) values(current_setting('push.test.family')::uuid,auth.uid(),'Synthetic push fixture only');
+insert into public.baby_events(id,baby_id,event_type,event_time,created_by,tags) values(gen_random_uuid(),current_setting('push.test.baby')::uuid,'poop',now(),auth.uid(),array['poop']);
+update public.baby_events set note='Synthetic edit must not create another alert' where baby_id=current_setting('push.test.baby')::uuid;
 select set_config('request.jwt.claim.sub',current_setting('push.test.other'),true);
 do $$begin
  if exists(select 1 from public.push_devices where id=current_setting('push.test.device')::uuid) then raise exception 'foreign device readable';end if;
@@ -35,6 +39,7 @@ reset role;
 do $$declare first_claim uuid;second_claim uuid;begin
  if (select count(*) from public.notification_jobs where source_id=current_setting('push.test.supply')::uuid)<>1 then raise exception 'metadata edit re-alerted low product';end if;
  if (select count(*) from public.notification_jobs where family_id=current_setting('push.test.family')::uuid and kind='chat')<>1 then raise exception 'chat job missing';end if;
+ if (select count(*) from public.notification_jobs where family_id=current_setting('push.test.family')::uuid and kind='care')<>1 then raise exception 'care insert missing or edit duplicated alert';end if;
  first_claim=public.claim_notification_delivery(current_setting('push.test.device')::uuid,'fixture-key');second_claim=public.claim_notification_delivery(current_setting('push.test.device')::uuid,'fixture-key');
  if first_claim is null or second_claim is not null then raise exception 'parallel duplicate claim';end if;
  update public.notification_deliveries set state='retry',lease_until=now()-interval '1 second' where id=first_claim;

@@ -47,7 +47,11 @@ async function care(baby: string) {
 async function send(cfg: Row, device: Row, key: string, kind: string, payload: Row) {
  const fresh = (await db('push_devices', {id: 'eq.' + device.id, enabled: 'eq.true', limit: 1}))[0];
  if (!fresh || !await member(fresh.family_id, fresh.user_id) || !rules.validPushEndpoint(fresh.endpoint)) return false;
- if (kind !== 'test' && (!fresh[kind === 'supply' ? 'supplies_enabled' : kind + '_enabled'] || (kind === 'feed' || fresh.quiet_all) && rules.quiet(fresh))) return false;
+ if (kind !== 'test' && ((kind !== 'care' && !fresh[kind === 'supply' ? 'supplies_enabled' : kind + '_enabled']) || (kind === 'feed' || fresh.quiet_all) && rules.quiet(fresh))) return false;
+ if (kind === 'care') {
+  const row = (await db('baby_events',{id:'eq.'+payload.data.event,baby_id:'eq.'+fresh.baby_id,limit:1}))[0];
+  if (!row || row.created_by === fresh.user_id || !rules.careKinds(row).some((k:string)=>fresh.care_types?.includes(k))) return false;
+ }
  // Recheck the latest bottle and sleep records immediately before claiming a feed alert.
  if (kind === 'feed' && rules.feedReminder(await care(fresh.baby_id), fresh)?.key !== key) return false;
  const receipt = await db('rpc/claim_notification_delivery', {}, 'POST', {target_device: fresh.id, target_key: key});
@@ -86,6 +90,13 @@ async function dispatch(cfg: Row) {
    }
    if (device.quiet_all && rules.quiet(device)) continue;
    const jobs: Row[] = await db('notification_jobs', {family_id: 'eq.' + device.family_id, happened_at: 'gte.' + new Date(Math.max(+new Date(device.created_at), +new Date(device.settings_at))).toISOString(), expires_at: 'gt.' + new Date().toISOString(), order: 'happened_at.desc', limit: 100});
+   if (device.care_types?.length) {
+    for (const job of jobs.filter(j=>j.kind==='care'&&j.actor_id!==device.user_id).slice(0,10)) {
+     const row=(await db('baby_events',{id:'eq.'+job.source_id,baby_id:'eq.'+device.baby_id,limit:1}))[0];
+     if(!row||row.created_by===device.user_id||!rules.careKinds(row).some((k:string)=>device.care_types.includes(k)))continue;
+     if(await send(cfg,device,'care:'+row.id,'care',{title:'🧸 New care entry',body:'A family member added to the care journal. Tap to view History.',tag:'care-'+row.id,data:{...base,kind:'care',event:row.id,url:route(cfg,device.family_id,'history')}}))sent++;
+    }
+   }
    if (device.chat_enabled) {
     const chat = jobs.filter(j => j.kind === 'chat' && j.actor_id !== device.user_id && +new Date(j.happened_at) > Math.max(+new Date(device.last_chat_notified_at), +new Date(device.last_chat_read_at)));
     if (chat.length) {

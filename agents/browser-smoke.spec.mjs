@@ -1,6 +1,15 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P150: each alert category can be saved independently and restored after reopening',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuNotifications').click();
+ for(const id of ['pushCare_bottle','pushCare_diaper','pushCare_sleep','pushCare_other'])await expect(page.locator('#'+id)).not.toBeChecked();
+ await page.locator('#pushEnable').click();await page.locator('#pushFeeds').uncheck();await page.locator('#pushChat').uncheck();await page.locator('#pushSupplies').uncheck();await page.locator('#pushCare_diaper').check();await page.locator('#pushCare_sleep').check();await page.locator('#pushSave').click();await expect(page.locator('#pushState')).toContainText('choices saved');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuNotifications').click();
+ for(const id of ['pushFeeds','pushChat','pushSupplies','pushCare_bottle','pushCare_other'])await expect(page.locator('#'+id)).not.toBeChecked();for(const id of ['pushCare_diaper','pushCare_sleep'])await expect(page.locator('#'+id)).toBeChecked();
+ await page.locator('#pushChat').check();await page.locator('#pushSave').click();await expect(page.locator('#pushState')).toContainText('choices saved');await expect(page.locator('#pushFeeds')).not.toBeChecked();await page.locator('#pushCare_diaper').scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({animations:'disabled',path:'test-results/p150-alert-choices-390.png'});
+});
+
 test('P149: completed overnight History card shows wake-ups and awake minutes at a glance',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
  await page.addInitScript(()=>localStorage.setItem('qa-remote-events',JSON.stringify([{id:'sleep-observation',baby_id:'qa-baby',event_time:'2026-10-19T22:53:00-04:00',event_type:'sleep',tags:['sleep'],caregivers:['Maddie'],created_by:'qa-user',details:{sleep:{kind:'night',start_at:'2026-10-19T22:53:00-04:00',end_at:'2026-10-20T07:00:00-04:00',wakeups:2,awake_minutes:20}}}])));
@@ -745,9 +754,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P149');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P150');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P149');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P150');
 });
 
 
