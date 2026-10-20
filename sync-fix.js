@@ -1,5 +1,5 @@
 /* Luca runtime patches — compatibility layer. */
-const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{coveragePeople:['Nona','Boppa','Jay','Yolanda','Lindsay','KJ','Luca'],fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
+const LUCA_RUNTIME={version:document.getElementById("buildVersion")?.textContent.trim()||"unknown",schedule:{get coveragePeople(){return window.LucaCaregivers?.names?.().filter(n=>!['Sam','Maddie'].includes(n))||['Nona','Boppa','Jay','Yolanda','Lindsay','KJ','Luca'];},fallbackStartMinutes:420,fallbackEndMinutes:900,stepMinutes:15}};
 window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility patches run.
 
 /* P35 — supplies readability, unobstructed supply controls, sound feedback */
@@ -336,7 +336,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
      let care="";
      if(s.covers.length)care+=s.covers.map(c=>'<button class="cover48 editable60" data-coverid="'+esc(c.id||"")+'" data-coverday="'+x.k+'" data-coverperson="'+esc(c.person)+'" data-coverstart="'+(new Date(c.start_at).getHours()*60+new Date(c.start_at).getMinutes())+'" data-coverend="'+(new Date(c.end_at).getHours()*60+new Date(c.end_at).getMinutes())+'">👶 <b>'+esc(c.person)+'</b> · '+tm48(c.start_at)+'–'+tm48(c.end_at)+' <span>✎ Edit</span></button>').join("");
      if(s.needs.length){
-       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+n+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+n+'</button>').join("")+'</div></div>').join("");
+       care+=s.gaps.map(g=>'<div class="gap48">⚠ Luca needs coverage · '+tm48(g[0])+'–'+tm48(g[1])+'<div class="assign48">'+LUCA_RUNTIME.schedule.coveragePeople.map(n=>'<button data-gapday="'+x.k+'" data-gapperson="'+esc(n)+'" data-gapstart="'+new Date(g[0]).toISOString()+'" data-gapend="'+new Date(g[1]).toISOString()+'">'+esc(n)+'</button>').join("")+'</div></div>').join("");
      }else if(!s.covers.length) care+='<div class="home48">✓ No outside childcare coverage needed.</div>';
      if(s.covers.length)care+='<button class="dayRevert60" data-revertday="'+x.k+'">↶ Revert day · remove coverage</button>';
      care+='<button class="manage62" data-manageday="'+x.k+'">＋ Manage day / add coverage</button>';
