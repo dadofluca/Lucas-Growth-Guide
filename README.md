@@ -1,11 +1,15 @@
-## P147 candidate — publication approved, browser verification pending
+## Current release: P147 — 2026-10-19
 
-- Tap Family Chat names/portraits or Family profiles to open bios and unlocked calling cards/cosmetics. Personal light themes include three free palettes, Field Notes for first saved care, Aurora Protocol for two existing secret discoveries, and Golden Hour for Quiet Legend.
-- Quiet Legend recognizes 5 care records across 3 days credited by another verified family account. It appears for the caregiver before they open the app, without changing spendable Stars or requiring extra visits. It does not measure screen time.
-- Add or remove Stars with receipts. Database authorization blocks self adjustments and account relinking; verified Sam can adjust anyone. Display-name/caregiver-picker changes do not grant authority.
-- Source `272908cfa52187e06aa485a462c094a6404c1261`: **256 Node checks passed** with clean source and matching generated demo. Full browser verification, phone review and deployment are pending. The user explicitly approved publishing this candidate and requested a readable intro Skip control, now included. See DEVELOPER_HANDOFF.md for the exact state. The live app remains P146.
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Profiles, themes, rewards and Star controls #98](https://github.com/dadofluca/Lucas-Growth-Guide/pull/98)
 
-## Current release: P146 — 2026-10-19
+- Tap a Family Chat name/avatar or Family profile to see their bio and earned calling cards/cosmetics. Personal light themes include three free palettes, Field Notes for first saved care, Aurora Protocol for two existing discoveries, and Golden Hour for Quiet Legend.
+- Quiet Legend recognizes 5 care records across 3 days credited by another verified family account. It appears before that caregiver opens the app, without changing spendable Stars, requiring visits or claiming to measure screen time.
+- Add/remove Stars with receipts. Database authorization blocks self adjustments and identity relinking; verified Sam may adjust anyone. Display-name/caregiver-picker changes never grant permission.
+- Intro Skip has an opaque background, high-contrast text and larger tap target. Chat preserves the latest-message or older-reading position through viewport/keyboard reflow.
+- **256 Node + 88 Chromium checks passed**, zero failures/flakes. Reviewed final phone layouts before merging. Final source `af5f823841fdd5c3685865036eddc99e24f0a3ef`, CI checkout `cefd0355445e7b1c0b8e096721f5f6fc2f609c63`, merge `05b39fec64000d2b1d1d689074203963d7eef7ea`; matching tree `0dfe6bcd9ad8da3aa6c2493ff4d174bc5ede6cbb`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39359507442) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39359507440).
+- Deployed and transaction-tested family database access hardening, preserving legitimate family reads/saves/edits/deletes and private chat media. Account-wide dashboard settings and Teddy key configuration remain unverified pending authenticated access. Actual signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing storage.
+
+## Previous release: P146 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Family Ideas and Star chart #97](https://github.com/dadofluca/Lucas-Growth-Guide/pull/97)
 
