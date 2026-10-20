@@ -1,6 +1,12 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P149: completed overnight History card shows wake-ups and awake minutes at a glance',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>localStorage.setItem('qa-remote-events',JSON.stringify([{id:'sleep-observation',baby_id:'qa-baby',event_time:'2026-10-19T22:53:00-04:00',event_type:'sleep',tags:['sleep'],caregivers:['Maddie'],created_by:'qa-user',details:{sleep:{kind:'night',start_at:'2026-10-19T22:53:00-04:00',end_at:'2026-10-20T07:00:00-04:00',wakeups:2,awake_minutes:20}}}])));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();const card=page.locator('.historyEvent').filter({hasText:'Night sleep'});await expect(card).toContainText('2 wake-ups · 20 min awake');await expect(page.locator('#sleepComposer')).not.toBeVisible();await page.screenshot({animations:'disabled',path:'test-results/p149-history-wakeups-390.png'});
+});
+
 test('P148: practice notification choices never request OS permission or send a push',async({page})=>{
  await page.setViewportSize({width:320,height:740});let outgoing=0;page.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:8765/'))outgoing++;});
  await page.addInitScript(()=>{window.qaPermissionCalls=0;Object.defineProperty(window,'Notification',{value:{permission:'default',requestPermission(){window.qaPermissionCalls++;return Promise.resolve('granted');}}});});
@@ -739,9 +745,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P148');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P149');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P148');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P149');
 });
 
 

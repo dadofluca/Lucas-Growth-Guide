@@ -8,6 +8,13 @@ require('./sleep-inference.js');require('./sleep-data.js');require('./bottle-rhy
 const rules=require('./notification-rules.js');
 const device={enabled:true,feed_enabled:true,timezone:'America/New_York',quiet_start:'21:00',quiet_end:'06:00'};
 const feed=(id,at)=>({id,at,oz:8,babyId:'test-baby'});
+test('P149: old inferred bedtime cannot pause every future feed; explicit ongoing sleep stays paused',()=>{
+ const rows=[feed('last','2026-10-19T11:00:00-04:00'),{id:'old',at:'2026-10-17T21:10:00-04:00',notes:'Down for the night at 9:10 pm',tags:['sleep']}];
+ const now='2026-10-19T14:00:00-04:00';assert.equal(rules.feedReminder(rows,device,now).key,'feed:last');
+ const active={id:'active',at:rows[1].at,tags:['sleep'],details:{sleep:{kind:'night',status:'in_progress',start_at:rows[1].at,end_at:null}}};
+ assert.equal(rules.feedReminder([...rows,active],device,now),null);
+ assert.equal(rules.asleep([rows[1]],'2026-10-18T06:00:00-04:00','America/New_York'),true);
+});
 test('P148: one feed key uses the last bottle; a newly logged bottle cancels the old reminder',()=>{
  const rows=[feed('first','2026-10-19T08:00:00-04:00'),feed('last','2026-10-19T11:00:00-04:00')];
  assert.equal(rules.feedReminder(rows,device,'2026-10-19T14:00:00-04:00').key,'feed:last');

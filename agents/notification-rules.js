@@ -16,7 +16,7 @@
  }
  function asleep(entries,now=Date.now(),timeZone){
   now=+new Date(now);const sessions=[...(root.LucaSleep?.resolve(entries,now,timeZone)||new Map()).values()];
-  return sessions.some(s=>Number.isFinite(s.start)&&s.start<=now&&((s.complete&&s.end>now)||s.ongoing||!s.complete&&!Number.isFinite(s.end)));
+  return sessions.some(s=>Number.isFinite(s.start)&&s.start<=now&&((s.complete&&s.end>now)||s.ongoing||!s.complete&&!Number.isFinite(s.end)&&(!s.inferred||now-s.start<=(s.kind==='night'?18:8)*3600000)));
  }
  function feedReminder(entries,device,now=Date.now()){
   now=+new Date(now);if(!device.enabled||!device.feed_enabled||quiet(device,now)||asleep(entries,now,device.timezone))return null;
