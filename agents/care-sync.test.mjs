@@ -39,6 +39,16 @@ function harness(){
  return {store,c,rows,calls,statuses,get entries(){return entries},set entries(x){entries=x},set mode(x){mode=x},set wait(x){wait=x},set selectWait(x){selectWait=x}};
 }
 const entry=(id='local-1',oz=6)=>({id,at:'2026-10-18T13:00:00Z',oz,tags:[],people:['Synthetic caregiver'],notes:''});
+test('P152: an older refresh response cannot restore 6:51 after a 6:30 PM edit',async()=>{
+ const h=harness();await h.store.save({...entry(),at:'2026-10-20T22:51:00Z',people:['Sam']});const id=h.entries[0].id,w=deferred();h.selectWait=w;const refresh=h.store.refresh();await pause();
+ await h.store.save({...h.entries[0],at:'2026-10-20T22:30:00Z',people:['Maddie','KJ']});w.resolve();await refresh;
+ assert.equal(h.entries.length,1);assert.equal(h.entries[0].id,id);assert.equal(h.entries[0].at,'2026-10-20T22:30:00Z');assert.equal(h.rows.get(id).event_time,'2026-10-20T22:30:00Z');assert.equal(h.rows.get(id).created_by,'user-a');
+});
+test('P152: consecutive time edits during an in-flight update keep the newest time and caregivers',async()=>{
+ const h=harness();await h.store.save({...entry(),at:'2026-10-20T22:51:00Z',people:['Sam']});const id=h.entries[0].id,w=deferred();h.wait=w;
+ const first=h.store.save({...h.entries[0],at:'2026-10-20T22:40:00Z'});const second=h.store.save({...h.entries[0],at:'2026-10-20T22:30:00Z',people:['Maddie','KJ']});w.resolve();await Promise.all([first,second]);await pause();
+ assert.equal(h.rows.size,1);assert.equal(h.entries[0].at,'2026-10-20T22:30:00Z');assert.equal(h.rows.get(id).event_time,'2026-10-20T22:30:00Z');assert.deepEqual(Array.from(h.entries[0].people),['Maddie','KJ']);
+});
 test('P142: pagination retains the star opening record beyond the first thousand care logs',async()=>{
  const h=harness(),ranges=[],from=h.c.client.from;
  for(let i=0;i<1000;i++)h.rows.set('care-'+i,{id:'care-'+i,baby_id:'baby-a',event_time:'2026-10-18T12:00:00Z',amount_oz:8,tags:[],caregivers:['Sam']});
