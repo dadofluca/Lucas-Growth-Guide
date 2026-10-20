@@ -1,4 +1,12 @@
 /* One bounded presentation layer; persistence stays in care-sync.js. */
+body#lucaApp #sleepComposer .sleepOngoingChoice{display:flex!important;align-items:center;gap:10px;padding:12px 10px;border-radius:13px;background:#e2e6d6;line-height:1.4;font-size:14px}
+body#lucaApp #sleepComposer #sleepOngoing{width:22px!important;height:22px;min-height:22px;margin:0;flex:0 0 22px;accent-color:#56725c}
+body#lucaApp #sleepComposer input:disabled{background:#e3ddcf!important;color:#68715e!important;-webkit-text-fill-color:#68715e!important;opacity:.8}
+body#lucaApp #unfinishedSleepCard,body#lucaApp .entry.sleepPending,body#lucaApp .historyEvent.sleepPending{background:#f0dcd4!important;border:1px solid #b86f61!important;border-left:4px solid #a74f45!important;box-shadow:0 3px 15px #a74f4510!important}
+body#lucaApp #unfinishedSleepCard h2{color:#7d382f!important;-webkit-text-fill-color:#7d382f!important;font-size:19px;margin-bottom:8px}
+.unfinishedSleepRow p{font-size:13px;line-height:1.5;margin:0 0 12px;color:#7b473e}.unfinishedSleepRow+.unfinishedSleepRow{margin-top:16px;padding-top:14px;border-top:1px solid #d3aaa0}
+body#lucaApp .finishSleepButton{width:100%;min-height:46px;background:#ead0c7!important;border-color:#bc8375!important;color:#713b32!important;-webkit-text-fill-color:#713b32!important}
+body#lucaApp .sleepPending .sleepRange{color:#803e33!important;-webkit-text-fill-color:#803e33!important;font-weight:650}.historyEvent.sleepPending{border-radius:15px;padding:12px;margin:10px 0}
 .chapterControls{display:flex;gap:8px;margin:13px 0 16px}.chapterControls button{min-height:44px;padding:9px 14px}.chapterControls button:last-child{flex:1}#ageIdeaCount{font-size:11px;color:#5b6b62;margin:0 0 12px}
 body#lucaApp .updatesBubble{position:fixed;right:0;top:calc(45% - 55px);z-index:29;width:42px;min-width:42px;height:44px;min-height:44px;padding:0!important;border-radius:14px 0 0 14px;background:#e4dec5!important;color:#355044!important;font-size:23px;border-right:0!important;box-shadow:-2px 2px 10px #2b42331a!important}
 .updatesBadge{position:absolute;top:-5px;left:-6px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:20px;background:#78583a;color:#fff6e5!important;-webkit-text-fill-color:#fff6e5!important;font-size:10px;font-weight:800;border:1px solid #f1e9d7}.updatesBadge[hidden]{display:none!important}

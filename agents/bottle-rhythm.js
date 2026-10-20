@@ -20,6 +20,7 @@
    if(!sameBaby(earlier,later)||gap<45||gap>360)continue;
    const asleep=sleep.some(s=>{
     if(!sameBaby(earlier,source.get(String(s.id))))return false;
+    if(s.ongoing&&Number.isFinite(s.start))return s.start<end;
     if(s.complete)return s.start<end&&s.end>start;
     // A bedtime or wake boundary is enough to reject the crossing interval.
     return (Number.isFinite(s.start)&&s.start>=start&&s.start<end)||(Number.isFinite(s.end)&&s.end>start&&s.end<=end);
