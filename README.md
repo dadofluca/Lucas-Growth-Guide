@@ -1,4 +1,15 @@
-## Current release: P145 — 2026-10-19
+## Current release: P146 — 2026-10-19
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Family Ideas and Star chart #97](https://github.com/dadofluca/Lucas-Growth-Guide/pull/97)
+
+- Family Ideas shows profile/submitted names and a distinct unnamed account when an older device has no name. New posts include Posting as. A Home lightbulb counts unread family submissions; votes can be switched or removed and do not authorize changes.
+- Sam’s database-authorized build desk records decisions and replies. Submitters receive each review revision in their own Your updates inbox when the app is opened or refreshed. These are in-app notices, not iPhone push. Private posts remain author-only and never enter agent exports.
+- No AI repair worker is connected. Sam can export open, author-approved family posts for review. The intended protocol is proposal → Sam approval → tested PR → Sam publication approval. See [the protocol](docs/FAMILY_IDEAS_PROTOCOL.md) for current behavior and the future personal Build mode requirements.
+- Star chart opens to everyone’s balances. Tap a person for their reward goal and receipts; choose Everyone to return. All values use the existing shared Star ledger.
+- **250 Node + 83 Chromium checks passed**, zero failures/flakes/skips. Final phone layouts reviewed before merging. Final source `f0eb08ffea35f07f0109c80a3232f7c9cc0a021a`, CI checkout `526b1f8900f809abdd92be948951d5bb3f1de610`; release merge `243a1e9da9291fd42e5b8f632fded2b7c8e9f42f`; identical tree `d1888cf8a392160d270f40209b64cccd9a858942`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39356207758) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39356207796).
+- Additive voting/review schema and an explicit Sam manager grant are deployed. Transaction-only RLS tests passed and every sample was rolled back. No real care records or old suggestions were changed. Physical signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
+
+## Previous release: P145 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Bedtime and shared names #96](https://github.com/dadofluca/Lucas-Growth-Guide/pull/96)
 

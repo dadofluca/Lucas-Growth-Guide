@@ -17,6 +17,8 @@ node agents/doctor.mjs --run artifacts/browser-core.json artifacts/browser-rest.
 The existing PR browser workflow supplies both reports. The existing daily mobile audit supplies `artifacts/browser-results.json`. Playwright stamps reports with the checked-out source commit; Doctor rejects missing, invalid or stale supplied browser evidence, and evidence used against uncommitted tracked changes, instead of counting it as a pass. Commit source changes before collecting evidence, use a clean checkout, and rerun browser checks after a code change. Do not relabel old reports. The existing six-hour synthetic workflow supplies unit/static evidence only. Each uploads a handoff artifact and puts a short result in its GitHub job summary. No new timer or paid model service was added.
 
 | Symptom | Owning implementation | Focused reproduction |
+| Idea author, vote, manager access or reply missing | `agents/family-ideas.js`, `agents/family-ideas-model.js`, `agents/personal-updates.js` | `node --test agents/p146-ideas.test.mjs`; browser `P146:`; transaction-only `supabase/ideas-review-check.sql`. Read `docs/FAMILY_IDEAS_PROTOCOL.md`; no live autonomous repair worker exists |
+| Everyone Star chart missing or detail routing wrong | `agents/stars-ui.js`, canonical family-star ledger | Browser `P146: stars`; keep balances derived and select a person before editing |
 | --- | --- | --- |
 | Care missing, duplicate, edit lost, delete wrong | `care-sync.js`, `agents/quick-actions.js` | `node --test agents/care-sync.test.mjs agents/delete-integrity.test.mjs` |
 | Sleep note missing or double-counted | `agents/sleep-inference.js`, `agents/sleep-data.js` | `node --test agents/p136-sleep-inference.test.mjs agents/p134-sleep-data.test.mjs` |
