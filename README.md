@@ -8,6 +8,7 @@
 - Fresh out of the chaos lab is a compact release brief, opened from a dismissible teaser or the inbox. It explains the actual new features without interrupting typing or asking for push permission.
 - **242 Node + 78 Chromium checks passed**, zero failures/flakes/skips. Source `3c8b8f31a4c5dea6d96542d4fba7c13f03a9b3a4`, CI checkout `6476f2f7d802f983e5fe7965e7f0b4a18c04923a`, merge `f41f40d2b030b6b29f8b6214f71ad7cf64e1c832`; identical tree `d7a40adfed0f80184dca9b70fb4358d361e2c7a6`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39352038605) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39352038604). Reviewed phone screenshots before merging. See DEVELOPER_HANDOFF.md for exact artifacts and source owners.
 - No production records, schema or access policies changed. Actual signed-in iPhone/PWA, second production family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
+- Public app and practice app both serve P144; all 26 file byte comparisons matched the tested runtime and current playbook. Final release notes are documentation only.
 
 ## Previous release: P143 — 2026-10-19
 
