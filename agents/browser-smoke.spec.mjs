@@ -1,6 +1,14 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P151: save a family caregiver, reuse them across care tools and reopen without duplicates',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuFamily').click();await page.locator('#newCaregiverName').fill('Aunt Maria');await page.locator('#addCaregiver').click();await expect(page.locator('#caregiverRoster')).toContainText('Aunt Maria');await page.locator('#newCaregiverName').fill('aunt maria');await page.locator('#addCaregiver').click();await expect(page.locator('#caregiverRosterStatus')).toContainText('already');await page.locator('#caregiverSettings').scrollIntoViewIfNeeded();await page.screenshot({animations:'disabled',path:'test-results/p151-family-caregivers-390.png'});
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopCaregiver option').filter({hasText:'Aunt Maria'})).toHaveCount(1);await page.locator('#quickPoopCaregiver').selectOption('Aunt Maria');await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').some(e=>e.caregivers?.includes('Aunt Maria')))).toBe(true);
+ await page.locator('#moreBtn').click();await page.locator('#manualComposer [data-person="Aunt Maria"]').click();await expect(page.locator('#manualComposer [data-person="Aunt Maria"]')).toHaveAttribute('aria-pressed','true');await page.locator('[data-quick="nap"]').click();await expect(page.locator('#caregiverSuggestions option[value="Aunt Maria"]')).toHaveCount(1);await page.locator('#sleepCancel').click();
+ const parsed=await page.evaluate(()=>smartParseText('Aunt Maria gave 8 oz at 1 pm').find(e=>e.kind==='feed'));expect(parsed.credit).toBe('Aunt Maria');
+ await page.evaluate(()=>{syncFamily='qa-other-family';syncBaby='qa-other-baby';window.dispatchEvent(new Event('luca:session-changed'));});await expect(page.locator('#caregiverRoster')).not.toContainText('Aunt Maria');await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopCaregiver option').filter({hasText:'Aunt Maria'})).toHaveCount(0);
+});
+
 test('P150: each alert category can be saved independently and restored after reopening',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.goto('http://127.0.0.1:8765/demo.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuNotifications').click();
  for(const id of ['pushCare_bottle','pushCare_diaper','pushCare_sleep','pushCare_other'])await expect(page.locator('#'+id)).not.toBeChecked();
@@ -692,7 +700,7 @@ async function syntheticCareBackend(page){
       return {data:rows.filter(match),error:null};
      }
      if(table==='family_members')return {data:[{family_id:'qa-family',user_id:'qa-user'},{family_id:'qa-family',user_id:'qa-nona'}].filter(row=>Object.entries(filters).every(([k,v])=>row[k]===v)),error:null};
-     if(['family_supplies','push_devices'].includes(table)){
+     if(['family_supplies','push_devices','family_caregivers'].includes(table)){
       if(window.syntheticSuppliesOffline&&table==='family_supplies')return {data:null,error:{code:'network'}};
       const store='qa-'+table;let rows=JSON.parse(localStorage.getItem(store)||'[]');const match=row=>Object.entries(filters).every(([k,v])=>row[k]===v);
       if(op==='insert'||op==='upsert'){const old=op==='upsert'?rows.find(row=>row.id===payload.id):null;const row={id:crypto.randomUUID(),status:'good',...old,...payload};rows=old?rows.map(x=>x===old?row:x):[...rows,row];localStorage.setItem(store,JSON.stringify(rows));return {data:[row],error:null};}
@@ -754,9 +762,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P150');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P151');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P150');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P151');
 });
 
 

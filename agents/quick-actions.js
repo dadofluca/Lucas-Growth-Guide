@@ -7,11 +7,11 @@
   const person=poop.querySelector('#quickPoopCaregiver'),other=poop.querySelector('#quickPoopOther');
   const size=poop.querySelector('#quickPoopSize'),wet=poop.querySelector('#quickPoopWet');
   const submit=poop.querySelector('#quickPoopSave');
-  const names=['Sam','Maddie','Nona','Jay','Boppa','Yolanda','Lindsay','KJ','Luca'];
+  const names=()=>root.LucaCaregivers?.names?.()||['Sam','Maddie','Nona','Jay','Boppa','Yolanda','Lindsay','KJ','Luca'];
   const helpers=new Map();
   for(const [picker,id] of [[bottle,'quickBottleHelper'],[poop,'quickPoopHelper']]){
    const details=document.createElement('details');details.className='quickSharedCredit';
-   details.innerHTML='<summary>＋ Share credit</summary><label for="'+id+'">Also credit</label><select id="'+id+'"><option value="">Just one person</option>'+names.map(n=>'<option>'+n+'</option>').join('')+'</select><small>One event. Each person gets credit.</small>';
+   details.innerHTML='<summary>＋ Share credit</summary><label for="'+id+'">Also credit</label><select id="'+id+'"><option value="">Just one person</option></select><small>One event. Each person gets credit.</small>';
    (picker===poop?person:bottle.querySelector('.quickBottleCredit')).after(details);helpers.set(picker,details.querySelector('select'));details.addEventListener('toggle',place);
   }
   function place(){
@@ -39,12 +39,13 @@
    const next=kind==='bottle'?bottle:poop;
    if(active===next&&anchor===trigger){close(true);return;}
    close();beforeOpen?.();anchor=trigger||document.querySelector(kind==='bottle'?'#topQuickBottle':'#topQuickPoop');active=next;
+   for(const select of helpers.values()){select.replaceChildren();for(const name of ['',...names()]){const option=document.createElement('option');option.value=name;option.textContent=name||'Just one person';select.append(option);}}
    helpers.get(next).value='';helpers.get(next).closest('details').open=false;
    if(next===poop){
     size.value='3';wet.checked=false;other.value='';other.hidden=true;
     const current=String(caregiver()||'').trim();
     person.replaceChildren();
-    for(const name of [...new Set([...names,...(current?[current]:[])])]){const option=document.createElement('option');option.value=name;option.textContent=name;person.append(option);}
+    for(const name of [...new Set([...names(),...(current?[current]:[])])]){const option=document.createElement('option');option.value=name;option.textContent=name;person.append(option);}
     const option=document.createElement('option');option.value='other';option.textContent='Someone else…';person.append(option);person.value=current||'Sam';
     size.dispatchEvent(new Event('input',{bubbles:true}));
    }else bottle.querySelector('.quickBottleCredit').textContent='Credit: '+caregiver()+' · now';
