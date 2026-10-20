@@ -1,6 +1,19 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P145: save bedtime with TBD fields, finish the same shared record next morning, and clear red reminders',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-20T21:30:00Z'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('[data-quick="nap"]').click();await page.locator('[data-sleep-kind="night"]').click();await expect(page.locator('#sleepOngoing')).toBeChecked();await expect(page.locator('#sleepEnd')).toBeDisabled();await expect(page.locator('#sleepEntryWakeups')).toBeDisabled();await expect(page.locator('#sleepEnd')).toHaveValue('');await page.locator('#sleepCaregiver').fill('Sam and Maddie');await page.locator('#sleepSave').click();await expect(page.locator('#unfinishedSleepCard')).toBeVisible();await expect(page.locator('#timeline .sleepPending')).toHaveCount(1);await expect(page.locator('#timeline .chips')).toContainText('Sam');await expect(page.locator('#timeline .chips')).toContainText('Maddie');
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);const first=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events'))[0]);expect(first.caregivers).toEqual(['Sam','Maddie']);expect(first.details.sleep.end_at).toBeNull();expect(first.details.sleep.wakeups).toBeNull();await page.locator('#unfinishedSleepCard').scrollIntoViewIfNeeded();await page.screenshot({animations:'disabled',path:'test-results/p145-ongoing-night-390.png'});
+ await page.clock.setFixedTime(new Date('2026-10-21T08:00:00Z'));await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#unfinishedSleepCard')).toBeVisible();await expect(page.locator('#timeline .sleepPending')).toHaveCount(0);await page.locator('[data-finish-sleep]').click();await expect(page.locator('#sleepOngoing')).not.toBeChecked();await expect(page.locator('#sleepEnd')).toBeEnabled();await expect(page.locator('#sleepCaregiver')).toHaveValue('Sam, Maddie');await page.locator('#sleepEnd').fill('2026-10-21T07:00');await page.locator('#sleepEntryWakeups').fill('3');await page.locator('#sleepEntryAwake').fill('20');await page.locator('#sleepSave').click();await expect(page.locator('#unfinishedSleepCard')).toBeHidden();
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await expect(page.locator('#unfinishedSleepCard')).toBeHidden();const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].id).toBe(first.id);expect(rows[0].details.sleep.wakeups).toBe(3);expect(rows[0].details.sleep.status).toBeUndefined();await page.locator('nav [data-tab="insights"]').click();await expect(page.locator('#sleepTrends')).toContainText('9h 10m');await expect(page.locator('#sleepTrends')).toContainText('3 / night');
+});
+
+test('P145: unfinished sleep saves offline, keeps unknown counts and is editable from History',async({page})=>{
+ await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-20T22:00:00Z'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('[data-quick="nap"]').click();await page.locator('[data-sleep-kind="night"]').click();await page.locator('#sleepCaregiver').fill('Sam & Maddie');await page.screenshot({animations:'disabled',path:'test-results/p145-tbd-editor-320.png'});await page.evaluate(()=>window.syntheticOffline=true);await page.locator('#sleepSave').click();await expect(page.locator('#unfinishedSleepCard')).toBeVisible();await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toContainText('pending');await page.evaluate(()=>window.syntheticOffline=false);await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('nav [data-tab="history"]').click();await page.locator('.historyDay summary').first().click();await expect(page.locator('.historyEvent.sleepPending')).toHaveCount(1);await page.locator('[data-history-edit]').click();await expect(page.locator('#sleepOngoing')).toBeChecked();await expect(page.locator('#sleepEntryWakeups')).toHaveValue('');await expect(page.locator('#sleepCaregiver')).toHaveValue('Sam, Maddie');
+});
+
 test('P144: caregiver buttons add and remove people while creating and editing the same event',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.locator('#moreBtn').click();
@@ -646,9 +659,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P144');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P145');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P144');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P145');
 });
 
 
@@ -744,6 +757,7 @@ test('P134: overnight dates and awake minutes are explicit, and invalid interval
  await page.setViewportSize({width:320,height:740});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:"reduce"});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');
  await page.locator('[data-quick="nap"]').click();await page.getByRole('button',{name:'Night sleep',exact:true}).click();
+ await page.locator('#sleepOngoing').uncheck();await page.locator('#sleepStart').fill('');
  await page.locator('#sleepSave').click();await expect(page.locator('#sleepValidation')).toContainText('Choose');
  const times=await page.evaluate(()=>{const end=new Date();end.setHours(7,0,0,0);if(end>Date.now())end.setDate(end.getDate()-1);const start=new Date(end);start.setDate(start.getDate()-1);start.setHours(21,0,0,0);const local=d=>LucaSleep.dateKey(d)+'T'+String(d.getHours()).padStart(2,'0')+':00';return {start:local(start),end:local(end)};});
  await page.locator('#sleepStart').fill(times.end);await page.locator('#sleepEnd').fill(times.start);await page.locator('#sleepSave').click();await expect(page.locator('#sleepValidation')).toContainText('Wake-up must follow');

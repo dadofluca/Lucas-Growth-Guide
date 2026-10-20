@@ -53,7 +53,7 @@
   const sameBaby=(a,b)=>{const x=events.get(String(a.id))?.babyId,y=events.get(String(b.id))?.babyId;return !x||!y||x===y;};
   for(const e of entries){if((e.tags||[]).includes('stars')||e.details?.starChart)continue;const s=fromNote(e,baseSession(e),now);if(s)result.set(id(e),s);}
   const complete=[...result.values()].filter(s=>s.complete&&!s.legacy),used=new Set();
-  const starts=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.start)).sort((a,b)=>b.start-a.start);
+  const starts=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&!s.ongoing&&Number.isFinite(s.start)).sort((a,b)=>b.start-a.start);
   const wakes=[...result.values()].filter(s=>s.kind==='night'&&!s.complete&&Number.isFinite(s.end)).sort((a,b)=>a.end-b.end);
   for(const wake of wakes){
    if(wake.end>now+minute)continue;
@@ -65,7 +65,7 @@
    result.set(start.id,{...session,id:start.id});result.set(wake.id,{...session,id:wake.id});
   }
   // A confirmed manual window supersedes a nearby partial note without double-counting it.
-  for(const [key,s] of result)if(!s.complete){const confirmed=complete.find(c=>c.kind===s.kind&&sameBaby(c,s)&&((Number.isFinite(s.start)&&Math.abs(c.start-s.start)<=30*minute)||(Number.isFinite(s.end)&&Math.abs(c.end-s.end)<=30*minute)));if(confirmed)result.set(key,{...confirmed,id:key});}
+  for(const [key,s] of result)if(!s.complete&&!s.ongoing){const confirmed=complete.find(c=>c.kind===s.kind&&sameBaby(c,s)&&((Number.isFinite(s.start)&&Math.abs(c.start-s.start)<=30*minute)||(Number.isFinite(s.end)&&Math.abs(c.end-s.end)<=30*minute)));if(confirmed)result.set(key,{...confirmed,id:key});}
   return result;
  }
  root.LucaSleepInference={resolve};if(typeof module==='object'&&module.exports)module.exports={resolve};

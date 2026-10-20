@@ -6,8 +6,13 @@
  const dateKey=value=>{const d=new Date(value);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
  const mean=values=>values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length):null;
  function duration(value){if(value==null||!Number.isFinite(value))return "—";const n=Math.round(value),h=Math.floor(n/60),m=n%60;return h?(h+"h"+(m?" "+m+"m":"")):m+"m";}
- function build({start,end,kind="nap",awake=null,wakeups=null,now=Date.now()}){
+ function build({start,end,kind="nap",awake=null,wakeups=null,ongoing=false,now=Date.now()}){
   const a=stamp(start),b=stamp(end),mins=(b-a)/minute;
+  if(ongoing){
+   if(!Number.isFinite(a))throw Error("Choose when he fell asleep.");
+   if(a>stamp(now)+minute)throw Error("The start time is in the future. Choose when he fell asleep.");
+   return {version:1,kind:kind==="night"?"night":"nap",status:"in_progress",start_at:new Date(a).toISOString(),end_at:null,awake_minutes:null,wakeups:null};
+  }
   if(!Number.isFinite(a)||!Number.isFinite(b))throw Error("Choose a start and wake-up date and time.");
   if(b<=a)throw Error("Wake-up must follow the start. For overnight sleep, choose the next date.");
   if(mins>1440)throw Error("Check the dates: one sleep entry can cover up to 24 hours.");
@@ -34,9 +39,10 @@
    const w=note.match(/wakeups:\s*(\d+)(?![\d+])/i),a=note.match(/awake minutes:\s*(\d+)/i);
    if(w)wakeups=+w[1];if(a)awake=+a[1];
   }else return null;
-  const mins=(end-start)/minute,complete=Number.isFinite(mins)&&mins>0&&mins<=1440;
+  const ongoing=data?.status==='in_progress'&&Number.isFinite(start)&&!Number.isFinite(end);
+  const mins=(end-start)/minute,complete=!ongoing&&Number.isFinite(mins)&&mins>0&&mins<=1440;
   if(complete&&awake!=null&&awake>mins)awake=null;
-  return {id:event.syncId||event.id,kind,start,end,minutes:complete?mins:null,awake,wakeups,complete,legacy};
+  return {id:event.syncId||event.id,kind,start,end,minutes:complete?mins:null,awake,wakeups,complete,legacy,ongoing};
  }
  function resolve(entries,now=Date.now()){return root.LucaSleepInference?root.LucaSleepInference.resolve(entries,{baseSession,now}):new Map(entries.map(e=>[String(e.syncId||e.id),baseSession(e)]).filter(([,s])=>s));}
  function session(event,entries=null,now=Date.now()){return resolve(entries||[event],now).get(String(event.syncId||event.id))||null;}
