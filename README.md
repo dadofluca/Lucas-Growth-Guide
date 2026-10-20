@@ -1,4 +1,14 @@
-## Current release: P149 — 2026-10-20
+## Current release: P151 — 2026-10-20
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Caregiver names #102](https://github.com/dadofluca/Lucas-Growth-Guide/pull/102) · [Alert choices #101](https://github.com/dadofluca/Lucas-Growth-Guide/pull/101)
+
+- More → Family → Caregiver names adds a reusable name for the family, including someone without an app account. Names appear in quick care, manual entry/edit, sleep suggestions and schedule coverage. Saved names survive reopening; duplicate names are prevented and family changes clear the previous family's names.
+- More → Notifications independently controls next-bottle reminders, family chat, low supplies and new bottles/diapers/sleep/other care entries. Tap Save notification choices. New care categories start off; own entries and routine edits stay quiet. The all-alert quiet-hours option also covers care updates.
+- Final **275 Node + 95 Chromium checks passed**, no failures/flakes/skips. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39476750028) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39476750004). Final caregiver and alert settings phone layouts reviewed. Additive caregiver/preference schema passed rollback-only family isolation and persistence checks.
+- Public app and practice page both serve **P151**; all eight runtime file comparisons match the tested version.
+- The notification worker is deployed. A scheduled bottle reminder was accepted by the push provider at 2:35 PM Eastern on October 20. Physical iPhone display remains a separate confirmation; no debug messages or purchases were sent. Reopen the app for updates without clearing local storage.
+
+## Previous release: P149 — 2026-10-20
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Sleep and notification repair #100](https://github.com/dadofluca/Lucas-Growth-Guide/pull/100)
 
