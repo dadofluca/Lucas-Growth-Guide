@@ -72,7 +72,7 @@
   const session=()=>{void load().then(openNotification);};
   root.addEventListener('luca:family-session-ready',session);root.addEventListener('luca:session-changed',session);
   document.addEventListener('visibilitychange',heartbeat);document.addEventListener('click',e=>{if(e.target.closest('[data-tab="chat"]'))setTimeout(heartbeat,0);});
-  navigator.serviceWorker?.addEventListener('message',event=>{if(event.data?.type==='luca:notification-open'&&event.data.url){const url=new URL(event.data.url,location.href);if(url.origin===location.origin&&url.pathname===location.pathname){history.replaceState(null,'',url);openNotification();}}});
+  navigator.serviceWorker?.addEventListener('message',event=>{if(event.data?.type==='luca:notification-open'&&event.data.url){const url=new URL(event.data.url,location.href),base=new URL('.',location.href);if(url.origin===location.origin&&[base.pathname,base.pathname+'index.html'].includes(url.pathname)){history.replaceState(null,'',url);openNotification();}}});
   setInterval(heartbeat,30000);void load();
   return {disconnect,load};
  }

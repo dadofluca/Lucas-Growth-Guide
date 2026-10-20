@@ -38,7 +38,7 @@ self.addEventListener('notificationclick',event=>{
   const internal=url.origin===base.origin&&url.pathname.startsWith(base.pathname);
   if(!internal){const safe=self.LucaNotificationRules.safeProductURL(url.href);await self.clients.openWindow(safe||base.href);return;}
   const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-  for(const client of windows){if(new URL(client.url).origin!==base.origin||new URL(client.url).pathname.endsWith('/demo.html'))continue;try{await client.navigate(url.href);await client.focus();return;}catch{}}
+  for(const client of windows){const page=new URL(client.url);if(page.origin!==base.origin||![base.pathname,base.pathname+'index.html'].includes(page.pathname))continue;try{await client.focus();client.postMessage({type:'luca:notification-open',url:url.href});return;}catch{}}
   await self.clients.openWindow(url.href);
  })());
 });

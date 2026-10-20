@@ -54,4 +54,6 @@ test('P148: service worker always displays a push and opens only validated check
  listeners.notificationclick({notification:{data:{url:'https://store.example/formula'},close(){}},waitUntil:p=>{wait=p;}});await wait;assert.equal(opened.at(-1),'https://store.example/formula');
  listeners.notificationclick({notification:{data:{url:'javascript:alert(1)'},close(){}},waitUntil:p=>{wait=p;}});await wait;assert.equal(opened.at(-1),'https://app.example/family/');
  listeners.push({data:{json(){throw Error('broken');}},waitUntil:p=>{wait=p;}});await wait;assert.equal(shown.length,2);
+ const focused=[],posted=[];context.clients.matchAll=async()=>[{url:'https://app.example/unrelated/',focus(){throw Error('must not replace another app');}},{url:'https://app.example/family/demo.html',focus(){throw Error('must not replace practice');}},{url:'https://app.example/family/index.html',focus:async()=>focused.push(true),postMessage:message=>posted.push(message)}];
+ listeners.notificationclick({notification:{data:{url:'https://app.example/family/?notify=chat&family=fixture'},close(){}},waitUntil:p=>{wait=p;}});await wait;assert.equal(focused.length,1);assert.equal(posted[0].type,'luca:notification-open');assert.equal(opened.length,2,'an existing app is focused without reloading its draft or another app');
 });

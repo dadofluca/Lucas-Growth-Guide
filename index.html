@@ -1141,6 +1141,7 @@ nav{overflow-x:auto;justify-content:space-around}nav button{min-width:62px}
 <script>
 (function(){
  const w=document.getElementById("bootCinematic"); if(!w)return;
+ if(new URL(location.href).searchParams.has("notify")){w.remove();return;}
  const vids=[...w.querySelectorAll("video")], skip=w.querySelector(".introSkip");
  let closed=false,timer;
  const close=()=>{if(closed)return;closed=true;clearTimeout(timer);w.classList.add("done");vids.forEach(v=>{try{v.pause()}catch(e){}});setTimeout(()=>w.remove(),650)};
