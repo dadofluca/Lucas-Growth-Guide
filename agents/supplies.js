@@ -11,6 +11,7 @@
   const node=(tag,text,className)=>{const el=document.createElement(tag);if(text!=null)el.textContent=text;if(className)el.className=className;return el;};
   const button=(text,action)=>{const b=node('button',text,'tiny');b.type='button';b.onclick=action;return b;};
   const dialog=document.createElement('dialog');dialog.className='supplyProductDialog';dialog.id='supplyProductDialog';dialog.setAttribute('aria-labelledby','supplyProductTitle');document.body.append(dialog);
+  function buyerOptions(select,value=select.value){select.replaceChildren();const everyone=node('option','Everyone with supply alerts on');everyone.value='';select.append(everyone);for(const p of profiles){const option=node('option',p.display_name||'Family member');option.value=p.user_id;select.append(option);}select.value=value||'';}
   function pending(c=context()){return read(pendingKey(c))||{};}
   function queue(name,status='good'){name=String(name||'').trim();if(!name||name.length>80||!['good','low','ordered'].includes(status))return;const c=context(),p=pending(c);Object.defineProperty(p,name,{value:{status,revision:crypto.randomUUID()},enumerable:true,configurable:true,writable:true});write(pendingKey(c),p);render();if(c.family&&c.user)void pull();}
   function render(){
@@ -26,7 +27,7 @@
     if(item.buyer_user_id){const buyer=profiles.find(p=>p.user_id===item.buyer_user_id);card.append(node('small','Buyer: '+(buyer?.display_name||'Designated family member'),'supplyRetailer'));}
     if(item.pending)card.append(node('p','Saved on this phone · waiting to sync','why'));
     const actions=node('div',null,'actions');
-    actions.append(button(item.status==='low'?'Restocked':'Running low',()=>setStatus(item.id,item.status==='low'?'good':'low')));
+    actions.append(button(item.status==='good'?'Running low':'Restocked',()=>setStatus(item.id,item.status==='good'?'low':'good')));
     if(item.status==='low')actions.append(button('Ordered',()=>setStatus(item.id,'ordered')));
     if(link){const a=node('a','Open saved product','tiny supplyBuy');a.href=link;a.target='_blank';a.rel='noopener noreferrer';actions.append(a);}
     actions.append(button(item.product_name||link?'Edit product':'Choose product',()=>openEditor(item)));
@@ -59,7 +60,7 @@
     }
     result=await c.client.from('family_supplies').select('*').eq('family_id',c.family).order('name');if(result.error)throw result.error;
     if(!same(c)||rev!==revision)return false;rows=result.data||[];write(cacheKey(c),rows);onRows(rows);render();
-    const people=await c.client.from('family_profiles').select('user_id,display_name').eq('family_id',c.family);if(same(c)&&rev===revision&&!people.error){profiles=people.data||[];render();}
+    const [people,members]=await Promise.all([c.client.from('family_profiles').select('user_id,display_name').eq('family_id',c.family),c.client.from('family_members').select('user_id').eq('family_id',c.family)]);if(same(c)&&rev===revision&&!people.error&&!members.error){const allowed=new Set((members.data||[]).map(m=>m.user_id));profiles=(people.data||[]).filter(p=>root.LucaDemo||allowed.has(p.user_id));render();const chooser=dialog.querySelector('#supplyBuyer');if(dialog.open&&chooser)buyerOptions(chooser);}
     return true;
    }catch{if(same(c)){if(!host.querySelector('.supplySyncError'))host.append(node('p','Couldn’t refresh supplies. Saved items and pending changes are retained.','why supplySyncError'));}return false;}})();
    flight={scope:key(c),promise};try{return await promise;}finally{if(flight?.promise===promise)flight=null;}
@@ -78,8 +79,7 @@
    const product=input('Exact product','supplyProductName',item?.product_name);product.placeholder='Brand and product name';
    const variant=input('Size / variant','supplyProductVariant',item?.product_variant,100);variant.placeholder='Diaper size, can size, pack count…';
    const url=input('Product or checkout link','supplyProductURL',item?.product_url,2048);url.type='url';url.placeholder='https://…';
-   const buyerLabel=node('label','Who should get this supply’s alert?'),buyer=node('select');buyer.id='supplyBuyer';const everyone=node('option','Everyone with supply alerts on');everyone.value='';buyer.append(everyone);
-   for(const p of profiles){const option=node('option',p.display_name||'Family member');option.value=p.user_id;buyer.append(option);}buyer.value=item?.buyer_user_id||'';buyerLabel.append(buyer);form.append(buyerLabel);
+   const buyerLabel=node('label','Who should get this supply’s alert?'),buyer=node('select');buyer.id='supplyBuyer';buyerOptions(buyer,item?.buyer_user_id);buyerLabel.append(buyer);form.append(buyerLabel);
    form.append(node('p','Save the product your family uses. A notification opens this link; you review and place the order at the store.','why'));
    const message=node('p');message.id='supplyProductStatus';message.setAttribute('role','status');const actions=node('div',null,'notificationActions'),save=node('button','Save product','confirm');save.type='submit';save.id='supplyProductSave';actions.append(save,button('Cancel',()=>dialog.close()));form.append(message,actions);dialog.append(form);dialog.showModal();
    form.onsubmit=async event=>{event.preventDefault();const n=name.value.trim(),raw=url.value.trim(),link=rules.safeProductURL(raw);if(raw&&!link){message.textContent='Use a secure https product or checkout link.';return;}if(!c.client||!c.family||!c.user){message.textContent='Connect Family sync before saving shared products.';return;}if(!same(c)){message.textContent='Family changed. Close and reopen this product.';return;}
