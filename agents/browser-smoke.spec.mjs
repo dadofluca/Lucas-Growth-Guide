@@ -1,6 +1,19 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test.describe('P152: explicit local care time',()=>{
+ test.use({timezoneId:'America/New_York'});
+ test('quick bottle stays visible after caregiver and 6:30 PM edits, reload and moving to another day',async({page})=>{
+  await page.setViewportSize({width:390,height:844});await page.clock.setFixedTime(new Date('2026-10-20T22:51:00Z'));await syntheticCareBackend(page);await page.addInitScript(()=>localStorage.setItem('luca-caregiver','Sam'));
+  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#topQuickBottle').click();await page.locator('[data-quick-oz="8"]').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
+  const first=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events'))[0]);
+  await page.locator('#timeline [data-edit]').click();await expect(page.locator('#timePeriod')).toHaveValue('PM');await expect(page.locator('#time')).toHaveValue('6:51');await page.locator('#manualComposer [data-person="Sam"]').click();await page.locator('#manualComposer [data-person="Maddie"]').click();await page.locator('#manualComposer [data-person="KJ"]').click();await page.locator('#time').fill('6:30');await expect(page.locator('#careTimePreview')).toContainText('6:30 PM');await expect(page.locator('#toast')).not.toHaveClass(/\bon\b/,{timeout:7000});await page.locator('#eventTimePicker').evaluate(el=>window.scrollTo({top:window.scrollY+el.getBoundingClientRect().top-140,behavior:'instant'}));await page.screenshot({animations:'disabled',path:'test-results/p152-explicit-evening-time-390.png'});await page.locator('#saveEntry').click();await expect(page.locator('#timeline .entry')).toContainText('6:30 PM');await expect(page.locator('#timeline .entry')).toBeFocused();
+  for(let i=0;i<2;i++){await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#timeline .entry')).toHaveCount(1);await page.locator('#timeline [data-edit]').click();await expect(page.locator('#time')).toHaveValue('6:30');await expect(page.locator('#timePeriod')).toHaveValue('PM');await page.locator('#saveEntry').click();}
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events'))[0].event_time)).toBe('2026-10-20T22:30:00.000Z');const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows).toHaveLength(1);expect(rows[0].id).toBe(first.id);expect(rows[0].created_by).toBe('qa-user');expect(new Set(rows[0].caregivers)).toEqual(new Set(['Maddie','KJ']));
+  await page.locator('#timeline [data-edit]').click();await page.locator('#date').fill('2026-10-19');await page.locator('#timePeriod').selectOption('AM');await expect(page.locator('#careTimePreview')).toContainText('6:30 AM');await page.locator('#saveEntry').click();await expect(page.locator('#historyView')).toHaveClass(/active/);await expect(page.locator('#history .historyEvent')).toBeVisible();await expect(page.locator('#history .historyEvent')).toBeFocused();await expect(page.locator('#history .historyEvent')).toContainText('6:30 AM');
+ });
+});
+
 test('P151: save a family caregiver, reuse them across care tools and reopen without duplicates',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuFamily').click();await page.locator('#newCaregiverName').fill('Aunt Maria');await page.locator('#addCaregiver').click();await expect(page.locator('#caregiverRoster')).toContainText('Aunt Maria');await page.locator('#newCaregiverName').fill('aunt maria');await page.locator('#addCaregiver').click();await expect(page.locator('#caregiverRosterStatus')).toContainText('already');await page.locator('#caregiverSettings').scrollIntoViewIfNeeded();await page.screenshot({animations:'disabled',path:'test-results/p151-family-caregivers-390.png'});
  await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#topQuickPoop').click();await expect(page.locator('#quickPoopCaregiver option').filter({hasText:'Aunt Maria'})).toHaveCount(1);await page.locator('#quickPoopCaregiver').selectOption('Aunt Maria');await page.locator('#quickPoopSave').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').some(e=>e.caregivers?.includes('Aunt Maria')))).toBe(true);
@@ -748,7 +761,7 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
  await expect(page.locator('#manualComposer')).toBeVisible();await expect(page.locator('#composerTitle')).toHaveText('Editing entry');
  await expect(page.locator('#manualComposer')).toHaveAttribute('data-editing','true');
  await expect(page.locator('#chatPeekTab')).toBeHidden();await expect(page.locator('#careDock')).toBeHidden();
- await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#time').fill('09:15');
+ await page.locator('#manualComposer [data-oz="7"]').click();await page.locator('#time').fill('9:15');await page.locator('#timePeriod').selectOption('AM');
  await page.evaluate(()=>window.syntheticOffline=true);await page.locator('#saveEntry').click();
  await expect(page.locator('#manualComposer')).toBeHidden();await expect(page.locator('#oz')).toHaveText('7');
  await page.locator('#syncDot').click();await expect(page.locator('#syncDot')).toContainText('pending');
@@ -762,9 +775,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P151');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P152');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P151');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P152');
 });
 
 
