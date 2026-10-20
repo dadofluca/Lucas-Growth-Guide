@@ -1,4 +1,13 @@
-## Current release: P148 — 2026-10-19
+## Current release: P149 — 2026-10-20
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Sleep and notification repair #100](https://github.com/dadofluca/Lucas-Growth-Guide/pull/100)
+
+- History shows known wake-up counts and awake minutes without opening Edit, including a recorded zero; missing answers stay unknown.
+- Automatic push checks no longer fail on an unresolved clock in an older sleep note. Stale inferred bedtime notes no longer pause every future feed, while explicit ongoing sleep and quiet hours still pause reminders.
+- **271 Node + 93 Chromium checks passed**, no failures/flakes/skips. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39470103756) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39470103681). Phone-sized History screenshot reviewed. App/demo serve P149 and all five changed runtime files match tested bytes.
+- Backend v2 is deployed; multiple real scheduled checks returned HTTP 200 instead of 500. The user confirmed their manual phone test arrived; a due automatic alert appearing on the physical phone remains a separate check. Existing subscriptions and care records are unchanged. Push categories remain next bottle, family chat and low supplies—not all care entries.
+
+## Previous release: P148 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Notifications and product links #99](https://github.com/dadofluca/Lucas-Growth-Guide/pull/99)
 

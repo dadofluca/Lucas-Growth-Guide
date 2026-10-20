@@ -2,11 +2,14 @@
 
 > **Purpose:** durable breadcrumbs for the next ChatGPT/developer session. Read this file **before changing code**. Update it whenever architecture, behavior, or the active test state changes.
 
-## P149 — sleep observations and automatic push repair, verification in progress
+## P149 — sleep observations and automatic push repair, released
 - History sleep ranges show known wake-up counts (including zero) and awake minutes without opening Edit. Unknown observations remain omitted, and explicitly ongoing sleep retains TBD wording. No care records or attribution are rewritten.
 - Production diagnosis on October 20: scheduler ran every minute, but Edge dispatch returned HTTP 500; only the user's manually confirmed phone test had a sent receipt. A legacy note with an unresolvable wake clock passed NaN into the timezone formatter. `sleep-inference.js` now rejects invalid anchors before Intl formatting. Replaying the relevant subscribed baby's eight-day window reproduced the original exception and passed after the fix; record content was not copied into fixtures or source.
 - A days-old inferred bedtime also suppressed feeds indefinitely. Inferred partial bedtime protection now expires at the existing inference bounds (18h night / 8h nap); explicit in-progress logs never expire automatically. Quiet hours, real sleep windows and per-device preferences remain intact.
-- Current push types are next-bottle reminders, family chat and low supplies, not every newly logged care event. No new event-notification category is silently enabled. Regression checks cover legacy-note dispatch, stale inferred vs explicit sleep and known/unknown History observations. Fresh CI, backend deployment and public byte verification are still pending; do not claim release until recorded.
+- Current push types are next-bottle reminders, family chat and low supplies, not every newly logged care event. No new event-notification category is silently enabled. Regression checks cover legacy-note dispatch, stale inferred vs explicit sleep and known/unknown History observations.
+- PR #100 source `d7b1b083d449925c0c14e9ecb68b46a14524373d`, CI checkout `4a4019cd126f409f1a120562fd3ca58fa62e2195`, squash merge `c824d7e5b1dccc321872eafb466cc2cff2859b8b`; matching tree `01a76581083ed53f09479137a39772e8afe7253a`. **271 Node + 93 Chromium checks passed**, zero failed/flaky/skipped. Code run `39470103756`, browser run `39470103681`; diagnostic artifact `12287476105` confirms clean source, matching stamps and no nextTasks. Phone artifact `12285569265`: reviewed `p149-history-wakeups-390.png` before merge.
+- Backend version 2 is deployed from the tested shared source. The existing scheduled runs at 17:55, 17:56 and 17:57 UTC returned HTTP 200, checked=1/sent=0, replacing the previous per-minute 500s. No alert was due; do not treat this as proof of an automatic alert appearing on the iPhone. The user independently confirmed the manual phone test arrived. Do not re-enroll their subscription, send debug family messages or clear local storage. No production care data was changed. Actual due-alert display and a second family phone remain external checks.
+- Public app and isolated practice page both verified **P149**; all five changed runtime files matched tested SHA-256 bytes (index, demo, service worker, sleep inference and notification rules). Evidence: `artifacts/p149-public-verification.json`. First probe preceded Pages publication and correctly saw P148; the final complete probe passed. Subsequent release-note edits are documentation only.
 
 ## P148 — opt-in family push and saved supply products, released
 - PR #99: https://github.com/dadofluca/Lucas-Growth-Guide/pull/99. Final source `76bb057b32d17f265caaf1b16ff640eacffe3ebc`; CI checkout `03fcd241e396962dd773c923159c5a34a97b02aa`; squash merge `83328cc687bd9b24ea5d3013aa3c517ccf01160a`. Source, CI and merge have identical tree `4ad60aabf88af21ab5ccd2fbd796c62f1485ad85`.
@@ -84,7 +87,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P148** (2026-10-19 America/New_York; 2026-10-20 UTC). See the newest release note above; older Pxx notes are historical.
+**Current release:** **P149** (2026-10-20). See the newest release note above; older Pxx notes are historical.
 
 ## Product intent
 
