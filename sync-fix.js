@@ -494,7 +494,7 @@ window.LUCA_PATCH=LUCA_RUNTIME.version; // Set before optional compatibility pat
  function parseScheduleText(text,day){
    let out=[],parts=text.split(/\n|;|,(?=\s*(?:Sam|Maddie|Nona|Boppa|Jay|Yolanda|Lindsay|KJ)\b)/i);
    const people=["Sam","Maddie",...LUCA_RUNTIME.schedule.coveragePeople];
-   for(let part of parts){let person=people.find(n=>new RegExp("\\b"+(function(n){return n.replace(/[.*+?^${}()|[\]\\]/g,"\\new RegExp("\\b"+n+"\\b","i")");})(n)+"\\b","i").test(part));if(!person)continue;let m=part.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?\s*(?:-|–|to|until)\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)?/i);if(!m)continue;let ap1=m[2],ap2=m[4];if(!ap1&&ap2)ap1=ap2;let start=parseTime(m[1],ap1),end=parseTime(m[3],ap2);if(end<=start)continue;out.push({person,kind:/^(sam|maddie)$/i.test(person)?"work":"coverage",day,start,end})}
+   for(let part of parts){let person=people.find(n=>new RegExp("\\b"+(function(n){return n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");})(n)+"\\b","i").test(part));if(!person)continue;let m=part.match(/(\d{1,2}(?::\d{2})?)\s*(am|pm)?\s*(?:-|–|to|until)\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)?/i);if(!m)continue;let ap1=m[2],ap2=m[4];if(!ap1&&ap2)ap1=ap2;let start=parseTime(m[1],ap1),end=parseTime(m[3],ap2);if(end<=start)continue;out.push({person,kind:/^(sam|maddie)$/i.test(person)?"work":"coverage",day,start,end})}
    return out
  }
  function workEditor(row,day){
