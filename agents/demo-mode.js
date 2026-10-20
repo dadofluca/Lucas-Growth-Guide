@@ -6,6 +6,7 @@
  try{Object.defineProperty(window,'localStorage',{value:isolated(native)});Object.defineProperty(window,'sessionStorage',{value:isolated(nativeSession)});}catch{window.LucaDemo={ready:false};return;}
  const read=table=>JSON.parse(localStorage.getItem('db:'+table)||'[]'),write=(table,rows)=>localStorage.setItem('db:'+table,JSON.stringify(rows));
  const day=(offset,h,m=0)=>{const d=new Date();d.setDate(d.getDate()+offset);d.setHours(h,m,0,0);return d.toISOString();};
+ if(!localStorage.getItem('db:family_star_identities'))write('family_star_identities',[{family_id:'practice-family',user_id:'practice-user',person:'Test Pilot'}]);
  if(!localStorage.getItem('db:family_idea_managers'))write('family_idea_managers',[{family_id:'practice-family',user_id:'practice-user'}]);
  if(!localStorage.getItem('seeded')){
   const morning=new Date().getHours()<10?-1:0,now=Date.now(),napStart=new Date(now-3*3600000),napEnd=new Date(now-2*3600000),fmt=d=>d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});

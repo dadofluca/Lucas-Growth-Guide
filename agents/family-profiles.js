@@ -129,7 +129,7 @@ export function mountFamilyProfiles({getClient,getFamilyId,getUser,list,name,bio
   if(error){list.replaceChildren();say("Profiles unavailable. Try again.");return;}
   list.replaceChildren();
   for(const p of data||[]){
-   const row=document.createElement("div");row.className="familyMember";
+   const row=document.createElement("button");row.type="button";row.className="familyMember";row.dataset.familyMember=p.user_id;row.setAttribute("aria-label","View profile: "+(p.display_name||"Family member"));
    const title=document.createElement("strong");const deviceName=/^device-[a-f0-9-]{12,}$/i.test(p.display_name||"");title.textContent=(deviceName?"Family member":p.display_name)+(p.user_id===user.id?" (You)":"");row.append(avatarImage(p.avatar_preset,48));
    const seen=document.createElement("div");seen.className="muted";seen.textContent=lastSeen(p.last_active_at);
    const copy=document.createElement("div");copy.className="familyMemberCopy";const character=document.createElement("span");character.className="avatarCharacter";character.textContent=avatarLabel(p.avatar_preset);copy.append(title,character);const banner=profileBanner(p.flair);if(banner)copy.append(banner);copy.append(seen);row.append(copy);list.append(row);

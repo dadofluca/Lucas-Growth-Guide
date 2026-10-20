@@ -1,3 +1,10 @@
+## P147 candidate — publication approved, browser verification pending
+
+- Tap Family Chat names/portraits or Family profiles to open bios and unlocked calling cards/cosmetics. Personal light themes include three free palettes, Field Notes for first saved care, Aurora Protocol for two existing secret discoveries, and Golden Hour for Quiet Legend.
+- Quiet Legend recognizes 5 care records across 3 days credited by another verified family account. It appears for the caregiver before they open the app, without changing spendable Stars or requiring extra visits. It does not measure screen time.
+- Add or remove Stars with receipts. Database authorization blocks self adjustments and account relinking; verified Sam can adjust anyone. Display-name/caregiver-picker changes do not grant authority.
+- Source `272908cfa52187e06aa485a462c094a6404c1261`: **256 Node checks passed** with clean source and matching generated demo. Full browser verification, phone review and deployment are pending. The user explicitly approved publishing this candidate and requested a readable intro Skip control, now included. See DEVELOPER_HANDOFF.md for the exact state. The live app remains P146.
+
 ## Current release: P146 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Family Ideas and Star chart #97](https://github.com/dadofluca/Lucas-Growth-Guide/pull/97)
