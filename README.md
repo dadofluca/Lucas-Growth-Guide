@@ -7,6 +7,8 @@
 - **246 Node + 80 Chromium checks passed**, zero failures/flakes/skips. Final source `c262951b36be08d90077a46645002317412a385d`, CI checkout `255601335409c841a0613c4811fabecc9a9a5ce7`, merge `4bd234d9fd748fbca2850d16598ec692b06a47b3`; identical tree `f494d1e6e71c665949b768fc0b4073112ba721ed`. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39354333349) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39354333293). Reviewed final phone screenshots before merging. Exact evidence and source owners are in DEVELOPER_HANDOFF.md.
 - No production records or schema changes. Physical signed-in iPhone/PWA, second family device and Muse ingestion remain external checks. Reopen/reload without clearing local storage.
 
+- Public app and friend demo both verified P145; all 26 file byte comparisons match the tested runtime and current playbook. Release-note commits change documentation only.
+
 ## Previous release: P144 — 2026-10-19
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Friend practice playground](https://dadofluca.github.io/Lucas-Growth-Guide/demo.html) · [Shared caregivers and personal updates #95](https://github.com/dadofluca/Lucas-Growth-Guide/pull/95)
