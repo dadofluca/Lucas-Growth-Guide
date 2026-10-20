@@ -2,12 +2,14 @@
 
 > **Purpose:** durable breadcrumbs for the next ChatGPT/developer session. Read this file **before changing code**. Update it whenever architecture, behavior, or the active test state changes.
 
-## P152 — explicit edit times and card relocation, verification in progress
+## P152 — explicit edit times and card relocation, released
 - User reported an evening quick bottle disappearing after changing caregivers and time to 6:30 PM. Read-only diagnosis found two edited 8oz attempts stored at 10:30 UTC / 6:30 AM Eastern, not deleted. Their original creation timestamps were evening. No production record was corrected, merged or deleted; these may be repeated attempts and must not be assumed to be separate feeds or auto-cleaned.
 - Manual care time now has a plain 12-hour clock plus a separate, visible AM/PM select and a live full-date/time save preview. Changing the clock leaves the selected period intact. `agents/care-time.js` owns formatting/strict local parsing, including midnight/noon and invalid-date/DST-gap rejection. Quick logging remains one-tap; care writes stay exclusively in `care-sync.js`.
 - Edit confirmation states the saved date/time and reveals the card at its new position. Moving to a different day opens that day in History. Original logger, event ID, original-event audit and caregiver attribution remain intact. Existing AM records can be edited explicitly to PM after the update; no silent data repairs.
 - User additionally saw 6:51 persist twice before 6:30 PM finally saved. A subsequent read confirmed that same record now stores 22:30 UTC / 6:30 PM. Failed-attempt picker state was not observable, so do not claim the AM records explain this second symptom. Native time wheels are replaced by a clock text field with a separate period, explicit field commit before save and visible preview. Two additional care-sync checks confirm stale refresh and in-flight update responses do not replace the latest 6:30 PM edit in the tested queue; no speculative sync rewrite was added.
-- 279 Node checks pass locally. New New-York browser flow reproduces quick Sam bottle → Maddie/KJ + 6:30 PM → immediate Save, repeated edits/reloads, then an explicit previous-day AM move, checking one stable row and visible card. Fresh browser/phone evidence and public verification remain pending. Physical iPhone picker behavior remains a separate verification limit.
+- New New-York browser flow covers quick Sam bottle → Maddie/KJ + 6:30 PM → Save, repeated edits/reloads, then an explicit previous-day AM move, checking one stable row and visible card. The first passing run (`39511716608` / `39511716634`) had a toast-obscured phone screenshot. A test-only capture adjustment waits for the toast and positions the editor above fixed navigation; no runtime changed for this adjustment.
+- Final PR #103 source `b58536d227f089ef7f1e755f3096614dfa1d89e2`, CI checkout `74780cc05acf772ce065f3e30314f09ce4a38c64`, squash merge `89bc0a5b38cc25a9d7825ebab0cad21e7cea1767`; identical tree `f5e2ad6b57d6a6a1112013ecd7b5f2431ab26396`. **279 Node + 96 Chromium checks passed**, zero failed/flaky/skipped. Code workflow `39512372040`, browser workflow `39512372045`; diagnostic artifact `12306547712` has clean source and no nextTasks. Phone artifact `12306517678`: reviewed `p152-explicit-evening-time-390.png`, showing date, 6:30, PM, exact preview and Save unobstructed. Earlier source also passed all checks.
+- Pages workflow `39512991169` succeeded. Public app and isolated practice page verified **P152**, with all **five changed runtime SHA-256 comparisons** matching the tested source (`index.html`, `demo.html`, `sw.js`, `agents/care-time.js`, `agents/ui-polish.css`); evidence `artifacts/p152-public-verification.json`. An initial probe correctly saw P151 during deployment. Later documentation commits do not change the tested runtime. Physical iPhone interaction, a second family phone and Muse ingestion remain separate external checks. Failed native-picker states were not captured: do not claim a proven iOS root cause or that the two AM records explain unchanged 6:51 saves. No production data repair or duplicate cleanup was performed.
 
 ## P151 — shared caregiver names, released
 - Family Profiles has a Caregiver names card. Add a name without creating an app account. The shared `family_caregivers` table uses family-member read/insert RLS, authenticated creator checks and a family/case-insensitive unique index. Existing names remain available. No profile, membership, invitation or Star authority is created by adding a name. Deployed additive `family_caregiver_roster`; rollback-only `caregivers-check.sql` passed persistence, dedupe, foreign read/write denial and forged author denial.
@@ -108,7 +110,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P151** (2026-10-20). See the newest release note above; older Pxx notes are historical.
+**Current release:** **P152** (2026-10-20). See the newest release note above; older Pxx notes are historical.
 
 ## Product intent
 

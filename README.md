@@ -1,4 +1,12 @@
-## Current release: P151 — 2026-10-20
+## Current release: P152 — 2026-10-20
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Explicit edit times #103](https://github.com/dadofluca/Lucas-Growth-Guide/pull/103)
+
+- Manual care edits use a 12-hour clock and separate AM/PM choice, with an exact save-time preview. Save confirms the date/time and brings the edited card into view, including in History when its date changes. Quick logging is unchanged.
+- Repeated evening bottle edits, caregiver changes, reloads, previous-day moves and delayed sync responses pass. **279 Node + 96 Chromium checks passed**, zero failures/flakes/skips. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39512372040) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39512372045). Final 390px time controls and preview reviewed.
+- Public app/demo serve **P152**; all five changed runtime files match tested SHA-256 bytes. No production entries were changed, merged or deleted. The user's eventual 6:30 PM save is intact; earlier 6:30 AM attempts remain untouched. Physical iPhone interaction still needs confirmation. Reopen the app without clearing local storage.
+
+## Previous release: P151 — 2026-10-20
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Caregiver names #102](https://github.com/dadofluca/Lucas-Growth-Guide/pull/102) · [Alert choices #101](https://github.com/dadofluca/Lucas-Growth-Guide/pull/101)
 
