@@ -6,6 +6,7 @@
  try{Object.defineProperty(window,'localStorage',{value:isolated(native)});Object.defineProperty(window,'sessionStorage',{value:isolated(nativeSession)});}catch{window.LucaDemo={ready:false};return;}
  const read=table=>JSON.parse(localStorage.getItem('db:'+table)||'[]'),write=(table,rows)=>localStorage.setItem('db:'+table,JSON.stringify(rows));
  const day=(offset,h,m=0)=>{const d=new Date();d.setDate(d.getDate()+offset);d.setHours(h,m,0,0);return d.toISOString();};
+ if(!localStorage.getItem('db:family_idea_managers'))write('family_idea_managers',[{family_id:'practice-family',user_id:'practice-user'}]);
  if(!localStorage.getItem('seeded')){
   const morning=new Date().getHours()<10?-1:0,now=Date.now(),napStart=new Date(now-3*3600000),napEnd=new Date(now-2*3600000),fmt=d=>d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   write('baby_events',[
@@ -28,9 +29,9 @@
     result=[];for(const value of Array.isArray(payload)?payload:[payload]){const keys=(options.onConflict||'id').split(','),old=action==='upsert'?rows.find(row=>keys.every(k=>row[k]===value[k])):null;
      if(action==='insert'&&value.id&&rows.some(row=>row.id===value.id))return {data:null,error:{code:'23505'}};
      if(old&&options.ignoreDuplicates){result.push(old);continue;}
-     const saved={id:crypto.randomUUID(),created_at:new Date().toISOString(),...(table==='family_profiles'?{flair:{}}:{}),...old,...value};rows=old?rows.map(row=>row===old?saved:row):[...rows,saved];result.push(saved);
+     const saved={id:crypto.randomUUID(),created_at:new Date().toISOString(),...(table==='family_idea_reviews'?{updated_at:new Date().toISOString()}:{}),...(table==='family_profiles'?{flair:{}}:{}),...old,...value};rows=old?rows.map(row=>row===old?saved:row):[...rows,saved];result.push(saved);
     }write(table,rows);
-   }else if(action==='update'){result=selected.map(row=>({...row,...payload}));write(table,rows.map(row=>selected.includes(row)?{...row,...payload}:row));}
+   }else if(action==='update'){if(table==='family_idea_reviews')payload={...payload,updated_at:new Date().toISOString()};result=selected.map(row=>({...row,...payload}));write(table,rows.map(row=>selected.includes(row)?{...row,...payload}:row));}
    else if(action==='delete')write(table,rows.filter(row=>!selected.includes(row)));
    if(ordering)result=[...result].sort((a,b)=>String(a[ordering.k]).localeCompare(String(b[ordering.k]))*(ordering.ascending?1:-1));
    const total=result.length;if(maximum!=null)result=result.slice(0,maximum);

@@ -376,3 +376,27 @@ body#lucaApp .pickerTitle{font-size:15px;letter-spacing:-.025em;background:trans
 .starOpening,.starEmpty{font-size:12px;line-height:1.5;color:#62705e;padding:14px 2px 0}
 #starStatus{font-size:12px;color:#5d6c5a;line-height:1.5;min-height:20px;margin-top:16px}
 @media(prefers-reduced-motion:reduce){.starProgress span{transition:none}}
+/* Family Ideas: interest is public, approval remains Sam's. */
+body#lucaApp .ideasBubble{position:fixed;right:0;top:calc(45% - 105px);z-index:29;min-width:44px;min-height:44px;padding:6px 9px!important;border-radius:14px 0 0 14px;background:#e5d9af!important;color:#3f503e!important;box-shadow:-2px 2px 10px #2b42331a!important}
+body#lucaApp .ideasBubble span{font-size:12px;font-weight:800}
+body#lucaApp:not(:has(#todayView.active)) .ideasBubble,body#lucaApp:has(#manualComposer:not(.hiddenOldComposer)) .ideasBubble,body#lucaApp:has(#sleepComposer:not([hidden])) .ideasBubble,body#lucaApp.quickPickerOpen .ideasBubble{display:none!important}
+body#lucaApp .ideasProtocol{background:#dedfcf;border:1px solid var(--luca-line);border-radius:16px;padding:14px;margin-bottom:18px;font-size:14px;line-height:1.5}
+body#lucaApp .ideasProtocol p{margin:8px 0}
+body#lucaApp .ideaAuthor{font-size:13px;font-weight:750;color:#4c6152;margin:8px 0}
+body#lucaApp .ideaDetails{white-space:pre-wrap;line-height:1.5}
+body#lucaApp .ideaVotes{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+body#lucaApp .ideaVotes button{min-width:52px;min-height:44px;padding:8px 14px!important}
+body#lucaApp .ideaVotes button[aria-pressed=true]{background:#bcd0bb!important;border-color:#789c81!important}
+body#lucaApp .ideaVotes small{font-size:11px}
+body#lucaApp .ideaResponse{border-left:3px solid #789c81;background:#dce4d4;padding:12px;margin-top:12px;border-radius:0 12px 12px 0;font-size:14px}
+body#lucaApp .ideaResponse p{white-space:pre-wrap;margin:6px 0 0}
+body#lucaApp .ideaReview{padding:12px 0;border-top:1px solid var(--luca-line);margin-top:14px}
+body#lucaApp .ideaReview summary{font-weight:750;cursor:pointer;min-height:36px}
+body#lucaApp .ideaReview label{display:grid;gap:6px;margin:12px 0}
+body#lucaApp .ideaConsent{display:flex!important;align-items:center;gap:8px;margin-top:14px;font-size:13px!important}
+body#lucaApp .ideaConsent input{width:20px!important;height:20px!important}
+body#lucaApp .starOverview{margin:18px 0 24px}
+body#lucaApp .starOverviewRow{display:grid;grid-template-columns:minmax(66px,1fr) minmax(30px,1.3fr) 55px 16px;gap:10px;align-items:center;width:100%;text-align:left;min-height:55px;padding:12px!important;margin:8px 0;background:#e2e3d2!important;border-radius:14px;font-size:14px}
+body#lucaApp .starOverviewTrack{height:7px;background:#d1d4c1;border-radius:8px;overflow:hidden}
+body#lucaApp .starOverviewTrack i{display:block;height:100%;background:#9c824a;border-radius:8px}
+body#lucaApp .starOverviewRow b{text-align:right;white-space:nowrap}

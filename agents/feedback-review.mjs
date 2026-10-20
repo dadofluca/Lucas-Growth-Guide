@@ -2,7 +2,8 @@
 import {readFileSync,mkdirSync,writeFileSync} from "node:fs";
 const file=process.argv[2];
 if(!file){console.log("No approved feedback export provided; skipping family feedback review.");process.exit(0)}
-const rows=JSON.parse(readFileSync(file,"utf8"));
+const exported=JSON.parse(readFileSync(file,"utf8"));
+const rows=Array.isArray(exported)?exported:exported.ideas;
 if(!Array.isArray(rows))throw Error("Expected array");
 const allowed=new Set(["idea","bug","design","question"]);
 const strip=s=>String(s??"")
@@ -14,7 +15,7 @@ const strip=s=>String(s??"")
  .replace(/[\r\n\t]+/g," ").slice(0,400);
 const seen=new Map(),queue=[];
 for(const x of rows.slice(0,250)){
- if(!x||x.agent_review_approved!==true||!allowed.has(x.category)||x.status==="deleted"||x.status==="archived")continue;
+ if(!x||x.agent_review_approved!==true||x.visibility==="private"||!allowed.has(x.category)||x.status==="deleted"||x.status==="archived"||x.status==="done"||x.status==="declined")continue;
  const title=strip(x.title).slice(0,100),details=strip(x.details);
  if(!title.trim())continue;
  const fingerprint=(x.category+":"+title.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,55));
