@@ -11,7 +11,7 @@ test('P156: completed homemade batch is preparation, not an eaten meal or bottle
  const [row]=parse('Maddie made a batch of baby food at 4:15 pm');assert.equal(row.credit,'Maddie');assert.equal(row.clock.h12,4);assert.equal(row.clock.min,15);
 });
 test('P156: plans and negation never create completed prep; ordinary food remains food',()=>{
- for(const text of ['Maddie will make a batch of baby food tomorrow','Maddie did not make a batch of baby food','Have you made a batch of baby food?','Maddie has not prepared homemade baby food'])assert.deepEqual(parse(text).map(e=>e.kind),['other'],text);
+ for(const text of ['Maddie will make a batch of baby food tomorrow','Maddie did not make a batch of baby food','Have you made a batch of baby food?','Maddie has not prepared homemade baby food','Maddie hasn’t prepared homemade baby food',"Maddie hasn't prepared homemade baby food"])assert.deepEqual(parse(text).map(e=>e.kind),['other'],text);
  assert(!parse('Nona fed homemade food that Maddie made').some(e=>e.kind==='foodprep'));
  assert(parse('Nona fed chicken and broccoli at 12:45 pm').some(e=>e.kind==='solids'));
 });

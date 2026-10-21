@@ -616,7 +616,7 @@ function relativeTime(minutes){let d=new Date(Date.now()-minutes*60000);return {
 function smartClauseClock(text){const match=text.match(/(?:\bat\s+|@\s*)(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);return match?parseClock(match[1]):null;}
 function isFoodPrep(text){
  const action=/\b(?:made|cooked|prepared|prepped|blended|pur[eé]ed|whipped up)\b/i;
- return action.test(text)&&/\b(?:batch|homemade|home-made)\b/i.test(text)&&/\b(?:food|pur[eé]es?|meals?)\b/i.test(text)&&!/[?]/.test(text)&&!/\b(?:ate|fed|served|gave)\b.*\b(?:made|cooked|prepared|prepped|blended)\b/i.test(text)&&!/\b(?:will|going to|planning to|plan to|want to|need to|didn't|did not|haven't|have not|not|never)\b[^;.]*\b(?:make|made|cook|cooked|prepare|prepared|prep|prepped|blend|blended|pur[eé]e|pur[eé]ed)\b/i.test(text);
+ return action.test(text)&&/\b(?:batch|homemade|home-made)\b/i.test(text)&&/\b(?:food|pur[eé]es?|meals?)\b/i.test(text)&&!/[?]/.test(text)&&!/\b(?:ate|fed|served|gave)\b.*\b(?:made|cooked|prepared|prepped|blended)\b/i.test(text)&&!/\b(?:will|going to|planning to|plan to|want to|need to|[a-z]+n['’]t|did not|have not|not|never)\b[^;.]*\b(?:make|made|cook|cooked|prepare|prepared|prep|prepped|blend|blended|pur[eé]e|pur[eé]ed)\b/i.test(text);
 }
 // Only an unambiguous, standalone bottle note may supply a missing manual amount.
 function bottleNoteAmount(text){
@@ -635,7 +635,7 @@ function bottleNotePreview(){
 function smartParseText(txt){let out=[],src=txt.trim();smartSupplyItems=[];if(!src)return out;
  // Prep is not intake: ingredient lists and batch quantities must never become meals/bottles.
  const parts=src.split(/;|\n|\band then\b|\band\b(?=\s+(?:[\p{L}]+\s+)?(?:gave|fed|changed|drank)\b)/iu).map(x=>x.trim()).filter(Boolean),prep=parts.filter(isFoodPrep);
- const plans=parts.filter(p=>!isFoodPrep(p)&&/\b(?:batch|homemade|home-made)\b/i.test(p)&&/\b(?:food|pur[eé]es?|meals?)\b/i.test(p)&&(/[?]/.test(p)||/\b(?:will|going to|planning to|plan to|want to|need to|didn't|did not|haven't|have not|not|never)\b[^;.]*\b(?:make|made|cook|cooked|prepare|prepared|prep|prepped|blend|blended)\b/i.test(p)));
+ const plans=parts.filter(p=>!isFoodPrep(p)&&/\b(?:batch|homemade|home-made)\b/i.test(p)&&/\b(?:food|pur[eé]es?|meals?)\b/i.test(p)&&(/[?]/.test(p)||/\b(?:will|going to|planning to|plan to|want to|need to|[a-z]+n['’]t|did not|have not|not|never)\b[^;.]*\b(?:make|made|cook|cooked|prepare|prepared|prep|prepped|blend|blended)\b/i.test(p)));
  if(plans.length){const text=plans.join('; ');out.push({kind:'other',label:'＋ Prep note — not a completed batch',note:text,raw:text,credit:namedCaregiver(text)||deviceCaregiver()});}
  if(prep.length){const text=prep.join('; ');out.push({kind:'foodprep',label:'🍲 Homemade food batch · +5 care points',note:text,raw:text,clock:smartClauseClock(text),credit:namedCaregiver(text)||deviceCaregiver()});}
  if(prep.length||plans.length){src=parts.filter(p=>!prep.includes(p)&&!plans.includes(p)).join('; ');if(!src)return out;}
