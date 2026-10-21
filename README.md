@@ -1,4 +1,11 @@
-## Current release: P152 — 2026-10-20
+## Current release: P153 — 2026-10-20
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Rolling picker #104](https://github.com/dadofluca/Lucas-Growth-Guide/pull/104)
+
+- Restores the preferred native rolling care-time picker. Save waits for queued picker changes before reading the final value, prevents repeat taps and retains incomplete edits. The preview, saved-time confirmation and edited-card navigation remain.
+- **280 Node + 97 Chromium checks passed**, no failed/flaky/skipped checks. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39526481662) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39526481637). Phone layout reviewed; public app/demo serve P153 and all five changed runtime files match tested bytes. Physical iPhone wheel behavior remains a separate confirmation.
+
+## Previous release: P152 — 2026-10-20
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Explicit edit times #103](https://github.com/dadofluca/Lucas-Growth-Guide/pull/103)
 

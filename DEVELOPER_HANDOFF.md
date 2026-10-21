@@ -2,10 +2,17 @@
 
 > **Purpose:** durable breadcrumbs for the next ChatGPT/developer session. Read this file **before changing code**. Update it whenever architecture, behavior, or the active test state changes.
 
-## P153 — restore rolling time picker, verification in progress
+## P154 — discussion under family ideas, verification in progress
+- Each idea gets a collapsible Discussion with author/time, comments in chronological order, a 1,200-character composer, Refresh discussion and own-comment deletion. Latest 50 load first; Show earlier comments expands by 50. Text is literal DOM content. Drafts survive refresh and failed posts; a stable client ID confirms retries after lost responses without duplicates. Family/account changes discard drafts, thread state and stale responses. Private idea discussions follow parent privacy.
+- Additive `family_idea_comment_discussions` is deployed from `supabase/idea-comments-schema.sql`, with explicit select/delete and insert-column grants plus RLS. No anonymous access, author forgery, timestamp forgery or client updates. Parent/family composite FK cascades deletion. Rollback-only `idea-comments-check.sql` passed shared/private visibility, nonmember isolation, own delete, blank body, author/time integrity, duplicate ID and parent cascade checks. Security advisors have no finding naming the new table. Interrupted migration completion was confirmed read-only before verification; it was not reapplied. No real comments or care rows were created as fixtures.
+- Browser verification and public release pending. Existing 45-second foreground board refresh also updates open discussions while keeping the composer. No comment push notification category was added.
+
+## P153 — restore rolling time picker, released
 - User clarified that the rolling picker was preferred; the request was to fix intermittent saves, not replace the interaction with typed time. Restored native `input type=time` with minute precision. The existing date/time preview, saved-time confirmation and edited-card reveal remain. Native picker presentation follows the user's iPhone/browser settings.
 - `care-time.js` converts the native control's 24-hour value into local time with strict validation. Save holds its busy guard from before blur until completion, lets queued picker blur/change callbacks finish before reading the final date/time, and retains incomplete edits for correction. Preview listens to input and change. Quick logging and canonical care persistence are unchanged.
 - Added a regression for a time value delivered in the next task after blur, repeat Save taps, incomplete input retention, repeated evening caregiver/time edits and reloads. This models a possible timing failure, not proof of the unobserved physical iPhone root cause. Real wheel interaction must still be checked on the user's iPhone. No family records were modified. First browser run `39525301867` passed both new picker checks but caught two older tests reloading before async Save completed; these now assert the composer closes and the expected caregiver/note is persisted before reloading. Original post-reload assertions remain. Final release evidence pending.
+- Final PR #104 source `c28ac9fcd6de38635e277dd96e6720d9dfab3d27`, CI checkout `1407c8e956cdb8eb7ccdba3b8c9df6763f249434`, squash merge `1657f228b98f0a69d3b5752f69e02aa5ca9b529d`; identical tree `8fdda74a472de275bdfd664f0dd0ec2d65ba2f8b`. **280 Node + 97 Chromium checks passed**, zero failed/flaky/skipped. Code run `39526481662`, browser run `39526481637`; diagnostic artifact `12313302736` clean with no nextTasks, phone artifact `12313682554` reviewed `p153-native-evening-time-390.png`. An intermediate test-only correction uses canonical remote `note`, not local `notes`; run `39526072538` is not release evidence.
+- Pages run `39528214363` succeeded. Public app/demo both verified **P153**, all five changed runtime SHA-256 comparisons match tested bytes (`artifacts/p153-public-verification.json`). Later documentation changes do not change that tested runtime. Actual physical iPhone wheel interaction still needs confirmation; the original failed picker state was never observed directly.
 
 ## P152 — explicit edit times and card relocation, released
 - User reported an evening quick bottle disappearing after changing caregivers and time to 6:30 PM. Read-only diagnosis found two edited 8oz attempts stored at 10:30 UTC / 6:30 AM Eastern, not deleted. Their original creation timestamps were evening. No production record was corrected, merged or deleted; these may be repeated attempts and must not be assumed to be separate feeds or auto-cleaned.
@@ -115,7 +122,7 @@
 
 **Repository:** `dadofluca/Lucas-Growth-Guide`  
 **Primary branch:** `main`  
-**Current release:** **P152** (2026-10-20). See the newest release note above; older Pxx notes are historical.
+**Current release:** **P153** (2026-10-20). See the newest released note above; older Pxx notes are historical.
 
 ## Product intent
 
