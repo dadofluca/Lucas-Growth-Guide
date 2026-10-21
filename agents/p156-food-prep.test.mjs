@@ -22,6 +22,9 @@ test('P156: five derived care points per batch, not a spendable Star ledger muta
  assert.equal(stars.points({tags:['foodprep'],event_type:'foodprep'}),5);assert.equal(stars.points({event_type:'foodprep'}),5);assert.equal(stars.points({tags:['foodprep','solids']}),6);assert.equal(stars.points({tags:['stars','foodprep']}),0);assert.equal(stars.state([{id:'batch',tags:['foodprep'],people:['Sam']}],'Sam').balance,0);
 });
 const now=new Date('2026-10-21T20:00:00Z'),identities=[{user_id:'maker',person:'Maddie'},{user_id:'logger',person:'Sam'}];
+test('P156: batch recognition preserves supplies mentioned in the same update',()=>{
+ const ctx=vm.createContext({a:[],localStorage:{getItem:()=>null},input:'Maddie made a batch of baby food, formula is low'});vm.runInContext(html.slice(html.indexOf('let smartItems=[]'),html.indexOf('function renderSmart()')),ctx);const result=JSON.parse(vm.runInContext('JSON.stringify({items:smartParseText(input),supplies:smartSupplyItems})',ctx));assert.deepEqual(result.items.map(e=>e.kind),['foodprep']);assert.deepEqual(result.supplies.map(e=>e.name),['Formula']);
+});
 const batch=i=>({id:'batch-'+i,babyId:'baby',at:'2026-10-21T12:00:00Z',tags:['foodprep'],people:['Maddie'],createdBy:'logger'});
 test('P156: milestones at 1, 3 and 10 reward the linked cook, not the logger',()=>{
  for(const [count,id] of [[1,'tiny-sous-chef'],[3,'freezer-fairy'],[10,'puree-professional']]){const events=Array.from({length:count},(_,i)=>batch(i)),result=evaluateAchievements({events,userId:'maker',identities,babyId:'baby',now});assert.equal(result.metrics.foodBatches,count);assert(result.unlocked.includes(id));assert.equal(evaluateAchievements({events,userId:'logger',identities,now}).metrics.foodBatches,0);assert.equal(bannerFor({unlocked:result.unlocked,banner:id}).id,id);}
