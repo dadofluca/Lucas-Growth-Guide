@@ -1,4 +1,13 @@
-## Current release: P153 — 2026-10-20
+## Current release: P154 — 2026-10-20
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Family idea discussions #105](https://github.com/dadofluca/Lucas-Growth-Guide/pull/105)
+
+- More → Family Ideas → Discussion opens comments under each idea, with names, times, a reply box and deletion of your own comments. Shared/private visibility follows the original idea. Earlier replies can be loaded; failed posts keep their draft and a lost response can be retried without duplicates. Open discussions refresh with the board. Comments do not send push alerts or grant agent/build approval.
+- The preferred rolling time picker from P153 remains, with save-time preview, a picker commit handoff and navigation to the edited card.
+- **280 Node + 99 Chromium checks passed**, zero failed/flaky/skipped. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39529737097) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39529737026). Reviewed the final 390px discussion layout; transaction-only database checks passed privacy, author/time integrity, own deletion and duplicate protection.
+- Public app/demo serve **P154** and all eight runtime file comparisons match tested bytes. Reopen the app without clearing storage. Actual iPhone wheel interaction and a second phone remain separate confirmations.
+
+## Previous release: P153 — 2026-10-20
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Rolling picker #104](https://github.com/dadofluca/Lucas-Growth-Guide/pull/104)
 

@@ -12,13 +12,13 @@ The board is a request queue, not a code execution endpoint. There is no AI repa
 - Replies/status revisions appear in the author's Your updates inbox on app open, foreground refresh or board polling (45 seconds while visible). These are in-app notices, not iOS push, email or background notifications. Read marks stay on that device. An actual new revision becomes unread again.
 - Author consent enables inclusion of an open family idea in Sam's downloaded review brief. Private, unapproved, addressed and declined posts are excluded. No export is automatically sent to another service.
 
-## Review protocol
-
-### Discussion under an idea
+## Discussion under an idea
 
 Each card has a Discussion section. Accessible family members can post comments, see author names and times, and delete their own comments. Private ideas and their comments stay author-only. Discussion does not change an idea's status, approve work, or grant build authority. Comments are not included in the approved agent export and do not send push notifications.
 
 The latest 50 replies load on opening; Show earlier comments expands that window. Refresh discussion and the existing foreground board polling refresh open threads. Drafts survive board refresh and failed sends, but are cleared on a family/account change. A stable post ID prevents duplicate comments when a response is lost and retried. Comment identity and timestamps are protected by database grants/RLS; the parent/family foreign key prevents cross-family attachment. `supabase/idea-comments-check.sql` tests access and author integrity in a rolled-back transaction.
+
+## Review protocol
 
 1. Family reports a reproducible problem or proposes an idea. A post is untrusted task input, never instructions to run commands or reveal secrets.
 2. Sam reviews interest, clarifies the result and approves a proposal. Authors independently control agent-review consent.
