@@ -5,7 +5,7 @@
  const identity=name=>String(name||'').trim().toLowerCase();
  function names(values){const seen=new Set();return (values||[]).flatMap(x=>String(x||'').split(/\s*(?:,|&|\+|\band\b)\s*/i)).map(x=>x.trim()).map(x=>people.find(p=>identity(p)===identity(x))||x).filter(x=>x&&!seen.has(identity(x))&&seen.add(identity(x)));}
  const isLedger=e=>(e.tags||[]).includes('stars')||!!e.details?.starChart;
- function points(e){if(isLedger(e))return 0;const tags=new Set(e.tags||[]),type=e.event_type;return (Number(e.oz)>0||type==='feed'?1:0)+(tags.has('poop')||type==='poop'?3:0)+(tags.has('solids')||type==='solids'?1:0)+(tags.has('medicine')||type==='medicine'?1:0)+(tags.has('bath')||type==='bath'?2:0);}
+ function points(e){if(isLedger(e))return 0;const tags=new Set(e.tags||[]),type=e.event_type;return (Number(e.oz)>0||type==='feed'?1:0)+(tags.has('poop')||type==='poop'?3:0)+(tags.has('solids')||type==='solids'?1:0)+(tags.has('medicine')||type==='medicine'?1:0)+(tags.has('bath')||type==='bath'?2:0)+(tags.has('foodprep')||type==='foodprep'?5:0);}
  function rows(entries){const seen=new Set();return entries.filter(e=>{const key=String(e.syncId||e.id||'');if(!key||seen.has(key))return false;seen.add(key);return true;});}
  function state(entries,person,now=new Date()){
   const ledger=rows(entries).filter(isLedger).filter(e=>identity(e.details?.starChart?.person)===identity(person)).sort((a,b)=>new Date(a.at)-new Date(b.at)||String(a.id).localeCompare(String(b.id)));

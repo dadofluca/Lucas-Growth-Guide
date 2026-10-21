@@ -38,7 +38,7 @@ export function mountAchievements({getContext,getEntries,host}){
   week.append(element('small','',names.length?result.weekly.count+' entries logged'+(names.length>1?' · shared lead':''):'The first care log starts the week.'));host.append(week);
   const tools=element('div','achievementTools');tools.append(element('h2','','Calling cards'));
   if(flair.banner){const clear=element('button','tiny','No banner');clear.type='button';clear.dataset.equipBanner='';tools.append(clear);}
-  host.append(tools,element('p','achievementFoot','Most cards celebrate entries you logged. Quiet Legend celebrates care others credited to you. Hidden finds reveal themselves along the way.'));
+  host.append(tools,element('p','achievementFoot','Most cards celebrate entries you logged. Kitchen cards reward the credited cook through their linked family identity, even when someone else logs the batch. Quiet Legend celebrates care others credited to you. Hidden finds reveal themselves along the way.'));
   const grid=element('div','achievementGrid');
   const filters=element('div','callingCardFilters');for(const [value,label] of [['all','All cards'],['starter','Easy starters'],['ready','Unlocked'],['hidden','Classified']]){const button=element('button','',label);button.type='button';button.dataset.cardCategory=value;button.setAttribute('aria-pressed',String(category===value));filters.append(button);}host.append(filters);
   const ordered=[...achievements].sort((a,b)=>(a.tier==='starter'?0:a.hidden?2:1)-(b.tier==='starter'?0:b.hidden?2:1));
