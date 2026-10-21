@@ -1256,3 +1256,18 @@ test('P146: stars open to everyone and a row drills into an individual chart',as
  await page.addInitScript(()=>{localStorage.setItem('qa-remote-events',JSON.stringify([{id:'kj-open',baby_id:'qa-baby',event_time:'2026-10-19T20:00:00Z',event_type:'other',caregivers:['KJ'],note:'Opening stars',details:{starChart:{version:1,action:'opening',person:'KJ',delta:33,reason:'Already earned'}}}]));});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuStars').click();await expect(page.locator('#starPerson')).toHaveValue('');await expect(page.locator('#starOverview')).toContainText('Sam');await expect(page.locator('#starOverview')).toContainText('Maddie');await expect(page.locator('[data-star-person="KJ"]')).toContainText('33 ★');await expect(page.locator('#starAwardForm')).toBeHidden();await page.screenshot({animations:'disabled',path:'test-results/p146-everyone-stars-320.png'});await page.locator('[data-star-person="KJ"]').click();await expect(page.locator('#starBalance')).toHaveText('33');await expect(page.locator('#starOverview')).toBeHidden();await page.locator('#starPerson').selectOption('');await expect(page.locator('#starOverview')).toBeVisible();await expect(page.locator('#starAwardForm')).toBeHidden();
 });
+
+test("P120: narrow phone keeps title, Today controls and navigation usable",async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ await page.route("https://znhqaqvocexjsnklnqre.supabase.co/**",route=>route.abort());
+ await page.goto("http://127.0.0.1:8765/index.html",{waitUntil:"domcontentloaded"});
+ const m=await page.evaluate(()=>{
+  const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}};
+  return {title:box(".persistentTitle"),heading:box("#todayView .top"),nav:box("nav"),poop:box('.heroBtn[data-quick="poop"]'),viewport:innerWidth};
+ });
+ expect(m.title.bottom).toBeLessThanOrEqual(m.heading.y+2);
+ expect(m.nav.height).toBeLessThan(115);
+ expect(m.poop.width).toBeGreaterThanOrEqual(44);
+ expect(m.poop.height).toBeGreaterThanOrEqual(44);
+ expect(m.poop.x+m.poop.width).toBeLessThanOrEqual(m.viewport+2);
+});
