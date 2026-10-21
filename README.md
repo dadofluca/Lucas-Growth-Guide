@@ -1,4 +1,13 @@
-## Current release: P154 — 2026-10-20
+## Current release: P155 — 2026-10-21
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Bottle note counting #106](https://github.com/dadofluca/Lucas-Growth-Guide/pull/106)
+
+- Typed care entry now understands “Bottle, 8 oz” as one quantified bottle. The manual form also recognizes an exact standalone bottle-and-ounces note and previews that it will count before Save. Selected amounts and categories take precedence; deliberately clearing an existing amount during editing is respected. Ambiguous manual notes are left as notes.
+- Both bottle shortcuts were tested and already save structured ounces correctly. Read-only diagnosis found the reported entry came from manual entry; its missing amount had already been corrected. No family records were modified for this release.
+- **285 Node + 101 Chromium checks passed**, zero failed/flaky/skipped. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39657022220) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39657022225). Covered typed/manual/both shortcut entry paths, totals, reopening, conservative inference and explicit amount precedence. Reviewed the final 390px bottle card.
+- Public app/demo serve **P155** and all three changed runtime files match tested bytes. Reopen the app without clearing storage. Actual signed-in iPhone interaction and a second production phone remain separate confirmations.
+
+## Previous release: P154 — 2026-10-20
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Family idea discussions #105](https://github.com/dadofluca/Lucas-Growth-Guide/pull/105)
 
