@@ -1,12 +1,14 @@
 /** Family board; database policies, not display names, authorize the review desk. */
 import {statusLabels,joinIdeas,ideaUpdates,approvedExport} from './family-ideas-model.js';
+import {mountIdeaComments} from './idea-comments.js';
 export function mountIdeas({getClient,getFamilyId,getUser,getPerson=()=>'',root}){
- let cancelled=false,request=0,items=[],manager=false,busy=false,read=new Set(),scope='';
+ let cancelled=false,request=0,items=[],profileRows=[],manager=false,busy=false,read=new Set(),scope='';
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  root.innerHTML='<div class="ideasProtocol"><b>The suggestion box has a paper trail.</b><p>Family votes help Sam choose. Sam has the final say. No automatic repair worker is connected: an approved idea still needs a proposal, tests, and Sam’s publication approval.</p><button type="button" id="ideaRefresh">↻ Refresh board</button><button type="button" id="ideaExport" hidden>Export approved review brief</button></div><form id="ideaForm"><label>Posting as<input id="ideaAuthorName" maxlength="40" required placeholder="Your name"></label><label>Title <input id="ideaTitle" maxlength="100" minlength="3" required placeholder="What should we improve?"></label><label>Details <textarea id="ideaDetails" maxlength="2000" placeholder="What happened? What did you expect?"></textarea></label><label>Type <select id="ideaCategory"><option value="idea">Idea</option><option value="bug">Bug</option><option value="design">Design</option><option value="question">Question</option></select></label><label>Who can see this? <select id="ideaVisibility"><option value="family">Family board</option><option value="private">Private — only me</option></select></label><button type="submit" class="confirm">Post suggestion</button></form><p id="ideaStatus" role="status"></p><div id="ideaList"></div>';
  const $=id=>root.querySelector('#'+id),status=$('ideaStatus'),list=$('ideaList');
  const bubble=document.createElement('button');bubble.type='button';bubble.id='ideasBubble';bubble.className='ideasBubble';bubble.hidden=true;bubble.innerHTML='💡 <span id="ideasUnread"></span>';bubble.setAttribute('aria-label','New family ideas');document.body.append(bubble);
  const family=()=>{const f=getFamilyId();return typeof f==='object'?f?.id:f};
+ const discussions=mountIdeaComments({root:list,getClient,getFamilyId:family,getUser,getPerson});
  const key=()=> 'luca-ideas-read:v1:'+scope;
  const active=()=>document.getElementById('ideasView')?.classList.contains('active');
  function saveRead(){try{localStorage.setItem(key(),JSON.stringify([...read].slice(-500)));}catch{}}
@@ -15,12 +17,12 @@ export function mountIdeas({getClient,getFamilyId,getUser,getPerson=()=>'',root}
  function publish(){const same=scope===family()+':'+getUser()?.id;window.dispatchEvent(new CustomEvent('luca:idea-updates',{detail:{family:family(),user:getUser()?.id,items:same?ideaUpdates(items,getUser()?.id):[]}}));}
  function paint(){
   list.innerHTML=items.map(i=>'<article class="card ideaCard" data-idea-id="'+esc(i.id)+'"><div class="kicker">'+esc(i.category)+' · '+esc(statusLabels[i.status]||i.status)+' · '+(i.visibility==='private'?'🔒 Private':'👪 Family')+'</div><h3>'+esc(i.title)+'</h3><div class="ideaAuthor">Posted by '+esc(i.authorName)+'</div><p class="ideaDetails">'+esc(i.details)+'</p><small>'+esc(new Date(i.created_at).toLocaleString())+'</small><div class="ideaVotes" role="group" aria-label="Vote on '+esc(i.title)+'"><button type="button" data-vote="1" data-id="'+esc(i.id)+'" aria-pressed="'+(i.myVote===1)+'" aria-label="Upvote '+esc(i.title)+'">↑ '+i.up+'</button><button type="button" data-vote="-1" data-id="'+esc(i.id)+'" aria-pressed="'+(i.myVote===-1)+'" aria-label="Downvote '+esc(i.title)+'">↓ '+i.down+'</button><small>Votes inform. Sam decides.</small></div>'+(i.review?'<div class="ideaResponse"><b>Sam’s update · '+esc(statusLabels[i.status])+'</b><p>'+esc(i.review.response||'Status updated.')+'</p></div>':'')+(manager&&i.visibility==='family'?'<details class="ideaReview"><summary>Sam’s build desk</summary><label>Status<select data-review-status="'+esc(i.id)+'">'+Object.entries(statusLabels).map(([k,v])=>'<option value="'+k+'" '+(i.status===k?'selected':'')+'>'+v+'</option>').join('')+'</select></label><label>Reply to the person who sent this<textarea data-review-response="'+esc(i.id)+'" maxlength="1200" rows="2">'+esc(i.review?.response||'')+'</textarea></label><button type="button" data-review-save="'+esc(i.id)+'">Save update & notify author</button><small>“Addressed” is your confirmation, not an automatic claim that a fix shipped.</small></details>':'')+(i.author_id===getUser()?.id?'<label class="ideaConsent"><input type="checkbox" data-agent-review="'+esc(i.id)+'" '+(i.agent_review_approved?'checked':'')+'> Allow agents to review this post</label><button type="button" data-remove="'+esc(i.id)+'" class="tiny">Delete my suggestion</button>':'')+'</article>').join('');
-  $('ideaExport').hidden=!manager;paintBadge();publish();
+  $('ideaExport').hidden=!manager;discussions.sync(items,profileRows);paintBadge();publish();
  }
  async function load({quiet=false}={}){
   const sb=getClient(),fid=family(),user=getUser(),token=++request,next=fid+':'+user?.id;
-  if(next!==scope){if(scope)$('ideaForm').reset();$('ideaAuthorName').value='';scope=next;items=[];read=new Set();manager=false;list.replaceChildren();bubble.hidden=true;try{read=new Set(JSON.parse(localStorage.getItem(key())||'[]'));}catch{}}
-  if(!sb||!fid||!user?.id){items=[];bubble.hidden=true;status.textContent='Sign in to Family Sync to see or post suggestions.';publish();return;}
+  if(next!==scope){if(scope)$('ideaForm').reset();$('ideaAuthorName').value='';scope=next;items=[];profileRows=[];discussions.sync([],[]);read=new Set();manager=false;list.replaceChildren();bubble.hidden=true;try{read=new Set(JSON.parse(localStorage.getItem(key())||'[]'));}catch{}}
+  if(!sb||!fid||!user?.id){items=[];profileRows=[];discussions.sync([],[]);bubble.hidden=true;status.textContent='Sign in to Family Sync to see or post suggestions.';publish();return;}
   if(!quiet)status.textContent='Loading suggestions…';
   try{
    const [ideas,profiles,votes,reviews,managers]=await Promise.all([
@@ -32,12 +34,12 @@ export function mountIdeas({getClient,getFamilyId,getUser,getPerson=()=>'',root}
    ]);
    if(cancelled||token!==request||fid!==family()||user.id!==getUser()?.id)return;
    if(ideas.error)throw ideas.error;
-   manager=!managers.error&&!!managers.data?.length;
+   manager=!managers.error&&!!managers.data?.length;profileRows=profiles.data||[];
    if(!$('ideaAuthorName').value){const profile=profiles.data?.find(p=>p.user_id===user.id);$('ideaAuthorName').value=/^device-/i.test(profile?.display_name||'')?(getPerson()||''):(profile?.display_name||getPerson()||'');}
    items=joinIdeas(ideas.data||[],reviews.data||[],votes.data||[],profiles.data||[],user.id);
    status.textContent=items.length+' suggestion'+(items.length===1?'':'s')+(votes.error||reviews.error?' · Voting/review unavailable; try Refresh.':'');
    // Do not replace an open review form or lose the manager’s draft during polling.
-   if(!quiet||!list.querySelector('details[open]'))paint();else{paintBadge();publish();}
+   if(!quiet||!list.querySelector('details[open]'))paint();else{discussions.sync(items,profileRows);paintBadge();publish();}
    markRead();
   }catch{if(!cancelled&&token===request)status.textContent='Board unavailable. Your draft is still here. Try Refresh.';}
  }
@@ -62,5 +64,5 @@ export function mountIdeas({getClient,getFamilyId,getUser,getPerson=()=>'',root}
  const session=()=>load(),visible=()=>{if(document.visibilityState==='visible')load({quiet:true});};
  window.addEventListener('luca:family-session-ready',session);window.addEventListener('luca:session-changed',session);document.addEventListener('visibilitychange',visible);window.addEventListener('luca:request-idea-updates',publish);
  const timer=setInterval(()=>{if(document.visibilityState==='visible')load({quiet:true});},45000);load();
- return()=>{cancelled=true;request++;clearInterval(timer);bubble.remove();window.removeEventListener('luca:family-session-ready',session);window.removeEventListener('luca:session-changed',session);document.removeEventListener('visibilitychange',visible);window.removeEventListener('luca:request-idea-updates',publish);document.querySelector('nav [data-tab="ideas"]')?.removeEventListener('click',enter);};
+ return()=>{cancelled=true;discussions.destroy();request++;clearInterval(timer);bubble.remove();window.removeEventListener('luca:family-session-ready',session);window.removeEventListener('luca:session-changed',session);document.removeEventListener('visibilitychange',visible);window.removeEventListener('luca:request-idea-updates',publish);document.querySelector('nav [data-tab="ideas"]')?.removeEventListener('click',enter);};
 }

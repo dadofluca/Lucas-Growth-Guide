@@ -23,8 +23,8 @@
  }
  const canonical=value=>JSON.stringify(value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,JSON.parse(canonical(v))])):value);
  function query(table){
-  let action='read',payload=null,filters=[],single=false,count=false,head=false,ordering=null,maximum=null,options={};
-  const q={select(_columns,opts={}){count=!!opts.count;head=!!opts.head;return q},insert(v){action='insert';payload=v;return q},upsert(v,o={}){action='upsert';payload=v;options=o;return q},update(v){action='update';payload=v;return q},delete(){action='delete';return q},eq(k,v){filters.push(row=>k==='flair'?canonical(row.flair||{})===canonical(JSON.parse(v)):row[k]===v);return q},in(k,v){filters.push(row=>v.includes(row[k]));return q},gte(k,v){filters.push(row=>row[k]>=v);return q},lt(k,v){filters.push(row=>row[k]<v);return q},order(k,o={}){ordering={k,ascending:o.ascending!==false};return q},limit(n){maximum=n;return q},single(){single=true;return q},maybeSingle(){single=true;return q},abortSignal(){return q},then(resolve,reject){return Promise.resolve().then(()=>{
+  let action='read',payload=null,filters=[],single=false,count=false,head=false,ordering=[],maximum=null,options={};
+  const q={select(_columns,opts={}){count=!!opts.count;head=!!opts.head;return q},insert(v){action='insert';payload=v;return q},upsert(v,o={}){action='upsert';payload=v;options=o;return q},update(v){action='update';payload=v;return q},delete(){action='delete';return q},eq(k,v){filters.push(row=>k==='flair'?canonical(row.flair||{})===canonical(JSON.parse(v)):row[k]===v);return q},in(k,v){filters.push(row=>v.includes(row[k]));return q},gte(k,v){filters.push(row=>row[k]>=v);return q},lt(k,v){filters.push(row=>row[k]<v);return q},order(k,o={}){ordering.push({k,ascending:o.ascending!==false});return q},limit(n){maximum=n;return q},single(){single=true;return q},maybeSingle(){single=true;return q},abortSignal(){return q},then(resolve,reject){return Promise.resolve().then(()=>{
    let rows=read(table),selected=rows.filter(row=>filters.every(f=>f(row))),result=selected;
    if(action==='insert'||action==='upsert'){
     result=[];for(const value of Array.isArray(payload)?payload:[payload]){const keys=(options.onConflict||'id').split(','),old=action==='upsert'?rows.find(row=>keys.every(k=>row[k]===value[k])):null;
@@ -34,7 +34,7 @@
     }write(table,rows);
    }else if(action==='update'){if(table==='family_idea_reviews')payload={...payload,updated_at:new Date().toISOString()};result=selected.map(row=>({...row,...payload}));write(table,rows.map(row=>selected.includes(row)?{...row,...payload}:row));}
    else if(action==='delete')write(table,rows.filter(row=>!selected.includes(row)));
-   if(ordering)result=[...result].sort((a,b)=>String(a[ordering.k]).localeCompare(String(b[ordering.k]))*(ordering.ascending?1:-1));
+   if(ordering.length)result=[...result].sort((a,b)=>{for(const o of ordering){const d=String(a[o.k]).localeCompare(String(b[o.k]))*(o.ascending?1:-1);if(d)return d}return 0});
    const total=result.length;if(maximum!=null)result=result.slice(0,maximum);
    return {data:head?null:structuredClone(single?result[0]||null:result),count:count?total:null,error:null};
   }).then(resolve,reject);}};return q;
