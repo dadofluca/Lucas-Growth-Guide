@@ -1,4 +1,13 @@
-## Current release: P155 — 2026-10-21
+## Current release: P156 — 2026-10-21
+
+[Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Homemade food batches #107](https://github.com/dadofluca/Lucas-Growth-Guide/pull/107)
+
+- Food prep · +5 creates a separate homemade-food batch event through the Today shortcut, manual category or confirmed typed update. Ingredients and portions stay in the note, not milk/eaten-food totals. Each credited cook gets **5 care leaderboard points** per batch; editing or reopening does not award again, and deleting the batch removes its points. Spendable Stars and their permissions are unchanged.
+- Kitchen banners: **Tiny Sous-Chef** at 1 batch, **Freezer Fairy** at 3, **Purée Professional** gold mastery at 10. The credited cook’s linked family identity earns the kitchen card even when someone else logs the work. Prep also contributes to Quiet Legend recognition. Supply alerts in the same update remain available.
+- **292 Node + 103 Chromium checks passed**, zero failed/flaky/skipped. [Code checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39685923137) · [Browser checks](https://github.com/dadofluca/Lucas-Growth-Guide/actions/runs/39685923146). Reviewed final 390px scoring and kitchen-banner layouts, including equip/reopen persistence.
+- Public app/demo serve **P156** and all eight changed runtime files match tested bytes. Reopen without clearing storage. Actual iPhone interaction, a second production family phone and Muse ingestion remain separate confirmations.
+
+## Previous release: P155 — 2026-10-21
 
 [Live app](https://dadofluca.github.io/Lucas-Growth-Guide/) · [Bottle note counting #106](https://github.com/dadofluca/Lucas-Growth-Guide/pull/106)
 
