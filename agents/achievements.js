@@ -1,6 +1,9 @@
 import './caregiver-credit.js';
 // Cosmetic achievements, derived from real records. No points affect care decisions.
 export const achievements=[
+ {id:'tiny-sous-chef',name:'Tiny Sous-Chef',icon:'🍲',tone:'sage',description:'Your first homemade baby-food batch. The tiny tasting committee awaits.',target:1,metric:'foodBatches',hint:'Make 1 homemade baby-food batch. Credit the cook, even when someone else logs it.'},
+ {id:'freezer-fairy',name:'Freezer Fairy',icon:'🧊',tone:'lavender',description:'Three homemade batches. Future-you has a very thoughtful friend.',target:3,metric:'foodBatches',hint:'Be credited for making 3 homemade baby-food batches.'},
+ {id:'puree-professional',name:'Purée Professional',icon:'👨‍🍳',tone:'gold',mastery:true,description:'Ten homemade batches. One tiny customer. A surprisingly serious kitchen.',target:10,metric:'foodBatches',hint:'Be credited for making 10 homemade baby-food batches.'},
  {id:'first-checkin',name:'Fresh Recruit',icon:'✦',tone:'sage',tier:'starter',description:'You showed up. The tiny boss appreciates a warm body.',target:1,metric:'visits',hint:'Open the app while signed in. Your first card is ready.'},
  {id:'first-diaper',name:'First Responder',icon:'🧻',tone:'clay',tier:'starter',description:'One diaper logged. Welcome to the containment team.',target:1,metric:'diapers',hint:'Log your first poop diaper.'},
  {id:'sleep-scribe',name:'Ceasefire Clerk',icon:'☾',tone:'lavender',tier:'starter',description:'A sleep entry logged. The boss has temporarily stopped issuing demands.',target:1,metric:'sleep',hint:'Log your first sleep entry.'},
@@ -67,6 +70,8 @@ export function evaluateAchievements({events=[],userId,flair={},chatCount=null,n
  metrics.starterSet=[metrics.visits>0,metrics.total>0,metrics.diapers>0,metrics.sleep>0].filter(Boolean).length;
  metrics.baths=mine.filter(e=>(e.tags||[]).includes('bath')||e.event_type==='bath').length;
  const person=identities.find(x=>x.user_id===userId)?.person;
+ // The maker earns these, not the account that happened to log the batch.
+ metrics.foodBatches=person?valid.filter(e=>((e.tags||[]).includes('foodprep')||e.event_type==='foodprep')&&(e.people||[]).some(p=>String(p).trim().toLowerCase()===person.trim().toLowerCase())).length:0;
  metrics.quietLegend=globalThis.LucaCaregiverCredit.summary(valid,person,{identities,babyId,now}).earned?1:0;
  const eligible=achievements.filter(a=>a.hidden?f.eggs.includes(a.id):metrics[a.metric]>=a.target).map(a=>a.id);
  const unlocked=unique([...f.unlocked,...eligible]);

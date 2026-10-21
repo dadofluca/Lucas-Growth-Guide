@@ -12,7 +12,7 @@
    if(!id||seen.has(id)||!Number.isFinite(at)||at>+new Date(now)||e.test_event||e.details?.test_event||tags.includes('stars')||e.details?.starChart||(babyId&&(e.babyId||e.baby_id)&&(e.babyId||e.baby_id)!==babyId))continue;
    seen.add(id);
    if(!author||author===target||!names(e.people||e.caregivers).includes(target))continue;
-   if(!(Number(e.oz??e.amount_oz)>0||['feed','feeding','poop','pee','sleep','solids','medicine','bath','walk','play'].includes(e.event_type)||tags.some(t=>['poop','pee','sleep','solids','medicine','bath','walk','play'].includes(t))))continue;
+   if(!(Number(e.oz??e.amount_oz)>0||['feed','feeding','poop','pee','sleep','solids','foodprep','medicine','bath','walk','play'].includes(e.event_type)||tags.some(t=>['poop','pee','sleep','solids','foodprep','medicine','bath','walk','play'].includes(t))))continue;
    count++;days.add(day(e.at));loggers.add(author);
   }
   return {count,days:days.size,loggers:loggers.size,earned:count>=5&&days.size>=3};

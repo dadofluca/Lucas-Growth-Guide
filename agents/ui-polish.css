@@ -342,6 +342,8 @@ body#lucaApp .pickerTitle{font-size:15px;letter-spacing:-.025em;background:trans
 @media(prefers-reduced-motion:reduce){.masteryCard:after{animation:none!important}}
 .heroBtns #moreBtn{grid-column:1/-1;min-height:38px!important;flex-direction:row!important;gap:8px}
 .heroBtns #moreBtn span{font-size:18px!important}
+.heroBtns .foodPrepShortcut{grid-column:1/-1;min-height:48px!important;flex-direction:row!important;gap:8px;background:#eee1bf!important;color:#30473d!important}
+.heroBtns .foodPrepShortcut span{font-size:24px!important}
 .clarifyBtns [aria-pressed="true"]{background:#d1e2d4!important;box-shadow:inset 0 0 0 2px #709882;color:#203f34!important}
 .quickSharedCredit{margin:9px 0;color:#425a4c;font-size:12px}
 .quickSharedCredit summary{min-height:36px;display:flex;align-items:center;cursor:pointer;font-weight:750}
