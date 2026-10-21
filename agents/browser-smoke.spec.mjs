@@ -1,6 +1,25 @@
 import {test,expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+test('P155: typed bottle, manual bottle note and both bottle shortcuts count once and survive reload',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.emulateMedia({reducedMotion:'reduce'});await page.clock.setFixedTime(new Date('2026-10-21T18:00:00Z'));
+ await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());
+ await page.locator('#quickText').fill('Bottle, 8 oz');await page.locator('#quickUnderstand').click();await expect(page.locator('#inlineItems')).toContainText('Bottle — 8 oz');await expect(page.locator('#inlineSave')).toBeEnabled();await page.locator('#inlineSave').click();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);await expect(page.locator('#oz')).toHaveText('8');
+ await page.locator('#moreBtn').click();await page.locator('#notes').fill('Bottle, 8 oz');await expect(page.locator('#bottleNoteHint')).toContainText('included in your totals');await page.locator('#saveEntry').click();await expect(page.locator('#manualComposer')).not.toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);await expect(page.locator('#oz')).toHaveText('16');
+ for(const selector of ['#topQuickBottle','[data-quick="8 oz"]']){await page.locator(selector).click();await page.locator('[data-quick-oz="8"]').click();}
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(4);await expect(page.locator('#oz')).toHaveText('32');await expect(page.locator('#feeds')).toHaveText('4');
+ const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.every(r=>r.event_type==='feed'&&r.amount_oz===8)).toBe(true);expect(rows.filter(r=>r.details.source==='quick-bottle')).toHaveLength(2);expect(rows.find(r=>r.details.source==='manual').note).toBe('Bottle, 8 oz');
+ await page.reload();await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await expect(page.locator('#oz')).toHaveText('32');await expect(page.locator('#feeds')).toHaveText('4');await expect(page.locator('#timeline .entry')).toHaveCount(4);await page.screenshot({animations:'disabled',path:'test-results/p155-bottle-totals-390.png'});
+});
+
+test('P155: note inference is visible, conservative and cannot override explicit bottle selections',async({page})=>{
+ await syntheticCareBackend(page);await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#moreBtn').click();
+ await page.locator('#notes').fill('Bottle, 8 oz tomorrow');await expect(page.locator('#bottleNoteHint')).toBeEmpty();await page.locator('#saveEntry').click();await expect(page.locator('#manualComposer')).not.toBeVisible();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(1);
+ await page.locator('#moreBtn').click();await page.locator('#notes').fill('Bottle, 8 oz');await page.locator('#manualComposer [data-oz="6"]').click();await expect(page.locator('#bottleNoteHint')).toBeEmpty();await page.locator('#saveEntry').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')||'[]').length)).toBe(2);const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('qa-remote-events')));expect(rows.find(r=>r.note.includes('tomorrow')).amount_oz).toBeNull();expect(rows.find(r=>r.note==='Bottle, 8 oz').amount_oz).toBe(6);
+});
+
 test('P154: idea discussions persist, keep failed drafts, dedupe a lost reply and isolate family changes',async({page})=>{
  await page.setViewportSize({width:390,height:844});await syntheticCareBackend(page);await page.addInitScript(()=>{localStorage.setItem('qa-family_ideas',JSON.stringify([{id:'discussion-a',family_id:'qa-family',author_id:'qa-user',author_name:'Sam',title:'A calmer morning',details:'Discuss our morning routine.',category:'idea',visibility:'family',status:'new',created_at:'2026-10-20T12:00:00Z'},{id:'discussion-b',family_id:'qa-family',author_id:'qa-nona',author_name:'Nona',title:'Weekend walks',details:'A separate discussion.',category:'idea',visibility:'family',status:'new',created_at:'2026-10-20T11:00:00Z'}]));localStorage.setItem('qa-profiles',JSON.stringify([{family_id:'qa-family',user_id:'qa-user',display_name:'Sam'},{family_id:'qa-family',user_id:'qa-nona',display_name:'Nona'}]));if(!localStorage.getItem('qa-family_idea_comments'))localStorage.setItem('qa-family_idea_comments',JSON.stringify([{id:'nona-comment',idea_id:'discussion-a',family_id:'qa-family',author_id:'qa-nona',author_name:'Old name',body:'Let’s get everything ready the night before.',created_at:'2026-10-20T12:10:00Z'},{id:'other-thread',idea_id:'discussion-b',family_id:'qa-family',author_id:'qa-nona',author_name:'Nona',body:'Only on the weekend idea.',created_at:'2026-10-20T12:11:00Z'}]));});
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});await expect(page.locator('#syncDot')).toHaveText('☁️ Timeline synced');await page.evaluate(()=>document.getElementById('bootCinematic')?.remove());await page.locator('#navMore').click();await page.locator('#menuIdeas').click();const thread=page.locator('[data-idea-discussion="discussion-a"]');await thread.locator('summary').click();await expect(thread.locator('.ideaComment strong')).toHaveText('Nona');await expect(thread).not.toContainText('Only on the weekend');await expect(thread.locator('[data-comment-delete]')).toHaveCount(0);
@@ -799,9 +818,9 @@ test('P132: quick bottle survives refresh, History editing, offline retry and re
 test('P132: loaded build and runtime use the same visible version',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.route('https://znhqaqvocexjsnklnqre.supabase.co/**',route=>route.abort());
  await page.goto('http://127.0.0.1:8765/index.html',{waitUntil:'domcontentloaded'});
- await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P154');
+ await expect(page.locator('#buildVersion')).toBeVisible();await expect(page.locator('#buildVersion')).toHaveText('P155');
  await expect(page.locator('#lucaNow')).toHaveCount(0);
- await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P154');
+ await expect.poll(()=>page.evaluate(()=>window.LUCA_PATCH)).toBe('P155');
 });
 
 
