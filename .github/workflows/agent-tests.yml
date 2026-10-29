@@ -55,6 +55,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check Playwright runner compatibility
+        run: node --test agents/ci-runner.test.mjs
       - name: Unit checks and diagnostic evidence
         run: node agents/doctor.mjs --run
       - name: Verify synthetic Watchdog-to-Builder handoff
